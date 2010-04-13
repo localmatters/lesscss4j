@@ -31,8 +31,9 @@ public class Test {
         new Test().processFile(args[0]);
     }
 
-    public void processFile(String filename) throws IOException {
+    public void processFile(String filename) throws Exception {
         Css21Lexer lexer = new Css21Lexer(new ANTLRFileStream(filename, "UTF-8"));
         Css21Parser parser = new Css21Parser(new CommonTokenStream(lexer));
+        parser.styleSheet();
     }
 }

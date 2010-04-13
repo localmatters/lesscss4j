@@ -19,11 +19,16 @@ parser grammar Css21Parser;
 
 options {
     language=Java;
+    tokenVocab = Css21Lexer;
 }
 
 @header {
 package org.lesscss4j.parser;
 }
+@lexer::header {
+package org.lesscss4j.parser;
+}
+  
 
 // -------------
 // Main rule.   This is the main entry rule for the parser, the top level

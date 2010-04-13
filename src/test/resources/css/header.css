@@ -1,0 +1,160 @@
+/*
+ * $Id$
+ * $URL$
+ */
+
+#hdr {
+    background: url(../img/gradient_hdr.png) repeat-x left top;
+    height: 44px;
+    border-bottom: 1px solid #b2b2b2;
+    color: #fff;
+    background-color: #208cc8;
+    overflow: hidden;
+}
+
+#hdr .logo {
+    padding: 8px 0;
+    float: left;
+}
+#hdr .logo:hover {
+    text-decoration: none;
+}
+#hdr .logo img {
+    float: left;
+    padding: 2px 0 0 22px;
+}
+
+#hdr .customTitle {
+    background: url(../img/logo.png) no-repeat;
+    padding-left: 35px;
+    margin: 5px 0 0 5px;
+}
+
+#hdr.tabbed .logo {
+    padding-right: 8px;
+}
+#hdrMolding {
+    background: url(../img/hdr_molding.png) repeat-x;
+    height: 7px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #b2b2b2;
+}
+.ie #hdrMolding,
+.ie #hdr {
+    overflow: hidden;
+}
+/*
+ * "title" text
+ */
+
+#hdr h1 {
+    margin: 0 12px 0 0;
+    padding: 2px 8px;
+    float: left;
+    font-size: 22px;
+    color: #fff;
+    border: none;
+}
+
+/*
+ * Navigation
+ */
+
+#hdr .hdrNav {
+    overflow: visible;
+}
+#hdr .hdrNav li {
+    margin: 18px 9px 0 0;
+    font-size: 14px;
+    width: auto;
+    text-align: center;
+    padding-left: 12px;
+}
+
+.ie #hdr .hdrNav li {
+    padding-right: 0;
+    margin-right: 3px;
+}
+#hdr .hdrNav li a {
+    display: block;
+    margin-right: -6px;
+    padding-right: 12px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.ie #hdr .hdrNav li a {
+	margin-right: 0;
+}
+#hdr .hdrNav li.active {
+    position: relative;
+    padding: 0 0 0 12px;
+}
+#hdr .hdrNav a:hover {
+    text-decoration: underline;
+}
+/*
+ * user links
+ */
+
+#userLinks {
+    float: right;
+    margin: 18px 10px 0 0;
+}
+
+#userLinks ul {
+    float: right;
+}
+#userLinks li, 
+#userlinks li.ds {
+    color: #fff;
+    text-align: right;
+    margin-left: 12px;
+}
+
+#userLinks li.facebook {
+    background: url(../img/facebook/fb_login_icon_blue.png) no-repeat 0 2px;
+    padding: 0 0 1px 22px;
+}
+#userLinks li.myspace {
+    background: url(../img/facebook/social_icons.gif) no-repeat 0 -29px;
+    padding: 0 0 1px 25px;
+}
+#userLinks li.twitter {
+    background: url(../img/facebook/social_icons.gif) no-repeat 0 -80px;
+    padding: 0 0 1px 25px;
+}
+#userLinks li.delicious {
+    background: url(../img/facebook/social_icons.gif) no-repeat 0 -56px;
+    padding: 0 0 1px 25px;
+}
+#userLinks li a {
+    color: #fff;
+    text-decoration: underline;
+}
+#userLinks li span {
+    padding: 0 10px;
+}
+
+#userLinks.loggedout {
+    float: right;
+    margin: 18px 10px 0 0;
+}
+#userLinks.loggedout li {
+    margin-left: 0px;
+}
+
+#hdr .avatar {
+    width: 33px;
+    height: 33px;
+    float: right;
+    padding: 5px 16px 0 0;
+}
+.hdrBtmLip {
+    background: url(../img/gradient/bg_hdr_btm_lip.png) repeat-x left top;
+    padding: 10px 0 4px;
+}
+.ie .hdrBtmLip {
+    padding-bottom: 0;
+    margin-bottom: -2px;
+}
