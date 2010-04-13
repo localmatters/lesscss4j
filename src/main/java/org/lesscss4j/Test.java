@@ -15,8 +15,6 @@
  */
 package org.lesscss4j;
 
-import java.io.IOException;
-
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.lesscss4j.parser.Css21Lexer;
@@ -34,6 +32,7 @@ public class Test {
     public void processFile(String filename) throws Exception {
         Css21Lexer lexer = new Css21Lexer(new ANTLRFileStream(filename, "UTF-8"));
         Css21Parser parser = new Css21Parser(new CommonTokenStream(lexer));
-        parser.styleSheet();
+        Css21Parser.styleSheet_return result = parser.styleSheet();
+        result.getTree();
     }
 }

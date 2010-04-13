@@ -17,6 +17,10 @@
 //
 grammar Css21;
 
+options {
+    output = AST;
+}
+
 @header {
 package org.lesscss4j.parser;
 }
