@@ -28,6 +28,7 @@ tokens {
     SPACE;
     CHARSET;
     IMPORT;
+    PROP_VALUE;
 }
 
 @header {
@@ -45,18 +46,18 @@ package org.lesscss4j.parser;
 // of imports, and then the main body of style rules.
 //
 styleSheet  
-    :   WS*
-        (charSet WS*)? 
-        (cssImport WS*)*
-        (bodyset WS*)*
-     EOF
+    : WS*
+      (charSet WS*)?
+      (cssImport WS*)*
+      (bodyset WS*)*
+      EOF
     ;
     
 // -----------------
 // Character set.   Picks up the user specified character set, should it be present.
 //
 charSet
-    :   CHARSET_SYM WS* STRING WS* SEMI
+    : CHARSET_SYM WS* STRING WS* SEMI
     -> ^(CHARSET STRING)
     ;
 
@@ -64,7 +65,7 @@ charSet
 // Import.  Location of an external style sheet to include in the ruleset.
 //
 cssImport
-    :   IMPORT_SYM WS* cssImportLocation  (WS* medium (WS* COMMA WS* medium)*)? WS* SEMI
+    : IMPORT_SYM WS* cssImportLocation  (WS* medium (WS* COMMA WS* medium)*)? WS* SEMI
     -> ^(IMPORT cssImportLocation medium*)
     ;
     
@@ -116,13 +117,9 @@ combinator
     | WS+
     ;
         
-property
-    : STAR? IDENT
-    ;
-    
 ruleSet
-    : selector (WS* COMMA WS* selector)* WS* LBRACE WS* declaration  (WS* declaration)* WS* RBRACE
-    -> ^(RULESET ^(SELECTOR selector)+ ^(DECLARATION declaration)+)
+    : selector (WS* COMMA WS* selector)* WS* LBRACE (WS* declaration)* WS* RBRACE
+    -> ^(RULESET ^(SELECTOR selector)+ ^(DECLARATION declaration)*)
     ;
 
 selector
@@ -156,41 +153,41 @@ elementName
 
 attrib
     : LBRACKET
-
         IDENT
-
             (
-                (
-                      OPEQ
-                    | INCLUDES
-                    | DASHMATCH
-                )
-                (
-                      IDENT
-                    | STRING
-                )
+                ( OPEQ | INCLUDES | DASHMATCH )
+                ( IDENT | STRING )
             )?
-
       RBRACKET
 ;
 
 pseudo
-    : COLON
-            IDENT
-                ( // Function
-
-                    LPAREN IDENT? RPAREN
-                )?
+    : COLON COLON? IDENT ( LPAREN IDENT? RPAREN )?
     ;
 
 declaration
     : property WS* COLON WS* propertyValue (WS* important)? WS* SEMI
-    -> ^(property propertyValue important?)
+    -> ^(property ^(PROP_VALUE propertyValue) important?)
+    ;
+
+property
+    : STAR? IDENT
+    -> ^(IDENT STAR?)
     ;
     
 propertyValue
     : ieExpression
     | expr
+    ;
+
+// Internet Explorer specific functions
+ieExpression
+    : ('expression' | 'alpha')  LPAREN ieExprTerm RPAREN
+    ;
+
+ieExprTerm
+    : (STRING|'&'|'?'|~('&'|'?'|'('|')'|STRING))*
+      ( LPAREN ieExprTerm RPAREN (STRING | ~('('|')'|STRING))* )*
     ;
 
 important
@@ -200,15 +197,7 @@ important
 expr 
     : term ((WS+|WS* operator WS*) term)*
     ;
- 
-ieExpression
-    : 'expression'  LPAREN ieExprTerm RPAREN
-    ;  
 
-ieExprTerm 
-    : (STRING | ~('('|')'|STRING) )* (LPAREN ieExprTerm RPAREN (STRING | ~('('|')'|STRING) )*)*
-    ;
-    
 term
     : unaryOperator?
         (
@@ -338,196 +327,42 @@ fragment    URL         : (
 // however call a further fragment rule to consume these characters for
 // reasons of performance - the rules are still eminently readable.
 //
-fragment    A   :   ('a'|'A')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'1'
-                ;
-fragment    B   :   ('b'|'B')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'2'
-                ;
-fragment    C   :   ('c'|'C')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'3'
-                ;
-fragment    D   :   ('d'|'D')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'4'
-                ;
-fragment    E   :   ('e'|'E')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'5'
-                ;
-fragment    F   :   ('f'|'F')
-                |   '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'6'
-                ;
-fragment    G   :   ('g'|'G')
-                |   '\\'
-                        (
-                              'g'
-                            | 'G'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'7'
-                        )
-                ;
-fragment    H   :   ('h'|'H')
-                | '\\' 
-                        (
-                              'h'
-                            | 'H'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'8'
-                        )   
-                ;
-fragment    I   :   ('i'|'I')
-                | '\\' 
-                        (
-                              'i'
-                            | 'I'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'9'
-                        )
-                ;
-fragment    J   :   ('j'|'J')
-                | '\\' 
-                        (
-                              'j'
-                            | 'J'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('A'|'a')
-                        )   
-                ;
-fragment    K   :   ('k'|'K')
-                | '\\' 
-                        (
-                              'k'
-                            | 'K'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('B'|'b')
-                        )   
-                ;
-fragment    L   :   ('l'|'L')
-                | '\\' 
-                        (
-                              'l'
-                            | 'L'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('C'|'c')
-                        )   
-                ;
-fragment    M   :   ('m'|'M')
-                | '\\' 
-                        (
-                              'm'
-                            | 'M'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('D'|'d')
-                        )   
-                ;
-fragment    N   :   ('n'|'N')
-                | '\\' 
-                        (
-                              'n'
-                            | 'N'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('E'|'e')
-                        )   
-                ;
-fragment    O   :   ('o'|'O')
-                | '\\' 
-                        (
-                              'o'
-                            | 'O'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('F'|'f')
-                        )   
-                ;
-fragment    P   :   ('p'|'P')
-                | '\\'
-                        (
-                              'p'
-                            | 'P'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('0')
-                        )   
-                ;
-fragment    Q   :   ('q'|'Q')
-                | '\\' 
-                        (
-                              'q'
-                            | 'Q'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('1')
-                        )   
-                ;
-fragment    R   :   ('r'|'R')
-                | '\\' 
-                        (
-                              'r'
-                            | 'R'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('2')
-                        )   
-                ;
-fragment    S   :   ('s'|'S')
-                | '\\' 
-                        (
-                              's'
-                            | 'S'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('3')
-                        )   
-                ;
-fragment    T   :   ('t'|'T')
-                | '\\' 
-                        (
-                              't'
-                            | 'T'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('4')
-                        )   
-                ;
-fragment    U   :   ('u'|'U')
-                | '\\' 
-                        (
-                              'u'
-                            | 'U'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('5')
-                        )
-                ;
-fragment    V   :   ('v'|'V')
-                | '\\' 
-                        (     'v'
-                            | 'V'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('6')
-                        )
-                ;
-fragment    W   :   ('w'|'W')
-                | '\\' 
-                        (
-                              'w'
-                            | 'W'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('7')
-                        )   
-                ;
-fragment    X   :   ('x'|'X')
-                | '\\' 
-                        (
-                              'x'
-                            | 'X'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('8')
-                        )
-                ;
-fragment    Y   :   ('y'|'Y')
-                | '\\' 
-                        (
-                              'y'
-                            | 'Y'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('9')
-                        )
-                ;
-fragment    Z   :   ('z'|'Z')  
-                | '\\' 
-                        (
-                              'z'
-                            | 'Z'
-                            | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('A'|'a')
-                        )
-                ;
-
+fragment    A   :   ('a'|'A') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'1' ;
+fragment    B   :   ('b'|'B') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'2' ;
+fragment    C   :   ('c'|'C') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'3' ;
+fragment    D   :   ('d'|'D') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'4' ;
+fragment    E   :   ('e'|'E') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'5' ;
+fragment    F   :   ('f'|'F') | '\\' ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'6' ;
+fragment    G   :   ('g'|'G') | '\\' ( 'g' | 'G' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'7' ) ;
+fragment    H   :   ('h'|'H') | '\\' ( 'h' | 'H' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'8' ) ;
+fragment    I   :   ('i'|'I') | '\\' ( 'i' | 'I' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')'9' ) ;
+fragment    J   :   ('j'|'J') | '\\' ( 'j' | 'J' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('A'|'a') ) ;
+fragment    K   :   ('k'|'K') | '\\' ( 'k' | 'K' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('B'|'b') ) ;
+fragment    L   :   ('l'|'L') | '\\' ( 'l' | 'L' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('C'|'c') ) ;
+fragment    M   :   ('m'|'M') | '\\' ( 'm' | 'M' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('D'|'d') ) ;
+fragment    N   :   ('n'|'N') | '\\' ( 'n' | 'N' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('E'|'e') ) ;
+fragment    O   :   ('o'|'O') | '\\' ( 'o' | 'O' | ('0' ('0' ('0' '0'?)?)?)? ('4'|'6')('F'|'f') ) ;
+fragment    P   :   ('p'|'P') | '\\' ( 'p' | 'P' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('0') ) ;
+fragment    Q   :   ('q'|'Q') | '\\' ( 'q' | 'Q' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('1') ) ;
+fragment    R   :   ('r'|'R') | '\\' ( 'r' | 'R' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('2') ) ;
+fragment    S   :   ('s'|'S') | '\\' ( 's' | 'S' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('3') ) ;
+fragment    T   :   ('t'|'T') | '\\' ( 't' | 'T' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('4') ) ;
+fragment    U   :   ('u'|'U') | '\\' ( 'u' | 'U' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('5') ) ;
+fragment    V   :   ('v'|'V') | '\\' ( 'v' | 'V' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('6') ) ;
+fragment    W   :   ('w'|'W') | '\\' ( 'w' | 'W' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('7') ) ;
+fragment    X   :   ('x'|'X') | '\\' ( 'x' | 'X' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('8') ) ;
+fragment    Y   :   ('y'|'Y') | '\\' ( 'y' | 'Y' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('9') ) ;
+fragment    Z   :   ('z'|'Z') | '\\' ( 'z' | 'Z' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('A'|'a') ) ;
 
 // -------------
 // Comments.    Comments may not be nested, may be multilined and are delimited
 //              like C comments: /* ..... */
+//              LessCSS supports line comments too of the form //....
 //              COMMENTS are hidden from the parser which simplifies the parser 
 //              grammar a lot.
 //
-COMMENT         : '/*' ( options { greedy=false; } : .*) '*/'
-    
-                    {
-                        $channel = 2;   // Comments on channel 2 in case we want to find them
-                    }
+COMMENT         : ('/*' ( options { greedy=false; } : .*) '*/' | '/' '/' (~('\n'|'\r'|'\f'))*) 
+                    { $channel = 2; }  // Comments on channel 2 in case we want to find them
                 ;
 
 // ---------------------
@@ -536,11 +371,7 @@ COMMENT         : '/*' ( options { greedy=false; } : .*) '*/'
 //                      They comment open is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDO             : '<!--'
-
-                    {
-                        $channel = 3;   // CDO on channel 3 in case we want it later
-                    }
+CDO             : '<!--' { $channel = 3; }  // CDO on channel 3 in case we want it later
                 ;
     
 // ---------------------            
@@ -549,11 +380,7 @@ CDO             : '<!--'
 //                      They comment close is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDC             : '-->'
-
-                    {
-                        $channel = 4;   // CDC on channel 4 in case we want it later
-                    }
+CDC             : '-->' { $channel = 4; }  // CDC on channel 4 in case we want it later
                 ;
                 
 INCLUDES        : '~='      ;
@@ -580,17 +407,8 @@ DOT             : '.'       ;
 // Literal strings. Delimited by either ' or "
 //
 fragment    INVALID :;
-STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* 
-                    (
-                          '\''
-                        | { $type = INVALID; }
-                    )
-                    
-                | '"' ( ~('\n'|'\r'|'\f'|'"') )*
-                    (
-                          '"'
-                        | { $type = INVALID; }
-                    )
+STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; } )
+                | '"'  ( ~('\n'|'\r'|'\f'|'"')  )* ( '"'  | { $type = INVALID; } )
                 ;
 
 // -------------
@@ -606,7 +424,7 @@ HASH            : '#' NAME              ;
 IMPORT_SYM      : '@' I M P O R T       ;
 PAGE_SYM        : '@' P A G E           ;
 MEDIA_SYM       : '@' M E D I A         ;
-CHARSET_SYM     : '@charset'           ;
+CHARSET_SYM     : '@charset'            ;
 
 IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
 
@@ -630,50 +448,29 @@ fragment    DIMENSION   :;  // nnn'Somethingnotyetinvented'
 fragment    PERCENTAGE  :;  // '%'
 
 NUMBER
-    :   (
-              '0'..'9'+ ('.' '0'..'9'+)?
-            | '.' '0'..'9'+
-        )
+    :   ( '0'..'9'+ ('.' '0'..'9'+)? | '.' '0'..'9'+ )
         (
               (E (M|X))=>
                 E
                 (
-                      M     { $type = EMS;          }
-                    | X     { $type = EXS;          }
+                      M         { $type = EMS;          }
+                    | X         { $type = EXS;          }
                 )
             | (P(X|T|C))=>
-                P
+               P ( X | T | C )  { $type = LENGTH;       }
+            | (C M)=> C M       { $type = LENGTH;       }
+            | (M (M|S))=> M
                 (
-                      X     
-                    | T
-                    | C
+                      M         { $type = LENGTH;       }
+                    | S         { $type = TIME;         }
                 )
-                            { $type = LENGTH;       }   
-            | (C M)=>
-                C M         { $type = LENGTH;       }
-            | (M (M|S))=> 
-                M
-                (
-                      M     { $type = LENGTH;       }
-            
-                    | S     { $type = TIME;         }
-                )
-            | (I N)=>
-                I N         { $type = LENGTH;       }
-            
-            | (D E G)=>
-                D E G       { $type = ANGLE;        }
-            | (R A D)=>
-                R A D       { $type = ANGLE;        }
-            
-            | (S)=>S        { $type = TIME;         }
-                
-            | (K? H Z)=>
-                K? H    Z   { $type = FREQ;         }
-            
-            | IDENT         { $type = DIMENSION;    }
-            
-            | '%'           { $type = PERCENTAGE;   }
+            | (I N)=> I N       { $type = LENGTH;       }
+            | (D E G)=> D E G   { $type = ANGLE;        }
+            | (R A D)=> R A D   { $type = ANGLE;        }
+            | (S)=>S            { $type = TIME;         }
+            | (K? H Z)=> K? H Z { $type = FREQ;         }
+            | IDENT             { $type = DIMENSION;    }
+            | '%'               { $type = PERCENTAGE;   }
             
         )?
     ;
@@ -695,10 +492,7 @@ fragment URL_NO_WS  : ~('\n'|'\r'|'\f'|'\''|'"'|')'|' '|'\t')  ;
 //              that process the whitespace within the parser, ANTLR does not
 //              need to deal with the whitespace directly in the parser.
 //
-WS
-    : ( ' ' | '\t' | '\r' | '\n' | '\f' )+
-    ;
-
+WS : ( ' ' | '\t' | '\r' | '\n' | '\f' )+ ;
 
 // -------------
 //  Illegal.    Any other character shoudl not be allowed.

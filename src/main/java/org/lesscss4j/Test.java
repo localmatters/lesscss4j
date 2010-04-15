@@ -96,6 +96,7 @@ public class Test {
     protected void processRuleset(Tree tree, Writer writer) throws IOException {
         int selectorCount = 0;
         int declarationCount = 0;
+        // todo: preprocess to find all the declarations....count of 0 == suppress
         for (int idx = 0, numChildren = tree.getChildCount(); idx < numChildren; idx++) {
             Tree child = tree.getChild(idx);
             switch (child.getType()) {
@@ -127,10 +128,15 @@ public class Test {
 
     protected void processDeclaration(Tree tree, Writer writer) throws IOException {
         Tree property = tree.getChild(0);
+        Tree propValue = property.getChild(0);
+        if (propValue.getType() == STAR) {
+            writer.write('*');
+            propValue = property.getChild(1);
+        }
         writer.write(property.toString());
         writer.write(":");
-        for (int idx = 0, numChildren = property.getChildCount(); idx < numChildren; idx++) {
-            Tree child = property.getChild(idx);
+        for (int idx = 0, numChildren = propValue.getChildCount(); idx < numChildren; idx++) {
+            Tree child = propValue.getChild(idx);
             if (child.getType() == WS) {
                 writer.write(" ");
             }

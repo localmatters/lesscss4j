@@ -23,14 +23,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.sourceforge.cssparser</groupId>
-            <artifactId>cssparser</artifactId>
-            <version>0.9.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
             <version>3.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>stringtemplate</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
