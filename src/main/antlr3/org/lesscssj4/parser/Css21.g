@@ -110,28 +110,18 @@ pseudoPage
     : COLON IDENT
     ;
     
-operator
-    : SOLIDUS
-    | COMMA
-    ;
-    
 combinator
     : PLUS
     | GREATER
     | WS+
     ;
-    
-unaryOperator
-    : MINUS
-    | PLUS
-    ;  
-    
+        
 property
-    : IDENT
+    : STAR? IDENT
     ;
     
 ruleSet
-    : selector (WS* COMMA WS* selector)* WS* LBRACE WS* declaration WS* SEMI (WS* declaration WS* SEMI)* WS* RBRACE
+    : selector (WS* COMMA WS* selector)* WS* LBRACE WS* declaration  (WS* declaration)* WS* RBRACE
     -> ^(RULESET ^(SELECTOR selector)+ ^(DECLARATION declaration)+)
     ;
 
@@ -194,16 +184,29 @@ pseudo
     ;
 
 declaration
-    : property WS* COLON WS* expr (WS* prio)?
-    -> ^(property expr prio?)
+    : property WS* COLON WS* propertyValue (WS* important)? WS* SEMI
+    -> ^(property propertyValue important?)
     ;
     
-prio
+propertyValue
+    : ieExpression
+    | expr
+    ;
+
+important
     : IMPORTANT_SYM
     ;
     
-expr
+expr 
     : term ((WS+|WS* operator WS*) term)*
+    ;
+ 
+ieExpression
+    : 'expression'  LPAREN ieExprTerm RPAREN
+    ;  
+
+ieExprTerm 
+    : (STRING | ~('('|')'|STRING) )* (LPAREN ieExprTerm RPAREN (STRING | ~('('|')'|STRING) )*)*
     ;
     
 term
@@ -224,13 +227,24 @@ term
     | URI
     | hexColor
     ;
+
+unaryOperator
+    : MINUS
+    | PLUS
+    ;  
     
+operator
+    : SOLIDUS
+    | COMMA
+    ;
+    
+
 hexColor
     : HASH
     ;
     
 function
-    : IDENT (LPAREN expr RPAREN)
+    : IDENT LPAREN expr RPAREN
     ;
     
 // ==============================================================
@@ -592,7 +606,7 @@ HASH            : '#' NAME              ;
 IMPORT_SYM      : '@' I M P O R T       ;
 PAGE_SYM        : '@' P A G E           ;
 MEDIA_SYM       : '@' M E D I A         ;
-CHARSET_SYM     : '@charset '           ;
+CHARSET_SYM     : '@charset'           ;
 
 IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
 

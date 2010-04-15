@@ -15,11 +15,17 @@
  */
 package org.lesscss4j;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.parser.Css21Lexer;
 import org.lesscss4j.parser.Css21Parser;
+
+import static org.lesscss4j.parser.Css21Lexer.*;
 
 public class Test {
     public static void main(String[] args) throws Exception {
@@ -35,7 +41,13 @@ public class Test {
         Css21Parser parser = new Css21Parser(new CommonTokenStream(lexer));
         Css21Parser.styleSheet_return result = parser.styleSheet();
 
-        System.out.println(treeToString((Tree)result.getTree()));
+        StringWriter writer = new StringWriter();
+        Tree tree = (Tree) result.getTree();
+
+        processStylesheet(tree, writer);
+
+        System.out.println(writer.toString());
+//        System.out.println(treeToString((Tree)result.getTree()));
 //        System.out.println(((CommonTree) result.getTree()).toStringTree());
 /*
         DOTTreeGenerator gen = new DOTTreeGenerator();
@@ -44,6 +56,104 @@ public class Test {
 */
 
     }
+
+    protected void processStylesheet(Tree tree, Writer writer) throws IOException {
+        for (int idx = 0, numChildren = tree.getChildCount(); idx < numChildren; idx++) {
+            Tree child = tree.getChild(idx);
+            switch (child.getType()) {
+                case CHARSET:
+                    processCharset(child, writer);
+                    break;
+                case IMPORT:
+                    processImport(child, writer);
+                    break;
+                case RULESET:
+                    processRuleset(child, writer);
+                    break;
+                case WS:
+                    break;
+                case EOF:
+                    break;
+                default:
+                    throw new IllegalStateException(
+                        String.format("Unexpected stylesheet child [%d] %s", child.getType(), child.toString()));
+            }
+        }
+    }
+
+    protected void processCharset(Tree tree, Writer writer) throws IOException {
+        writer.write("@charset ");
+        writer.write(tree.getChild(0).toString());
+        writer.write(";");
+    }
+
+    protected void processImport(Tree tree, Writer writer) throws IOException {
+        writer.write("@import ");
+        writer.write(tree.getChild(0).toString());
+        writer.write(";");
+    }
+
+    protected void processRuleset(Tree tree, Writer writer) throws IOException {
+        int selectorCount = 0;
+        int declarationCount = 0;
+        for (int idx = 0, numChildren = tree.getChildCount(); idx < numChildren; idx++) {
+            Tree child = tree.getChild(idx);
+            switch (child.getType()) {
+                case SELECTOR:
+                    if (selectorCount > 0) {
+                        writer.write(",");
+                    }
+                    processSelector(child, writer);
+                    selectorCount++;
+                    break;
+                case DECLARATION:
+                    if (declarationCount == 0) {
+                        writer.write("{");
+                    }
+                    processDeclaration(child, writer);
+                    declarationCount++;
+                    break;
+                case WS:
+                    break;
+                default:
+                    throw new IllegalStateException(
+                        String.format("Unexpected ruleset child [%d] %s", child.getType(), child.toString()));
+            }
+        }
+        if (declarationCount > 0) {
+            writer.write("}");
+        }
+    }
+
+    protected void processDeclaration(Tree tree, Writer writer) throws IOException {
+        Tree property = tree.getChild(0);
+        writer.write(property.toString());
+        writer.write(":");
+        for (int idx = 0, numChildren = property.getChildCount(); idx < numChildren; idx++) {
+            Tree child = property.getChild(idx);
+            if (child.getType() == WS) {
+                writer.write(" ");
+            }
+            else {
+                writer.write(child.toString());
+            }
+        }
+        writer.write(";");
+    }
+
+    protected void processSelector(Tree tree, Writer writer) throws IOException {
+        for (int idx = 0, numChildren = tree.getChildCount(); idx < numChildren; idx++) {
+            Tree child = tree.getChild(idx);
+            if (child.getType() == WS) {
+                writer.write(" ");
+            }
+            else {
+                writer.write(child.toString());
+            }
+        }
+    }
+
+
     protected String treeToString(Tree tree) {
         StringBuilder builder = new StringBuilder();
         treeToString(tree, builder, 0);
