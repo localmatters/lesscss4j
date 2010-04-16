@@ -57,7 +57,7 @@ styleSheet
 // Character set.   Picks up the user specified character set, should it be present.
 //
 charSet
-    : CHARSET_SYM WS* STRING WS* SEMI
+    : CHARSET_SYM WS+ STRING WS* SEMI
     -> ^(CHARSET STRING)
     ;
 
@@ -65,7 +65,7 @@ charSet
 // Import.  Location of an external style sheet to include in the ruleset.
 //
 cssImport
-    : IMPORT_SYM WS* cssImportLocation  (WS* medium (WS* COMMA WS* medium)*)? WS* SEMI
+    : IMPORT_SYM WS+ cssImportLocation  (WS+ medium (WS* COMMA WS* medium)*)? WS* SEMI
     -> ^(IMPORT cssImportLocation medium*)
     ;
     
@@ -76,10 +76,11 @@ cssImportLocation : STRING|URI ;
 //          it belongs to the signified medium.
 //
 media
-    : MEDIA_SYM medium (COMMA medium)*
-        LBRACE
-            ruleSet
+    : MEDIA_SYM WS+ medium (WS* COMMA WS* medium)* WS*
+        LBRACE WS*
+            (ruleSet WS*)*
         RBRACE
+    -> ^(MEDIA_SYM medium+ ruleSet*)
     ;
 
 // ---------    
@@ -101,14 +102,12 @@ bodyset
     ;   
     
 page
-    : PAGE_SYM pseudoPage?
-        LBRACE
-            declaration SEMI (declaration SEMI)*
-        RBRACE
+    : PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declaration WS*)* RBRACE
+    -> ^(PAGE_SYM pseudoPage? ^(DECLARATION declaration)*)
     ;
-    
+
 pseudoPage
-    : COLON IDENT
+    : IDENT
     ;
     
 combinator
