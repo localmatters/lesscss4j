@@ -37,6 +37,7 @@ public class Test {
     }
 
     public void processFile(String filename) throws Exception {
+        System.out.println("Reading file:" + filename);
         Css21Lexer lexer = new Css21Lexer(new ANTLRFileStream(filename, "UTF-8"));
         Css21Parser parser = new Css21Parser(new CommonTokenStream(lexer));
         Css21Parser.styleSheet_return result = parser.styleSheet();
@@ -57,6 +58,11 @@ public class Test {
 
     }
 
+    protected String formatNode(String prefix, Tree node) {
+        return String.format("%s [%d=%s] %s",
+                             prefix, node.getType(), Css21Parser.tokenNames[node.getType()], node.toString());
+    }
+
     protected void processStylesheet(Tree tree, Writer writer) throws IOException {
         for (int idx = 0, numChildren = tree.getChildCount(); idx < numChildren; idx++) {
             Tree child = tree.getChild(idx);
@@ -70,13 +76,15 @@ public class Test {
                 case RULESET:
                     processRuleset(child, writer);
                     break;
+                case MEDIA_SYM:
+                    writer.write("/* TODO: @media */");
+                    break;
                 case WS:
                     break;
                 case EOF:
                     break;
                 default:
-                    throw new IllegalStateException(
-                        String.format("Unexpected stylesheet child [%d] %s", child.getType(), child.toString()));
+                    throw new IllegalStateException(formatNode("Unexpected stylesheet child:", child));
             }
         }
     }
@@ -117,8 +125,7 @@ public class Test {
                 case WS:
                     break;
                 default:
-                    throw new IllegalStateException(
-                        String.format("Unexpected ruleset child [%d] %s", child.getType(), child.toString()));
+                    throw new IllegalStateException(formatNode("Unexpected ruleset child:", child));
             }
         }
         if (declarationCount > 0) {
