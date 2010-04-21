@@ -20,7 +20,7 @@ import java.util.List;
 
 public class StyleSheet extends BodyElementContainer {
     private String _charset;
-    private List<String> _imports;
+    private List<String> _imports = new ArrayList<String>();
 
     public String getCharset() {
         return _charset;

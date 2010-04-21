@@ -19,7 +19,7 @@ import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
 
-import static org.lesscss4j.parser.Css21Lexer.RULESET;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class MediaFactory extends AbstractObjectFactory<Media> {
     private ObjectFactory<RuleSet> _ruleSetFactory;
@@ -37,6 +37,10 @@ public class MediaFactory extends AbstractObjectFactory<Media> {
         for (int idx = 0, numChildren = mediaNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = mediaNode.getChild(idx);
             switch (child.getType()) {
+                case IDENT:
+                    media.addMedium(child.getText());
+                    break;
+
                 case RULESET:
                     RuleSet ruleSet = getRuleSetFactory().create(child);
                     if (ruleSet != null) {

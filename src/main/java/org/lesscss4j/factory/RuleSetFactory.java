@@ -20,7 +20,7 @@ import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 
-import static org.lesscss4j.parser.Css21Lexer.*;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
     private ObjectFactory<Declaration> _declarationFactory;

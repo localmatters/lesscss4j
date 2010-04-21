@@ -18,7 +18,7 @@ package org.lesscss4j.factory;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Declaration;
 
-import static org.lesscss4j.parser.Css21Lexer.*;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
     public Declaration create(Tree declarationNode) {
@@ -36,7 +36,10 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
 
                 case PROP_VALUE:
                     // todo: probably need a deeper object here
-                    declaration.setValue(child.getText());
+                    String value = createPropValue(child);
+                    if (value != null) {
+                        declaration.setValue(value);
+                    }
                     break;
 
                 case IMPORTANT_SYM:
@@ -49,6 +52,21 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             }
         }
 
-        return declaration;
+        return declaration.getValue() == null ? null : declaration;
+    }
+
+    protected String createPropValue(Tree valueNode) {
+        StringBuilder value = new StringBuilder();
+        for (int idx = 0, numChildren = valueNode.getChildCount(); idx < numChildren; idx++) {
+            Tree child = valueNode.getChild(idx);
+            if (child.getType() == WS) {
+                // todo: some whitespace can be compressed
+                value.append(' ');
+            }
+            else {
+                value.append(child.getText());
+            }
+        }
+        return value.toString();
     }
 }

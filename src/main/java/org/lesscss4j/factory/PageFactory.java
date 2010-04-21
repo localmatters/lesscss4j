@@ -19,7 +19,7 @@ import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Page;
 
-import static org.lesscss4j.parser.Css21Lexer.DECLARATION;
+import static org.lesscss4j.parser.LessCssLexer.DECLARATION;
 
 public class PageFactory extends AbstractObjectFactory<Page> {
     private ObjectFactory<Declaration> _declarationFactory;

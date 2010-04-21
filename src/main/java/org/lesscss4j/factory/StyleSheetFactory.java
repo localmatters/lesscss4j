@@ -21,7 +21,7 @@ import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 
-import static org.lesscss4j.parser.Css21Lexer.*;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<RuleSet> _ruleSetFactory;

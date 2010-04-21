@@ -15,17 +15,15 @@
  */
 package org.lesscss4j;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
-import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.parser.Css21Lexer;
+import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.Css21Parser;
 
-import static org.lesscss4j.parser.Css21Lexer.*;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class Test {
     public static void main(String[] args) throws Exception {
@@ -38,9 +36,13 @@ public class Test {
 
     public void processFile(String filename) throws Exception {
         System.out.println("Reading file:" + filename);
-        Css21Lexer lexer = new Css21Lexer(new ANTLRFileStream(filename, "UTF-8"));
-        Css21Parser parser = new Css21Parser(new CommonTokenStream(lexer));
-        Css21Parser.styleSheet_return result = parser.styleSheet();
+        LessCssCompilerImpl compiler = new LessCssCompilerImpl();
+        ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintEnabled(true);
+        compiler.compile(new FileInputStream(filename), System.out);
+/*
+        LessCssLexer lexer = new LessCssLexer(new ANTLRFileStream(filename, "UTF-8"));
+        LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
+        LessCssParser.styleSheet_return result = parser.styleSheet();
 
         StringWriter writer = new StringWriter();
         Tree tree = (Tree) result.getTree();
@@ -48,6 +50,7 @@ public class Test {
         processStylesheet(tree, writer);
 
         System.out.println(writer.toString());
+*/
 //        System.out.println(treeToString((Tree)result.getTree()));
 //        System.out.println(((CommonTree) result.getTree()).toStringTree());
 /*

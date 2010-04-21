@@ -16,15 +16,20 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.parser.Css21Parser;
+import org.lesscss4j.parser.LessCssParser;
+
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public abstract class AbstractObjectFactory<T> implements ObjectFactory<T> {
     protected String formatNode(String prefix, Tree node) {
         return String.format("%s [%d=%s] %s",
-                             prefix, node.getType(), Css21Parser.tokenNames[node.getType()], node.toString());
+                             prefix, node.getType(), LessCssParser.tokenNames[node.getType()], node.toString());
     }
 
     protected void handleUnexpectedChild(String prefix, Tree child) {
-        throw new IllegalStateException(formatNode(prefix, child));
+        int type = child.getType();
+        if (type != WS && type != EOF) {
+            throw new IllegalStateException(formatNode(prefix, child));
+        }
     }
 }

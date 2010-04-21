@@ -15,16 +15,25 @@
  */
 package org.lesscss4j.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Media extends BodyElementContainer implements BodyElement {
-    private List<String> mediums;
+    private List<String> _mediums;
 
     public List<String> getMediums() {
-        return mediums;
+        return _mediums;
     }
 
     public void setMediums(List<String> mediums) {
-        this.mediums = mediums;
+        _mediums = mediums;
     }
+
+    public void addMedium(String medium) {
+        if (_mediums == null) {
+            _mediums = new ArrayList<String>();
+        }
+        _mediums.add(medium);
+    }
+
 }

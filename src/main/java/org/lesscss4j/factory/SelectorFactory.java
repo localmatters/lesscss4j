@@ -18,7 +18,7 @@ package org.lesscss4j.factory;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Selector;
 
-import static org.lesscss4j.parser.Css21Lexer.WS;
+import static org.lesscss4j.parser.LessCssLexer.WS;
 
 public class SelectorFactory extends AbstractObjectFactory<Selector> {
     public Selector create(Tree selectorNode) {
