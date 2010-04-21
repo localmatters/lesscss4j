@@ -103,7 +103,7 @@ bodyset
     
 page
     : PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declaration WS*)* RBRACE
-    -> ^(PAGE_SYM pseudoPage? ^(DECLARATION declaration)*)
+    -> ^(PAGE_SYM pseudoPage? declaration*)
     ;
 
 pseudoPage
@@ -118,7 +118,7 @@ combinator
         
 ruleSet
     : selector (WS* COMMA WS* selector)* WS* LBRACE (WS* declaration)* WS* RBRACE
-    -> ^(RULESET ^(SELECTOR selector)+ ^(DECLARATION declaration)*)
+    -> ^(RULESET ^(SELECTOR selector)+ declaration*)
     ;
 
 selector
@@ -166,7 +166,7 @@ pseudo
 
 declaration
     : property WS* COLON WS* propertyValue (WS* important)? WS* SEMI
-    -> ^(property ^(PROP_VALUE propertyValue) important?)
+    -> ^(DECLARATION property ^(PROP_VALUE propertyValue) important?)
     ;
 
 property

@@ -1,0 +1,15 @@
+dot.less antlr grammar
+http://github.com/erikvanbrakel/less.net/blob/master/lesscss.g
+
+dot.less blog post
+http://blog.smoothfriction.nl/archive/2009/08/13/lesscss-the-.net-edition.aspx
+
+Compiler Algorithm
+
+1. ANTLR -> AST
+2. Walk AST to generate variable map and ruleset map (indexed by normalized selector) maintain order
+3. walk ruleset map and generate CSS for each ruleset
+
+Questions:
+* Can Step 1 and 2 be combined? (i.e. Populate rulset and variable maps during parse and thus avoid AST completely)
+* Is the AST necessary?
