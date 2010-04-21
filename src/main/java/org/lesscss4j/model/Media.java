@@ -15,5 +15,16 @@
  */
 package org.lesscss4j.model;
 
+import java.util.List;
+
 public class Media extends BodyElementContainer implements BodyElement {
+    private List<String> mediums;
+
+    public List<String> getMediums() {
+        return mediums;
+    }
+
+    public void setMediums(List<String> mediums) {
+        this.mediums = mediums;
+    }
 }

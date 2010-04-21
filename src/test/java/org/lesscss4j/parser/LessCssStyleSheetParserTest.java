@@ -1,5 +1,5 @@
 /**
- * File: DefaultLessCssCompilerTest.java
+ * File: LessCssStyleSheetParserTest.java
  *
  * Author: David Hay (dhay@localmatters.com)
  * Creation Date: Apr 20, 2010
@@ -13,27 +13,27 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j;
+package org.lesscss4j.parser;
 
 import java.io.IOException;
 
 import junit.framework.TestCase;
 
-public class DefaultLessCssCompilerTest extends TestCase {
-    DefaultLessCssCompiler _compiler;
+public class LessCssStyleSheetParserTest extends TestCase {
+    LessCssStyleSheetParser _parser;
 
     @Override
     protected void setUp() throws Exception {
-        _compiler = new DefaultLessCssCompiler();
+        _parser = new LessCssStyleSheetParser();
     }
 
     public void testParseCharset() throws IOException {
-        assertEquals("UTF-8", _compiler.parseCharset("        @charset    'UTF-8'  ;  "));
-        assertEquals("ISO-8859-1", _compiler.parseCharset("@charset \"ISO-8859-1\";  "));
+        assertEquals("UTF-8", _parser.parseCharset("        @charset    'UTF-8'  ;  "));
+        assertEquals("ISO-8859-1", _parser.parseCharset("@charset \"ISO-8859-1\";  "));
     }
 
     public void testParseCharsetWithComments() throws IOException {
-        assertEquals("UTF-8", _compiler.parseCharset("//@charset 'ISO-8859-1'\n" +
+        assertEquals("UTF-8", _parser.parseCharset("//@charset 'ISO-8859-1'\n" +
                                                      "/**\r" +
                                                      "  @charset \"ASCII\"\n" +
                                                      "*\n" +
@@ -42,16 +42,16 @@ public class DefaultLessCssCompilerTest extends TestCase {
     }
     
     public void testParseCharsetNoCharset() throws IOException {
-        assertEquals(null, _compiler.parseCharset("   @import url(something)"));
-        assertEquals(null, _compiler.parseCharset("//\n comment" +
+        assertEquals(null, _parser.parseCharset("   @import url(something)"));
+        assertEquals(null, _parser.parseCharset("//\n comment" +
                                                   "   /* another comment\n" +
                                                   "  */   \r" +
                                                   "   .classname { }"));
-        assertEquals(null, _compiler.parseCharset("// comment\n" +
+        assertEquals(null, _parser.parseCharset("// comment\n" +
                                                   "   /* another comment\n" +
                                                   "  */   \r" +
                                                   "   "));
-        assertEquals(null, _compiler.parseCharset(" "));
-        assertEquals(null, _compiler.parseCharset(""));
+        assertEquals(null, _parser.parseCharset(" "));
+        assertEquals(null, _parser.parseCharset(""));
     }
 }

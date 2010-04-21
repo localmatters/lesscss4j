@@ -57,6 +57,18 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = styleSheetNode.getChild(idx);
             switch (child.getType()) {
+                case CHARSET:
+                    String charset = child.getChild(0).getText();
+                    charset = charset.replaceFirst("['\"]\\s*(\\S*)\\s*['\"]", "$1");
+                    if (charset.length() > 0) {
+                        stylesheet.setCharset(charset);
+                    }
+                    break;
+
+                case IMPORT:
+                    // todo
+                    break;
+
                 case RULESET:
                     RuleSet ruleSet = getRuleSetFactory().create(child);
                     if (ruleSet != null) {
