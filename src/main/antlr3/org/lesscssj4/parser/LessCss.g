@@ -111,11 +111,15 @@ pseudoPage
     ;
     
 combinator
-    : PLUS
-    | GREATER
+    : WS* combinatorNonWs WS*
     | WS+
     ;
-        
+    
+combinatorNonWs
+    : PLUS
+    | GREATER
+    ;
+            
 ruleSet
     : selector (WS* COMMA WS* selector)* WS* LBRACE (WS* declaration)* WS* RBRACE
     -> ^(RULESET ^(SELECTOR selector)+ declaration*)
@@ -165,8 +169,8 @@ pseudo
     ;
 
 declaration
-    : property WS* COLON WS* propertyValue (WS* important)? WS* SEMI
-    -> ^(DECLARATION property ^(PROP_VALUE propertyValue) important?)
+    : property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
+    -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?)
     ;
 
 property
@@ -181,7 +185,7 @@ propertyValue
 
 // Internet Explorer specific functions
 ieExpression
-    : ('expression' | 'alpha')  LPAREN ieExprTerm RPAREN
+    : (EXPRESSION_FUNC | ALPHA_FUNC)  LPAREN ieExprTerm RPAREN
     ;
 
 ieExprTerm
@@ -410,6 +414,9 @@ STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; }
                 | '"'  ( ~('\n'|'\r'|'\f'|'"')  )* ( '"'  | { $type = INVALID; } )
                 ;
 
+EXPRESSION_FUNC : E X P R E S S I O N ;
+ALPHA_FUNC      : A L P H A           ;
+
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
 //
@@ -424,6 +431,7 @@ IMPORT_SYM      : '@' I M P O R T       ;
 PAGE_SYM        : '@' P A G E           ;
 MEDIA_SYM       : '@' M E D I A         ;
 CHARSET_SYM     : '@charset'            ;
+
 
 IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
 

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.compile.LessCssCompilerImpl;
+import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.Css21Parser;
 
@@ -37,7 +39,14 @@ public class Test {
     public void processFile(String filename) throws Exception {
         System.out.println("Reading file:" + filename);
         LessCssCompilerImpl compiler = new LessCssCompilerImpl();
+
+        PrettyPrintOptions printOptions = new PrettyPrintOptions();
+        printOptions.setSingleDeclarationOnOneLine(true);
+        printOptions.setOpeningBraceOnNewLine(false);
+        printOptions.setLineBetweenRuleSets(true);
+
         ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintEnabled(true);
+        ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintOptions(printOptions);
         compiler.compile(new FileInputStream(filename), System.out);
 /*
         LessCssLexer lexer = new LessCssLexer(new ANTLRFileStream(filename, "UTF-8"));

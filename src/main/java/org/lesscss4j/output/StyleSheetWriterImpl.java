@@ -33,6 +33,18 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     private boolean _prettyPrintEnabled = false;
     private String _defaultEncoding = "UTF-8";
     private String _newline = "\n";
+    private PrettyPrintOptions _prettyPrintOptions;
+
+    public PrettyPrintOptions getPrettyPrintOptions() {
+        if (_prettyPrintOptions == null) {
+            _prettyPrintOptions = new PrettyPrintOptions();
+        }
+        return _prettyPrintOptions;
+    }
+
+    public void setPrettyPrintOptions(PrettyPrintOptions prettyPrintOptions) {
+        _prettyPrintOptions = prettyPrintOptions;
+    }
 
     public String getNewline() {
         return _newline;
@@ -114,7 +126,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     protected void writeIndent(Writer writer, int level) throws IOException {
         for (int idx = 0; idx < level; idx++) {
-            for (int jdx = 0; jdx < 4; jdx++) {
+            for (int jdx = 0; jdx < getPrettyPrintOptions().getIndentSize(); jdx++) {
                 writer.write(' ');
             }
         }
@@ -146,7 +158,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     protected void writeBodyElements(Writer writer, List<BodyElement> bodyElements, int indent) throws IOException {
         for (int i = 0, bodyElementsSize = bodyElements.size(); i < bodyElementsSize; i++) {
             BodyElement element = bodyElements.get(i);
-            if (i > 0) {
+            if (i > 0 && isPrettyPrintEnabled() && getPrettyPrintOptions().isLineBetweenRuleSets()) {
                 writeBreak(writer);
             }
             writeIndent(writer, indent);
@@ -161,7 +173,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
                     writer.write(medium);
                     first = false;
                 }
-                writer.write("{");
+                writeOpeningBrace(writer, indent, null);
                 writeBreak(writer, indent);
                 writeBodyElements(writer, ((Media) element).getBodyElements(), indent + 1);
                 writer.write("}");
@@ -189,23 +201,43 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             }
             writer.write(selector.getText());
         }
-        writeSpace(writer);
 
-        writer.write('{');
+        writeOpeningBrace(writer, indent, declarations);
         writeDeclarationBraceSpace(writer, declarations);
 
+        boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
         for (int idx = 0, declarationSize = declarations.size(); idx < declarationSize; idx++) {
             if (idx > 0) {
                 writeBreak(writer);
             }
             Declaration declaration = declarations.get(idx);
-            writeDeclaration(writer, declaration, indent + 1);
+
+            int declarationIndent = indent + 1;
+            if (oneLineDeclarationList) {
+                declarationIndent = 0;
+            }
+            writeDeclaration(writer, declaration, declarationIndent);
         }
 
         writeDeclarationBraceSpace(writer, declarations);
-        writeIndent(writer, indent);
+
+        if (!oneLineDeclarationList) {
+            writeIndent(writer, indent);
+        }
         writer.write("}");
         writeBreak(writer);
+    }
+
+    protected void writeOpeningBrace(Writer writer, int indent, List<Declaration> declarations) throws IOException {
+        if (isPrettyPrintEnabled() &&
+            getPrettyPrintOptions().isOpeningBraceOnNewLine() &&
+            !isOneLineDeclarationList(declarations)) {
+            writeBreak(writer, indent);
+        }
+        else {
+            writeSpace(writer);
+        }
+        writer.write('{');
     }
 
     protected void writeDeclaration(Writer writer, Declaration declaration, int indent) throws IOException {
@@ -217,17 +249,26 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writer.write(':');
         writeSpace(writer);
         writer.write(declaration.getValue());
+        if (declaration.isImportant()) {
+            writeSpace(writer);
+            writer.write("!important");
+        }
         writeSemi(writer, false);
     }
 
     protected void writeDeclarationBraceSpace(Writer writer, List<Declaration> declarations) throws IOException {
-//        if (declarations.size() > 1) {
-            writeBreak(writer);
-/*
-        }
-        else {
+        if (isOneLineDeclarationList(declarations)) {
             writeSpace(writer);
         }
-*/
+        else {
+            writeBreak(writer);
+        }
+    }
+
+    private boolean isOneLineDeclarationList(List<Declaration> declarations) {
+        return declarations != null &&
+               isPrettyPrintEnabled() &&
+               getPrettyPrintOptions().isSingleDeclarationOnOneLine() &&
+               declarations.size() <= 1;
     }
 }

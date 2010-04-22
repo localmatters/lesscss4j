@@ -127,7 +127,6 @@ div.status li {
   height: 50px;
   width: 78px;
   background: url("http://static.csimg.com/v2/img/cs-cta-pricing.png") no-repeat bottom left;
-  margin: ;
 }
 h1 {
   font-size: 153.9%;
@@ -1500,7 +1499,6 @@ ul.blue-separator li.adHover:hover { background: #FFFFFF; }
   margin-top: .5em;
   background: #FFFFFF;
   border: 1px solid #dddddd;
-  text-align: ;
 }
 #tagCloudWrap { margin-top: .5em; }
 #tagCloud ul { margin: 0; }

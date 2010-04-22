@@ -13,7 +13,7 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j;
+package org.lesscss4j.compile;
 
 import java.io.IOException;
 import java.io.InputStream;
