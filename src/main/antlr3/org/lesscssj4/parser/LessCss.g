@@ -29,6 +29,11 @@ tokens {
     CHARSET;
     IMPORT;
     PROP_VALUE;
+    LITERAL;
+    EXPR;
+    VAR;
+    CONSTANT;
+    FUNCTION;
 }
 
 @header {
@@ -47,10 +52,10 @@ package org.lesscss4j.parser;
 //
 styleSheet  
     : WS*
-      (charSet WS*)?
-      (cssImport WS*)*
-      (bodyset WS*)*
-      EOF
+      (charSet WS!*)?
+      (cssImport WS!*)*
+      (bodyset WS!*)*
+      EOF!
     ;
     
 // -----------------
@@ -87,16 +92,17 @@ media
 // Medium.  The name of a medim that are particulare set of rules applies to.
 //
 medium
-    : IDENT 
+    : ident 
     ;
     
 
 bodylist
-    : bodyset*
+    : (bodyset WS!*)*
     ;
     
 bodyset
-    : ruleSet
+    : variableDef
+    | ruleSet
     | media
     | page
     ;   
@@ -107,7 +113,7 @@ page
     ;
 
 pseudoPage
-    : IDENT
+    : ident
     ;
     
 combinator
@@ -121,8 +127,16 @@ combinatorNonWs
     ;
             
 ruleSet
-    : selector (WS* COMMA WS* selector)* WS* LBRACE (WS* declaration)* WS* RBRACE
-    -> ^(RULESET ^(SELECTOR selector)+ declaration*)
+    : selector (WS* COMMA WS* selector)* WS* 
+      LBRACE 
+        (WS* ruleSetElement)* 
+      WS* RBRACE
+    -> ^(RULESET ^(SELECTOR selector)+ ruleSetElement*)
+    ;
+    
+ruleSetElement
+    : declaration
+    | variableDef
     ;
 
 selector
@@ -146,46 +160,106 @@ elementSubsequent
     ;
 
 cssClass
-    : DOT IDENT
+    : DOT ident
     ;
 
 elementName
-    : IDENT
+    : ident
     | STAR
     ;
 
 attrib
     : LBRACKET
-        IDENT
+        ident
             (
                 ( OPEQ | INCLUDES | DASHMATCH )
-                ( IDENT | STRING )
+                ( ident | STRING )
             )?
       RBRACKET
 ;
 
 pseudo
-    : COLON COLON? IDENT ( LPAREN IDENT? RPAREN )?
+    : COLON COLON? ident ( LPAREN ident? RPAREN )?
+    ;
+    
+variableDef
+    : variable WS* COLON WS* propertyValue WS* SEMI
+    -> ^(VAR variable propertyValue)
+    ;
+    
+variable
+    : '@' ident -> ^(ident)
     ;
 
+literal
+    : (STRING | URI | ident)
+    ;
+    
+additiveExpression
+    : multiplicativeExpression ( WS!* (PLUS|MINUS)^ WS!* multiplicativeExpression )* 
+    ;
+    
+multiplicativeExpression
+    : primaryExpression ( WS!* (STAR|SOLIDUS)^ WS!* primaryExpression)*
+    ;
+    
+primaryExpression
+    : ('(' WS*)! additiveExpression (WS* ')')!
+    | exprValue
+    ;
+
+exprValue
+    : variable      -> ^(VAR      variable)
+    | numericValue  -> ^(CONSTANT numericValue)
+    ;
+    
+numericValue
+    : NUMBER
+    | PERCENTAGE
+    | LENGTH
+    | EMS
+    | EXS
+    | ANGLE
+    | TIME
+    | FREQ
+    | hexColor
+    ;
+    
 declaration
     : property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
     -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?)
     ;
 
 property
-    : STAR? IDENT
-    -> ^(IDENT STAR?)
+    : STAR? ident
+    -> ^(ident STAR?)
     ;
     
 propertyValue
-    : ieExpression
-    | expr
+    : propertyTerm ((WS* COMMA WS*|WS+) propertyTerm)*
+    ;
+    
+propertyTerm
+    : (ident WS* LPAREN)=>function
+    | literal              -> ^(LITERAL literal)
+    | additiveExpression   -> ^(EXPR additiveExpression)
     ;
 
 // Internet Explorer specific functions
-ieExpression
-    : (EXPRESSION_FUNC | ALPHA_FUNC)  LPAREN ieExprTerm RPAREN
+function
+    : (ALPHA)=>ieAlpha
+    | ident WS* LPAREN ieExprTerm RPAREN
+    -> ^(FUNCTION ident ieExprTerm)
+    ;
+
+ieAlpha
+    : ALPHA WS* LPAREN WS* ieAlphaTerm (WS* COMMA WS* ieAlphaTerm)* WS* RPAREN
+    -> ^(ALPHA ieAlphaTerm*)
+    ;
+    
+ieAlphaTerm
+    : ident WS* OPEQ WS* (literal | additiveExpression)
+    -> ^(OPEQ ident ^(LITERAL literal)? ^(EXPR additiveExpression)?)
     ;
 
 ieExprTerm
@@ -196,13 +270,14 @@ ieExprTerm
 important
     : IMPORTANT_SYM
     ;
-    
+/*    
 expr 
     : term ((WS+|WS* operator WS*) term)*
     ;
 
 term
-    : unaryOperator?
+    : additiveExpression
+    | unaryOperator?
         (
               NUMBER
             | PERCENTAGE
@@ -225,20 +300,18 @@ unaryOperator
     | PLUS
     ;  
     
-operator
-    : SOLIDUS
-    | COMMA
-    ;
-    
+ */   
 
-hexColor
+hexColor 
     : HASH
     ;
     
-function
-    : IDENT LPAREN expr RPAREN
+ident    
+    : IDENT 
+    | ALPHA 
+    | EXPRESSION 
     ;
-    
+
 // ==============================================================
 // LEXER
 //
@@ -414,8 +487,9 @@ STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; }
                 | '"'  ( ~('\n'|'\r'|'\f'|'"')  )* ( '"'  | { $type = INVALID; } )
                 ;
 
-EXPRESSION_FUNC : E X P R E S S I O N ;
-ALPHA_FUNC      : A L P H A           ;
+// Some special identifiers
+EXPRESSION : E X P R E S S I O N        ;
+ALPHA      : A L P H A                  ;
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
@@ -455,7 +529,7 @@ fragment    DIMENSION   :;  // nnn'Somethingnotyetinvented'
 fragment    PERCENTAGE  :;  // '%'
 
 NUMBER
-    :   ( '0'..'9'+ ('.' '0'..'9'+)? | '.' '0'..'9'+ )
+    :   ( (MINUS WS*)? ('0'..'9'+ ('.' '0'..'9'+)? | '.' '0'..'9'+) )
         (
               (E (M|X))=>
                 E
