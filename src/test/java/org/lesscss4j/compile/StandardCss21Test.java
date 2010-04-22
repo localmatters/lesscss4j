@@ -15,6 +15,7 @@
  */
 package org.lesscss4j.compile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,8 +56,9 @@ public class StandardCss21Test extends TestCase {
             input = getClass().getClassLoader().getResourceAsStream(resource);
             assertNotNull("Unable to open " + resource, input);
             String original = IOUtils.toString(input, ENCODING);
+            input.close();
 
-            input = getClass().getClassLoader().getResourceAsStream(resource);
+            input = new ByteArrayInputStream(original.getBytes(ENCODING));
             assertNotNull("Unable to open " + resource, input);
 
             ByteArrayOutputStream output = new ByteArrayOutputStream(original.length());
