@@ -26,7 +26,6 @@ tokens {
     SELECTOR;
     DECLARATION;
     SPACE;
-    CHARSET;
     IMPORT;
     PROP_VALUE;
     LITERAL;
@@ -53,7 +52,7 @@ package org.lesscss4j.parser;
 styleSheet  
     : WS*
       (charSet WS!*)?
-      (cssImport WS!*)*
+      (importFile WS!*)*
       (bodyset WS!*)*
       EOF!
     ;
@@ -62,19 +61,19 @@ styleSheet
 // Character set.   Picks up the user specified character set, should it be present.
 //
 charSet
-    : CHARSET_SYM WS+ STRING WS* SEMI
+    : '@' CHARSET WS+ STRING WS* SEMI
     -> ^(CHARSET STRING)
     ;
 
 // ---------
 // Import.  Location of an external style sheet to include in the ruleset.
 //
-cssImport
-    : IMPORT_SYM WS+ cssImportLocation  (WS+ medium (WS* COMMA WS* medium)*)? WS* SEMI
-    -> ^(IMPORT cssImportLocation medium*)
+importFile
+    : IMPORT_SYM WS+ importLocation  (WS+ medium (WS* COMMA WS* medium)*)? WS* SEMI
+    -> ^(IMPORT importLocation medium*)
     ;
     
-cssImportLocation : STRING|URI ;
+importLocation : STRING|URI ;
 
 // ---------
 // Media.   Introduce a set of rules that are to be used if the consumer indicates
@@ -302,6 +301,7 @@ ident
     : IDENT 
     | ALPHA 
     | EXPRESSION 
+    | CHARSET
     ;
 
 // ==============================================================
@@ -454,26 +454,26 @@ CDO             : '<!--' { $channel = 3; }  // CDO on channel 3 in case we want 
 CDC             : '-->' { $channel = 4; }  // CDC on channel 4 in case we want it later
                 ;
                 
-INCLUDES        : '~='      ;
-DASHMATCH       : '|='      ;
+INCLUDES        : '~=' ;
+DASHMATCH       : '|=' ;
 
-GREATER         : '>'       ;
-LBRACE          : '{'       ;
-RBRACE          : '}'       ;
-LBRACKET        : '['       ;
-RBRACKET        : ']'       ;
-OPEQ            : '='       ;
-SEMI            : ';'       ;
-COLON           : ':'       ;
-SOLIDUS         : '/'       ;
-MINUS           : '-'       ;
-PLUS            : '+'       ;
-STAR            : '*'       ;
-LPAREN          : '('       ;
-RPAREN          : ')'       ;
-COMMA           : ','       ;
-DOT             : '.'       ;
-PERCENT         : '%'       ;
+GREATER         : '>'  ;
+LBRACE          : '{'  ;
+RBRACE          : '}'  ;
+LBRACKET        : '['  ;
+RBRACKET        : ']'  ;
+OPEQ            : '='  ;
+SEMI            : ';'  ;
+COLON           : ':'  ;
+SOLIDUS         : '/'  ;
+MINUS           : '-'  ;
+PLUS            : '+'  ;
+STAR            : '*'  ;
+LPAREN          : '('  ;
+RPAREN          : ')'  ;
+COMMA           : ','  ;
+DOT             : '.'  ;
+PERCENT         : '%'  ;
 
 // -----------------
 // Literal strings. Delimited by either ' or "
@@ -486,6 +486,7 @@ STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; }
 // Some special identifiers
 EXPRESSION : E X P R E S S I O N        ;
 ALPHA      : A L P H A                  ;
+CHARSET    : 'charset'                  ;
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
@@ -500,7 +501,6 @@ HASH            : '#' NAME              ;
 IMPORT_SYM      : '@' I M P O R T       ;
 PAGE_SYM        : '@' P A G E           ;
 MEDIA_SYM       : '@' M E D I A         ;
-CHARSET_SYM     : '@charset'            ;
 
 
 IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
@@ -532,7 +532,7 @@ fragment UNIT
     ;
 
 NUMBER
-    :   ( (MINUS WS*)? (DIGIT+ (DOT DIGIT+)? | DOT DIGIT+) ) UNIT? 
+    :   ( (MINUS WS*)? (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT? 
     ;
     
 // ------------
