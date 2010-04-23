@@ -437,9 +437,13 @@ fragment DIGIT  :  '0'..'9'
 //              COMMENTS are hidden from the parser which simplifies the parser 
 //              grammar a lot.
 //
-COMMENT         : ('/*' ( options { greedy=false; } : .*) '*/' | '/' '/' (~('\n'|'\r'|'\f'))*) 
-                    { $channel = 2; }  // Comments on channel 2 in case we want to find them
-                ;
+COMMENT         
+    : '/*' ( options { greedy=false; } : .*) '*/' { $channel=HIDDEN; } 
+    ;
+                
+LINE_COMMENT    
+    : '//' (~('\n'|'\r'|'\f'))* ('\r' | '\r'? '\n' | EOF) { $channel=HIDDEN; }
+    ;
 
 // ---------------------
 // HTML comment open.   HTML/XML comments may be placed around style sheets so that they
@@ -447,7 +451,7 @@ COMMENT         : ('/*' ( options { greedy=false; } : .*) '*/' | '/' '/' (~('\n'
 //                      They comment open is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDO             : '<!--' { $channel = 3; }  // CDO on channel 3 in case we want it later
+CDO             : '<!--' { $channel=HIDDEN; }  // CDO on channel 3 in case we want it later
                 ;
     
 // ---------------------            
@@ -456,7 +460,7 @@ CDO             : '<!--' { $channel = 3; }  // CDO on channel 3 in case we want 
 //                      They comment close is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDC             : '-->' { $channel = 4; }  // CDC on channel 4 in case we want it later
+CDC             : '-->' { $channel=HIDDEN; }  // CDC on channel 4 in case we want it later
                 ;
                 
 INCLUDES        : '~=' ;
