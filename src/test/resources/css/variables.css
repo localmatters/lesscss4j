@@ -6,8 +6,18 @@
   quotes: "~" "~";
   margin: 5px 1cm 0 5px;
 }
+@media print {
+  div#foot { color: #456; }
+  body div#foot ul { color: #123; }
+}
 .alpha {
   filter: alpha(opacity=95);
   width: 14px;
   margin: 0 3px 2px 1px;
+}
+@page {
+  margin-top: 14cm;
+  margin-left: 3em;
+  margin-bottom: 7cm;
+  margin-right: 0;
 }

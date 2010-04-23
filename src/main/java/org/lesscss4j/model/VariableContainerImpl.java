@@ -26,6 +26,10 @@ import org.lesscss4j.model.expression.Expression;
 public class VariableContainerImpl implements VariableContainer {
     private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
 
+    public VariableContainerImpl() {
+        this(null);
+    }
+
     public VariableContainerImpl(VariableContainer variableContainer) {
         this(variableContainer, null);
     }

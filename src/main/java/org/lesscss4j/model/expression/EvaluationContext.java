@@ -22,6 +22,11 @@ public class EvaluationContext {
     private VariableContainer _variableContainer;
 
     public EvaluationContext() {
+        this(null);
+    }
+
+    public EvaluationContext(VariableContainer variableContainer) {
+        this(variableContainer, null);
     }
 
     public EvaluationContext(VariableContainer variableContainer, EvaluationContext parent) {

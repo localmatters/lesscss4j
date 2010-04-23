@@ -18,11 +18,21 @@ package org.lesscss4j.factory;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Page;
+import org.lesscss4j.model.expression.Expression;
 
-import static org.lesscss4j.parser.LessCssLexer.DECLARATION;
+import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class PageFactory extends AbstractObjectFactory<Page> {
     private ObjectFactory<Declaration> _declarationFactory;
+    private ObjectFactory<Expression> _expressionFactory;
+
+    public ObjectFactory<Expression> getExpressionFactory() {
+        return _expressionFactory;
+    }
+
+    public void setExpressionFactory(ObjectFactory<Expression> expressionFactory) {
+        _expressionFactory = expressionFactory;
+    }
 
     public ObjectFactory<Declaration> getDeclarationFactory() {
         return _declarationFactory;
@@ -43,6 +53,14 @@ public class PageFactory extends AbstractObjectFactory<Page> {
                         page.addDeclaration(declaration);
                     }
                     break;
+
+                case VAR:
+                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    if (expr != null) {
+                        page.setVariable(child.getChild(0).getText(), expr);
+                    }
+                    break;
+
 
                 default:
                     handleUnexpectedChild("Unexpected page child:", child);

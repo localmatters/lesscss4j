@@ -49,6 +49,8 @@ public class LessCssCompilerImpl implements LessCssCompiler {
     public void compile(InputStream input, OutputStream output) throws IOException {
         StyleSheet styleSheet = getStyleSheetParser().parse(input);
 
+        // todo: process any imports in the StyleSheet to augment the current style sheet.
+        
         // todo: process the stylesheet for LessCSS constructs...or do we do this while writing?
 
         getStyleSheetWriter().write(output, styleSheet);

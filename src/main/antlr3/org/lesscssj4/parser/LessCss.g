@@ -49,7 +49,7 @@ package org.lesscss4j.parser;
 // of imports, and then the main body of style rules.
 //
 styleSheet  
-    : WS*
+    : WS!*
       (charSet WS!*)?
       (importFile WS!*)*
       (bodyset WS!*)*
@@ -81,9 +81,9 @@ importLocation : STRING|URI ;
 media
     : '@' MEDIA_SYM WS+ medium (WS* COMMA WS* medium)* WS*
         LBRACE WS*
-            (ruleSet WS*)*
+            (ruleList WS*)*
         RBRACE
-    -> ^(MEDIA_SYM medium+ ruleSet*)
+    -> ^(MEDIA_SYM medium+ ruleList*)
     ;
 
 // ---------    
@@ -93,21 +93,20 @@ medium
     : ident 
     ;
     
-
-bodylist
-    : (bodyset WS!*)*
-    ;
-    
 bodyset
-    : variableDef
-    | ruleSet
+    : ruleList
     | media
     | page
     ;   
     
+ruleList
+    : variableDef
+    | ruleSet
+    ;
+    
 page
-    : '@' PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declaration WS*)* RBRACE
-    -> ^(PAGE_SYM pseudoPage? declaration*)
+    : '@' PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declarationBlockElement WS*)* RBRACE
+    -> ^(PAGE_SYM pseudoPage? declarationBlockElement*)
     ;
 
 pseudoPage
@@ -133,6 +132,10 @@ ruleSet
     ;
     
 ruleSetElement
+    : declarationBlockElement
+    ;
+    
+declarationBlockElement
     : declaration
     | variableDef
     ;

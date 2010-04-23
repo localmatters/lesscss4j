@@ -16,10 +16,16 @@
 package org.lesscss4j.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-public class BodyElementContainer {
+import org.lesscss4j.model.expression.Expression;
+
+public class BodyElementContainer implements VariableContainer {
     private List<BodyElement> _bodyElements;
+    private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
 
     public List<BodyElement> getBodyElements() {
         return _bodyElements;
@@ -34,5 +40,17 @@ public class BodyElementContainer {
             _bodyElements = new ArrayList<BodyElement>();
         }
         _bodyElements.add(bodyElement);
+    }
+
+    public Expression setVariable(String name, Expression value) {
+        return _variables.put(name, value);
+    }
+
+    public Expression getVariable(String name) {
+        return _variables.get(name);
+    }
+
+    public Iterator<String> getVariableNames() {
+        return _variables.keySet().iterator();
     }
 }

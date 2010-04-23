@@ -26,6 +26,18 @@
   margin: @m;
 }
 
+@media print {
+    @c: #445566; // Override top level 'c' variable
+    div#foot {
+        color: @c;
+    }
+
+    body div#foot ul {
+        @c: #123; // Override @media level 'c' variable
+        color: @c;
+    }
+}
+
 .alpha {
   @o: 95;
   filter: alpha(opacity=@o);
@@ -33,4 +45,12 @@
   @x: 1px; // override of 'x' should not affect value of 'z'
   width: @z + 1px;
   margin: 0 3px (@x + 1px) @x;
+}
+
+@page {
+    @x: 3em;
+    margin-top: @z + 1cm;
+    margin-left: @x;
+    margin-bottom: (5 + 2cm);
+    margin-right: 0;
 }

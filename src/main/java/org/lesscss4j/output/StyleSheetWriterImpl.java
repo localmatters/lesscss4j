@@ -22,15 +22,17 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
-import org.lesscss4j.model.VariableContainerImpl;
-import org.lesscss4j.model.expression.EvaluationContext;
-import org.lesscss4j.model.expression.Expression;
+import org.apache.commons.io.IOUtils;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Media;
+import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.StyleSheet;
+import org.lesscss4j.model.VariableContainerImpl;
+import org.lesscss4j.model.expression.EvaluationContext;
+import org.lesscss4j.model.expression.Expression;
 
 // todo: It might make sense to break this up into separate writers for each type of element in the stylesheet
 public class StyleSheetWriterImpl implements StyleSheetWriter {
@@ -86,10 +88,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             write(writer, styleSheet);
         }
         finally {
-            try {
-                if (writer != null) writer.close();
-            }
-            catch (IOException ex) { /* no op */ }
+            IOUtils.closeQuietly(writer);
         }
     }
 
@@ -137,12 +136,14 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     protected void write(Writer writer, StyleSheet styleSheet) throws IOException {
-        if (styleSheet.getCharset() != null && styleSheet.getCharset().length() > 0) {
-            writer.write("@charset '");
-            writer.write(styleSheet.getCharset());
-            writeSemi(writer);
-        }
+        writeCharset(writer, styleSheet);
+        writeImports(writer, styleSheet);
 
+        EvaluationContext styleSheetContext = new EvaluationContext(new VariableContainerImpl(styleSheet));
+        writeBodyElements(writer, styleSheet.getBodyElements(), styleSheetContext, 0);
+    }
+
+    private void writeImports(Writer writer, StyleSheet styleSheet) throws IOException {
         for (String importElement : styleSheet.getImports()) {
             writer.write("@import ");
             if ("'\"".indexOf(importElement.charAt(0)) < 0 && !importElement.startsWith("url")) {
@@ -155,11 +156,14 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             }
             writeSemi(writer);
         }
+    }
 
-        EvaluationContext evalContext = new EvaluationContext();
-        evalContext.setVariableContainer(new VariableContainerImpl(styleSheet));
-
-        writeBodyElements(writer, styleSheet.getBodyElements(), evalContext, 0);
+    private void writeCharset(Writer writer, StyleSheet styleSheet) throws IOException {
+        if (styleSheet.getCharset() != null && styleSheet.getCharset().length() > 0) {
+            writer.write("@charset '");
+            writer.write(styleSheet.getCharset());
+            writeSemi(writer);
+        }
     }
 
     protected void writeBodyElements(Writer writer,
@@ -173,29 +177,66 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             }
             writeIndent(writer, indent);
             if (element instanceof Media) {
-                writer.write("@media ");
-
-                // todo: Can Media define variables?
-
-                boolean first = true;
-                for (String medium : ((Media) element).getMediums()) {
-                    if (!first) {
-                        writeSeparator(writer, ",");
-                    }
-                    writer.write(medium);
-                    first = false;
-                }
-                writeOpeningBrace(writer, indent, null);
-                writeBreak(writer, indent);
-                writeBodyElements(writer, ((Media) element).getBodyElements(), context, indent + 1);
-                writer.write("}");
-                writeBreak(writer, indent);
+                writeMedia(writer, (Media) element, context, indent);
+            }
+            else if (element instanceof Page) {
+                writePage(writer, (Page)element, context, indent);
             }
             else if (element instanceof RuleSet) {
                 writeRuleSet(writer, (RuleSet) element, context, indent);
             }
             // todo: page
         }
+    }
+
+    protected void writePage(Writer writer, Page page, EvaluationContext context, int indent) throws IOException {
+        List<Declaration> declarations = page.getDeclarations();
+        if (declarations == null || declarations.size() == 0) {
+            return;
+        }
+
+        writer.write("@page");
+
+        if (page.getPseudoPage() != null) {
+            writer.write(" :");
+            writer.write(page.getPseudoPage());
+        }
+
+        writeOpeningBrace(writer, indent, declarations);
+        writeBreak(writer, indent);
+
+        EvaluationContext pageContext = new EvaluationContext(new VariableContainerImpl(page), context);
+        writeDeclarations(writer, declarations, pageContext, indent);
+
+        writeDeclarationBraceSpace(writer, declarations);
+
+        if (!isOneLineDeclarationList(declarations)) {
+            writeIndent(writer, indent);
+        }
+        writeClosingBrace(writer, indent);
+
+    }
+
+    protected void writeMedia(Writer writer, Media media, EvaluationContext context, int indent) throws IOException {
+
+        writer.write("@media ");
+
+
+        boolean first = true;
+        for (String medium : media.getMediums()) {
+            if (!first) {
+                writeSeparator(writer, ",");
+            }
+            writer.write(medium);
+            first = false;
+        }
+        writeOpeningBrace(writer, indent, null);
+        writeBreak(writer, indent);
+
+        EvaluationContext mediaContext = new EvaluationContext(new VariableContainerImpl(media), context);
+        writeBodyElements(writer, media.getBodyElements(), mediaContext, indent + 1);
+
+        writeClosingBrace(writer, indent);
     }
 
 
@@ -218,7 +259,20 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeDeclarationBraceSpace(writer, declarations);
 
         EvaluationContext ruleSetContext = new EvaluationContext(new VariableContainerImpl(ruleSet, context), context);
+        writeDeclarations(writer, declarations, ruleSetContext, indent);
 
+        writeDeclarationBraceSpace(writer, declarations);
+
+        if (!isOneLineDeclarationList(declarations)) {
+            writeIndent(writer, indent);
+        }
+        writeClosingBrace(writer, 0);
+    }
+
+    private void writeDeclarations(Writer writer,
+                                      List<Declaration> declarations,
+                                      EvaluationContext ruleSetContext,
+                                      int indent) throws IOException {
         boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
         for (int idx = 0, declarationSize = declarations.size(); idx < declarationSize; idx++) {
             if (idx > 0) {
@@ -232,14 +286,6 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             }
             writeDeclaration(writer, declaration, ruleSetContext, declarationIndent);
         }
-
-        writeDeclarationBraceSpace(writer, declarations);
-
-        if (!oneLineDeclarationList) {
-            writeIndent(writer, indent);
-        }
-        writer.write("}");
-        writeBreak(writer);
     }
 
     protected void writeOpeningBrace(Writer writer, int indent, List<Declaration> declarations) throws IOException {
@@ -252,6 +298,11 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             writeSpace(writer);
         }
         writer.write('{');
+    }
+
+    protected void writeClosingBrace(Writer writer, int indent) throws IOException {
+        writer.write("}");
+        writeBreak(writer, indent);
     }
 
     protected void writeDeclaration(Writer writer, Declaration declaration, EvaluationContext context, int indent) throws IOException {

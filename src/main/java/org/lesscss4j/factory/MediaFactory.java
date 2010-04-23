@@ -18,11 +18,21 @@ package org.lesscss4j.factory;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
+import org.lesscss4j.model.expression.Expression;
 
 import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class MediaFactory extends AbstractObjectFactory<Media> {
+    private ObjectFactory<Expression> _expressionFactory;
     private ObjectFactory<RuleSet> _ruleSetFactory;
+
+    public ObjectFactory<Expression> getExpressionFactory() {
+        return _expressionFactory;
+    }
+
+    public void setExpressionFactory(ObjectFactory<Expression> expressionFactory) {
+        _expressionFactory = expressionFactory;
+    }
 
     public ObjectFactory<RuleSet> getRuleSetFactory() {
         return _ruleSetFactory;
@@ -45,6 +55,13 @@ public class MediaFactory extends AbstractObjectFactory<Media> {
                     RuleSet ruleSet = getRuleSetFactory().create(child);
                     if (ruleSet != null) {
                         media.addBodyElement(ruleSet);
+                    }
+                    break;
+
+                case VAR:
+                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    if (expr != null) {
+                        media.setVariable(child.getChild(0).getText(), expr);
                     }
                     break;
 

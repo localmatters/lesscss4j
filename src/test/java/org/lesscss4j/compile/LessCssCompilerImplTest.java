@@ -70,13 +70,12 @@ public class LessCssCompilerImplTest extends TestCase {
 
             _compiler.compile(input, output);
 
+            output.close();
+
             assertEquals(readCss(cssFile), output.toString(ENCODING));
         }
         finally {
-            try {
-                if (input != null) input.close();
-            }
-            catch (IOException ex) { /* do nothing */ }
+            IOUtils.closeQuietly(input);
         }
 
     }
