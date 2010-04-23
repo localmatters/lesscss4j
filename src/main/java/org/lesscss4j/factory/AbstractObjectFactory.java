@@ -22,8 +22,10 @@ import static org.lesscss4j.parser.LessCssLexer.*;
 
 public abstract class AbstractObjectFactory<T> implements ObjectFactory<T> {
     protected String formatNode(String prefix, Tree node) {
-        return String.format("%s [%d=%s] %s",
-                             prefix, node.getType(), LessCssParser.tokenNames[node.getType()], node.toString());
+        return String.format("%s [%d=%s] %d:%d - %s",
+                             prefix, node.getType(), LessCssParser.tokenNames[node.getType()],  
+                             node.getLine(), node.getCharPositionInLine(),
+                             node.toString());
     }
 
     protected void handleUnexpectedChild(String prefix, Tree child) {
