@@ -16,11 +16,14 @@
 package org.lesscss4j.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StyleSheet extends BodyElementContainer {
     private String _charset;
     private List<String> _imports = new ArrayList<String>();
+    private Map<String, Object> _variables = new LinkedHashMap<String, Object>();
 
     public String getCharset() {
         return _charset;
@@ -45,4 +48,11 @@ public class StyleSheet extends BodyElementContainer {
         _imports.add(importValue);
     }
 
+    public Object setVariable(String name, Object value) {
+        return _variables.put(name, value);
+    }
+
+    public Object getVariable(String name) {
+        return _variables.get(name);
+    }
 }

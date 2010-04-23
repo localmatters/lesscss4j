@@ -66,7 +66,11 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                     break;
 
                 case IMPORT:
-                    // todo
+                    stylesheet.addImport(child.getChild(0).getText());
+                    break;
+
+                case VAR:
+                    stylesheet.setVariable(child.getChild(0).getText(), child.getChild(1));
                     break;
 
                 case RULESET:

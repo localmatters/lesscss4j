@@ -15,12 +15,26 @@
  */
 package org.lesscss4j.factory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.Declaration;
 
 import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
+    private ObjectFactory<Expression> _expressionFactory;
+
+    public ObjectFactory<Expression> getExpressionFactory() {
+        return _expressionFactory;
+    }
+
+    public void setExpressionFactory(ObjectFactory<Expression> expressionFactory) {
+        _expressionFactory = expressionFactory;
+    }
+
     public Declaration create(Tree declarationNode) {
         Declaration declaration = new Declaration();
 
@@ -35,10 +49,9 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
                     break;
 
                 case PROP_VALUE:
-                    // todo: probably need a deeper object here
-                    String value = createPropValue(child);
-                    if (value != null) {
-                        declaration.setValue(value);
+                    List<Object> values = createPropValues(child);
+                    if (values != null) {
+                        declaration.setValues(values);
                     }
                     break;
 
@@ -52,21 +65,47 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             }
         }
 
-        return declaration.getValue() == null ? null : declaration;
+        return declaration.getValues() == null ? null : declaration;
     }
 
-    protected String createPropValue(Tree valueNode) {
-        StringBuilder value = new StringBuilder();
-        for (int idx = 0, numChildren = valueNode.getChildCount(); idx < numChildren; idx++) {
+    protected List<Object> createPropValues(Tree valueNode) {
+        // todo: need to handle LITERAL vs. EXPRESSION child nodes...create list of things rather than a string.
+        int numChildren = valueNode.getChildCount();
+        List<Object> values = new ArrayList<Object>(numChildren);
+        for (int idx = 0; idx < numChildren; idx++) {
             Tree child = valueNode.getChild(idx);
-            if (child.getType() == WS) {
-                // todo: some whitespace can be compressed
-                value.append(' ');
-            }
-            else {
-                value.append(child.getText());
+            switch (child.getType()) {
+                case LITERAL: // todo: just make this an expression too?
+                    values.add(child.getChild(0).getText());
+                    break;
+
+                case EXPR:
+                case FUNCTION:
+                    Expression expression = getExpressionFactory().create(child);
+                    if (expression != null) {
+                        values.add(expression);
+                    }
+                    break;
+
+                    // todo: build a function object of some kind
+//                    values.add(child);
+//                    break;
+                
+                case COMMA: // todo: just make this a literal expression?
+                    // These tokens just spit out as is
+                    values.add(child.getText());
+                    break;
+
+                case WS:
+                    values.add(" ");
+                    break;
+
+                default:
+                    handleUnexpectedChild("Unexpected declaration value child:", child);
+                    break;
+
             }
         }
-        return value.toString();
+        return values.size() > 0 ? values : null;
     }
 }

@@ -25,6 +25,7 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.IOExceptionWithCause;
 import org.lesscss4j.factory.DeclarationFactory;
+import org.lesscss4j.factory.ExpressionFactory;
 import org.lesscss4j.factory.MediaFactory;
 import org.lesscss4j.factory.ObjectFactory;
 import org.lesscss4j.factory.PageFactory;
@@ -78,7 +79,10 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
     }
 
     protected ObjectFactory<StyleSheet> createDefaultStyleSheetFactory() {
+        ExpressionFactory expressionFactory = new ExpressionFactory();
+
         DeclarationFactory declarationFactory = new DeclarationFactory();
+        declarationFactory.setExpressionFactory(expressionFactory);
 
         RuleSetFactory ruleSetFactory = new RuleSetFactory();
         ruleSetFactory.setSelectorFactory(new SelectorFactory());

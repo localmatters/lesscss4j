@@ -65,7 +65,7 @@ public class StandardCss21Test extends TestCase {
             
             _compiler.compile(input, output);
 
-            assertEquals(original, output.toString(ENCODING));
+            assertEquals(original.toLowerCase(), output.toString(ENCODING).toLowerCase());
         }
         finally {
             try {

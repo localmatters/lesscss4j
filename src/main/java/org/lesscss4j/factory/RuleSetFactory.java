@@ -54,6 +54,10 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     }
                     break;
 
+                case VAR:
+                    // ruleSet.addVariable(name, value) // todo: value may be an expression or a literal
+                    break;
+
                 case DECLARATION:
                     Declaration declaration = getDeclarationFactory().create(child);
                     if (declaration != null) {

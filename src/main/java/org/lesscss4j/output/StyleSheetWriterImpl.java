@@ -22,6 +22,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Media;
@@ -248,7 +249,12 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writer.write(declaration.getProperty());
         writer.write(':');
         writeSpace(writer);
-        writer.write(declaration.getValue());
+        for (Object value : declaration.getValues()) {
+            if (value instanceof Expression) {
+                value = ((Expression)value).evaluate(null);
+            }
+            writer.write(value.toString());
+        }
         if (declaration.isImportant()) {
             writeSpace(writer);
             writer.write("!important");

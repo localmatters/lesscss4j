@@ -215,13 +215,6 @@ exprValue
     
 numericValue
     : NUMBER
-    | PERCENTAGE
-    | LENGTH
-    | EMS
-    | EXS
-    | ANGLE
-    | TIME
-    | FREQ
     | hexColor
     ;
     
@@ -248,13 +241,12 @@ propertyTerm
 // Internet Explorer specific functions
 function
     : (ALPHA)=>ieAlpha
-    | ident WS* LPAREN ieExprTerm RPAREN
-    -> ^(FUNCTION ident ieExprTerm)
+    | (ident WS* LPAREN ieExprTerm RPAREN -> ^(FUNCTION ident ieExprTerm))
     ;
 
 ieAlpha
     : ALPHA WS* LPAREN WS* ieAlphaTerm (WS* COMMA WS* ieAlphaTerm)* WS* RPAREN
-    -> ^(ALPHA ieAlphaTerm*)
+    -> ^(FUNCTION ALPHA ieAlphaTerm*)
     ;
     
 ieAlphaTerm
@@ -429,6 +421,9 @@ fragment    W   :   ('w'|'W') | '\\' ( 'w' | 'W' | ('0' ('0' ('0' '0'?)?)?)? ('5
 fragment    X   :   ('x'|'X') | '\\' ( 'x' | 'X' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('8') ) ;
 fragment    Y   :   ('y'|'Y') | '\\' ( 'y' | 'Y' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('9') ) ;
 fragment    Z   :   ('z'|'Z') | '\\' ( 'z' | 'Z' | ('0' ('0' ('0' '0'?)?)?)? ('5'|'7')('A'|'a') ) ;
+fragment DIGIT  :  '0'..'9'
+    ;
+    
 
 // -------------
 // Comments.    Comments may not be nested, may be multilined and are delimited
@@ -478,6 +473,7 @@ LPAREN          : '('       ;
 RPAREN          : ')'       ;
 COMMA           : ','       ;
 DOT             : '.'       ;
+PERCENT         : '%'       ;
 
 // -----------------
 // Literal strings. Delimited by either ' or "
@@ -519,6 +515,7 @@ IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
 //          Here we first define the various tokens, then we implement the
 //          number parsing rule.
 //
+/*
 fragment    EMS         :;  // 'em'
 fragment    EXS         :;  // 'ex'
 fragment    LENGTH      :;  // 'px'. 'cm', 'mm', 'in'. 'pt', 'pc'
@@ -527,35 +524,17 @@ fragment    TIME        :;  // 'ms', 's'
 fragment    FREQ        :;  // 'khz', 'hz'
 fragment    DIMENSION   :;  // nnn'Somethingnotyetinvented'
 fragment    PERCENTAGE  :;  // '%'
+*/
 
-NUMBER
-    :   ( (MINUS WS*)? ('0'..'9'+ ('.' '0'..'9'+)? | '.' '0'..'9'+) )
-        (
-              (E (M|X))=>
-                E
-                (
-                      M         { $type = EMS;          }
-                    | X         { $type = EXS;          }
-                )
-            | (P(X|T|C))=>
-               P ( X | T | C )  { $type = LENGTH;       }
-            | (C M)=> C M       { $type = LENGTH;       }
-            | (M (M|S))=> M
-                (
-                      M         { $type = LENGTH;       }
-                    | S         { $type = TIME;         }
-                )
-            | (I N)=> I N       { $type = LENGTH;       }
-            | (D E G)=> D E G   { $type = ANGLE;        }
-            | (R A D)=> R A D   { $type = ANGLE;        }
-            | (S)=>S            { $type = TIME;         }
-            | (K? H Z)=> K? H Z { $type = FREQ;         }
-            | IDENT             { $type = DIMENSION;    }
-            | '%'               { $type = PERCENTAGE;   }
-            
-        )?
+fragment UNIT
+    : IDENT
+    | PERCENT
     ;
 
+NUMBER
+    :   ( (MINUS WS*)? (DIGIT+ (DOT DIGIT+)? | DOT DIGIT+) ) UNIT? 
+    ;
+    
 // ------------
 // url and uri.
 //

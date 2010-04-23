@@ -15,9 +15,11 @@
  */
 package org.lesscss4j.model;
 
+import java.util.List;
+
 public class Declaration {
     private String _property;
-    private String _value;
+    private List<Object> _values;
     private boolean _important = false;
     private boolean _star = false; // ie specific thing...not sure what to call this
 
@@ -29,12 +31,12 @@ public class Declaration {
         _property = property;
     }
 
-    public String getValue() {
-        return _value;
+    public List<Object> getValues() {
+        return _values;
     }
 
-    public void setValue(String value) {
-        _value = value;
+    public void setValues(List<Object> values) {
+        _values = values;
     }
 
     public boolean isImportant() {
