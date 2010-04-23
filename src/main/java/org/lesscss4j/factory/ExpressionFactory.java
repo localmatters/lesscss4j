@@ -36,7 +36,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 return createFunction(expression);
 
             case EXPR: {
-                return createExpression(expression);
+                return createExpression(expression.getChild(0));
             }
 
             default:
@@ -46,35 +46,34 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
     }
 
     protected Expression createExpression(Tree expression) {
-        Tree child = expression.getChild(0);
-        switch (child.getType()) {
+        switch (expression.getType()) {
             case CONSTANT:
-                return new ConstantExpression(child.getChild(0).getText());
+                return new ConstantExpression(expression.getChild(0).getText());
 
             case LITERAL:
-                return new LiteralExpression(child.getChild(0).getText());
+                return new LiteralExpression(expression.getChild(0).getText());
 
             case STAR:
-                return new MultiplyExpression(createExpression(child.getChild(0)),
-                                              createExpression(child.getChild(1)));
+                return new MultiplyExpression(createExpression(expression.getChild(0)),
+                                              createExpression(expression.getChild(1)));
 
             case SOLIDUS:
-                return new DivideExpression(createExpression(child.getChild(0)),
-                                            createExpression(child.getChild(1)));
+                return new DivideExpression(createExpression(expression.getChild(0)),
+                                            createExpression(expression.getChild(1)));
 
             case PLUS:
-                return new AddExpression(createExpression(child.getChild(0)),
-                                         createExpression(child.getChild(1)));
+                return new AddExpression(createExpression(expression.getChild(0)),
+                                         createExpression(expression.getChild(1)));
 
             case MINUS:
-                return new SubtractExpression(createExpression(child.getChild(0)), 
-                                              createExpression(child.getChild(1)));
+                return new SubtractExpression(createExpression(expression.getChild(0)),
+                                              createExpression(expression.getChild(1)));
 
             case VAR:
-                return new VariableReferenceExpression(child.getChild(0).getText());
+                return new VariableReferenceExpression(expression.getChild(0).getText());
 
             default:
-                handleUnexpectedChild("Unexpected expression type", child);
+                handleUnexpectedChild("Unexpected expression type", expression);
                 return null; // shouldn't get here
         }
     }
