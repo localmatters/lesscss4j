@@ -15,11 +15,19 @@
  */
 package org.lesscss4j.model.expression;
 
-import java.util.Map;
+import org.lesscss4j.model.VariableContainer;
 
 public class EvaluationContext {
     private EvaluationContext _parentContext;
-    private Map<String, Expression> _variables;
+    private VariableContainer _variableContainer;
+
+    public EvaluationContext() {
+    }
+
+    public EvaluationContext(VariableContainer variableContainer, EvaluationContext parent) {
+        setParentContext(parent);
+        setVariableContainer(variableContainer);
+    }
 
     public EvaluationContext getParentContext() {
         return _parentContext;
@@ -29,16 +37,16 @@ public class EvaluationContext {
         _parentContext = parentContext;
     }
 
-    public Map<String, Expression> getVariables() {
-        return _variables;
+    public VariableContainer getVariableContainer() {
+        return _variableContainer;
     }
 
-    public void setVariables(Map<String, Expression> variables) {
-        _variables = variables;
+    public void setVariableContainer(VariableContainer variableContainer) {
+        _variableContainer = variableContainer;
     }
 
     public Expression getVariableExpression(String name) {
-        Expression value = getVariables().get(name);
+        Expression value = getVariableContainer().getVariable(name);
         if (value == null && getParentContext() != null) {
             value = getParentContext().getVariableExpression(name);
         }

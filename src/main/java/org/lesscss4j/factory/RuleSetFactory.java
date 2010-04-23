@@ -19,12 +19,22 @@ import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
+import org.lesscss4j.model.expression.Expression;
 
 import static org.lesscss4j.parser.LessCssLexer.*;
 
 public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
     private ObjectFactory<Declaration> _declarationFactory;
     private ObjectFactory<Selector> _selectorFactory;
+    private ObjectFactory<Expression> _expressionFactory;
+
+    public ObjectFactory<Expression> getExpressionFactory() {
+        return _expressionFactory;
+    }
+
+    public void setExpressionFactory(ObjectFactory<Expression> expressionFactory) {
+        _expressionFactory = expressionFactory;
+    }
 
     public ObjectFactory<Declaration> getDeclarationFactory() {
         return _declarationFactory;
@@ -55,7 +65,10 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     break;
 
                 case VAR:
-                    // ruleSet.addVariable(name, value) // todo: value may be an expression or a literal
+                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    if (expr != null) {
+                        ruleSet.setVariable(child.getChild(0).getText(), expr);
+                    }
                     break;
 
                 case DECLARATION:

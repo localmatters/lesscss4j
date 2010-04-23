@@ -15,6 +15,8 @@
  */
 package org.lesscss4j.model.expression;
 
+import org.lesscss4j.exception.UndefinedVariableException;
+
 public class VariableReferenceExpression implements Expression {
     private String _variableName;
 
@@ -37,9 +39,8 @@ public class VariableReferenceExpression implements Expression {
     public Expression evaluate(EvaluationContext context) {
         Expression value = context.getVariableExpression(getVariableName());
         if (value == null) {
-            //todo
-            value = this;
+            throw new UndefinedVariableException(getVariableName()); // todo: pass 'this' instead?
         }
-        return value;
+        return value.evaluate(context);
     }
 }

@@ -25,7 +25,6 @@ tokens {
     RULESET;
     SELECTOR;
     DECLARATION;
-    SPACE;
     IMPORT;
     PROP_VALUE;
     LITERAL;
@@ -69,7 +68,7 @@ charSet
 // Import.  Location of an external style sheet to include in the ruleset.
 //
 importFile
-    : IMPORT_SYM WS+ importLocation  (WS+ medium (WS* COMMA WS* medium)*)? WS* SEMI
+    : '@' IMPORT_SYM WS+ importLocation  (WS+ medium (WS* COMMA WS* medium)*)? WS* SEMI
     -> ^(IMPORT importLocation medium*)
     ;
     
@@ -80,7 +79,7 @@ importLocation : STRING|URI ;
 //          it belongs to the signified medium.
 //
 media
-    : MEDIA_SYM WS+ medium (WS* COMMA WS* medium)* WS*
+    : '@' MEDIA_SYM WS+ medium (WS* COMMA WS* medium)* WS*
         LBRACE WS*
             (ruleSet WS*)*
         RBRACE
@@ -107,7 +106,7 @@ bodyset
     ;   
     
 page
-    : PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declaration WS*)* RBRACE
+    : '@' PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declaration WS*)* RBRACE
     -> ^(PAGE_SYM pseudoPage? declaration*)
     ;
 
@@ -183,7 +182,7 @@ pseudo
     
 variableDef
     : variable WS* COLON WS* propertyValue WS* SEMI
-    -> ^(VAR variable propertyValue)
+    -> ^(VAR variable ^(EXPR propertyValue))
     ;
     
 variable
@@ -203,7 +202,7 @@ multiplicativeExpression
     ;
     
 primaryExpression
-    : ('(' WS*)! additiveExpression (WS* ')')!
+    : (LPAREN! WS!*) additiveExpression (WS!* RPAREN!)
     | exprValue
     ;
 
@@ -302,6 +301,9 @@ ident
     | ALPHA 
     | EXPRESSION 
     | CHARSET
+    | MEDIA_SYM
+    | IMPORT_SYM
+    | PAGE_SYM
     ;
 
 // ==============================================================
@@ -487,6 +489,10 @@ STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; }
 EXPRESSION : E X P R E S S I O N        ;
 ALPHA      : A L P H A                  ;
 CHARSET    : 'charset'                  ;
+IMPORT_SYM : I M P O R T                ;
+PAGE_SYM   : P A G E                    ;
+MEDIA_SYM  : M E D I A                  ;
+
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
@@ -497,10 +503,6 @@ IDENT           : '-'? NMSTART NMCHAR*  ;
 // Reference.   Reference to an element in the body we are styling, such as <XXXX id="reference">
 //
 HASH            : '#' NAME              ;
-
-IMPORT_SYM      : '@' I M P O R T       ;
-PAGE_SYM        : '@' P A G E           ;
-MEDIA_SYM       : '@' M E D I A         ;
 
 
 IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;

@@ -21,6 +21,7 @@ import org.lesscss4j.model.expression.ConstantExpression;
 import org.lesscss4j.model.expression.DivideExpression;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.expression.FunctionExpression;
+import org.lesscss4j.model.expression.ListExpression;
 import org.lesscss4j.model.expression.LiteralExpression;
 import org.lesscss4j.model.expression.MultiplyExpression;
 import org.lesscss4j.model.expression.SubtractExpression;
@@ -35,14 +36,40 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
             case FUNCTION:
                 return createFunction(expression);
 
-            case EXPR: {
-                return createExpression(expression.getChild(0));
-            }
+            case EXPR:
+                if (expression.getChildCount() > 1) {
+                    return createListExpression(expression);
+                }
+                else {
+                    return createExpression(expression.getChild(0));
+                }
+
+            case LITERAL:
+                return new LiteralExpression(expression.getChild(0).getText());
 
             default:
                 handleUnexpectedChild("Unexpected expression type", expression);
                 return null; // shouldn't get here
         }
+    }
+
+    private Expression createListExpression(Tree expression) {
+        ListExpression listExpr = new ListExpression();
+        for (int idx = 0, numChildren = expression.getChildCount(); idx < numChildren; idx++) {
+            Tree child = expression.getChild(idx);
+            switch (child.getType()) {
+                case COMMA:
+                case WS:
+                    listExpr.addExpression(new LiteralExpression(child.getText()));
+                    break;
+
+                default:
+                    listExpr.addExpression(createExpression(child));
+                    break;
+            }
+        }
+
+        return listExpr;
     }
 
     protected Expression createExpression(Tree expression) {
@@ -71,6 +98,9 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
 
             case VAR:
                 return new VariableReferenceExpression(expression.getChild(0).getText());
+
+            case EXPR:
+                return createExpression(expression.getChild(0));
 
             default:
                 handleUnexpectedChild("Unexpected expression type", expression);

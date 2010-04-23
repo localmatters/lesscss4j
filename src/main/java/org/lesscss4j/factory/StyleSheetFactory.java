@@ -20,6 +20,7 @@ import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
+import org.lesscss4j.model.expression.Expression;
 
 import static org.lesscss4j.parser.LessCssLexer.*;
 
@@ -27,6 +28,15 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<RuleSet> _ruleSetFactory;
     private ObjectFactory<Media> _mediaFactory;
     private ObjectFactory<Page> _pageFactory;
+    private ObjectFactory<Expression> _expressionFactory;
+
+    public ObjectFactory<Expression> getExpressionFactory() {
+        return _expressionFactory;
+    }
+
+    public void setExpressionFactory(ObjectFactory<Expression> expressionFactory) {
+        _expressionFactory = expressionFactory;
+    }
 
     public ObjectFactory<RuleSet> getRuleSetFactory() {
         return _ruleSetFactory;
@@ -70,7 +80,10 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                     break;
 
                 case VAR:
-                    stylesheet.setVariable(child.getChild(0).getText(), child.getChild(1));
+                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    if (expr != null) {
+                        stylesheet.setVariable(child.getChild(0).getText(), expr);
+                    }
                     break;
 
                 case RULESET:

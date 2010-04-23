@@ -87,6 +87,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
         RuleSetFactory ruleSetFactory = new RuleSetFactory();
         ruleSetFactory.setSelectorFactory(new SelectorFactory());
         ruleSetFactory.setDeclarationFactory(declarationFactory);
+        ruleSetFactory.setExpressionFactory(expressionFactory);
 
         MediaFactory mediaFactory = new MediaFactory();
         mediaFactory.setRuleSetFactory(ruleSetFactory);
@@ -98,6 +99,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
         styleSheetFactory.setRuleSetFactory(ruleSetFactory);
         styleSheetFactory.setMediaFactory(mediaFactory);
         styleSheetFactory.setPageFactory(pageFactory);
+        styleSheetFactory.setExpressionFactory(expressionFactory);
 
         return styleSheetFactory;
     }

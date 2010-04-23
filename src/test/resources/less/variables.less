@@ -10,6 +10,8 @@
 @b: @a * 10;
 @c: #888;
 
+@m: 5px 1cm 0 (2px + 3px);
+
 @fonts: "Trebuchet MS", Verdana, sans-serif;
 @f: @fonts;
 
@@ -21,9 +23,14 @@
   color: @c;
   font-family: @f;
   quotes: @q;
+  margin: @m;
 }
 
 .alpha {
   @o: 95;
   filter: alpha(opacity=@o);
+
+  @x: 1px; // override of 'x' should not affect value of 'z'
+  width: @z + 1px;
+  margin: 0 3px (@x + 1px) @x;
 }

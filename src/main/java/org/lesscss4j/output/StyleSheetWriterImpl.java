@@ -22,6 +22,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import org.lesscss4j.model.VariableContainerImpl;
+import org.lesscss4j.model.expression.EvaluationContext;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
@@ -30,6 +32,7 @@ import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.StyleSheet;
 
+// todo: It might make sense to break this up into separate writers for each type of element in the stylesheet
 public class StyleSheetWriterImpl implements StyleSheetWriter {
     private boolean _prettyPrintEnabled = false;
     private String _defaultEncoding = "UTF-8";
@@ -153,10 +156,16 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             writeSemi(writer);
         }
 
-        writeBodyElements(writer, styleSheet.getBodyElements(), 0);
+        EvaluationContext evalContext = new EvaluationContext();
+        evalContext.setVariableContainer(new VariableContainerImpl(styleSheet));
+
+        writeBodyElements(writer, styleSheet.getBodyElements(), evalContext, 0);
     }
 
-    protected void writeBodyElements(Writer writer, List<BodyElement> bodyElements, int indent) throws IOException {
+    protected void writeBodyElements(Writer writer,
+                                     List<BodyElement> bodyElements,
+                                     EvaluationContext context,
+                                     int indent) throws IOException {
         for (int i = 0, bodyElementsSize = bodyElements.size(); i < bodyElementsSize; i++) {
             BodyElement element = bodyElements.get(i);
             if (i > 0 && isPrettyPrintEnabled() && getPrettyPrintOptions().isLineBetweenRuleSets()) {
@@ -165,6 +174,8 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             writeIndent(writer, indent);
             if (element instanceof Media) {
                 writer.write("@media ");
+
+                // todo: Can Media define variables?
 
                 boolean first = true;
                 for (String medium : ((Media) element).getMediums()) {
@@ -176,19 +187,19 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
                 }
                 writeOpeningBrace(writer, indent, null);
                 writeBreak(writer, indent);
-                writeBodyElements(writer, ((Media) element).getBodyElements(), indent + 1);
+                writeBodyElements(writer, ((Media) element).getBodyElements(), context, indent + 1);
                 writer.write("}");
                 writeBreak(writer, indent);
             }
             else if (element instanceof RuleSet) {
-                writeRuleSet(writer, (RuleSet) element, indent);
+                writeRuleSet(writer, (RuleSet) element, context, indent);
             }
             // todo: page
         }
     }
 
 
-    protected void writeRuleSet(Writer writer, RuleSet ruleSet, int indent) throws IOException {
+    protected void writeRuleSet(Writer writer, RuleSet ruleSet, EvaluationContext context, int indent) throws IOException {
         // Don't write rule sets with empty bodies
         List<Declaration> declarations = ruleSet.getDeclarations();
         if (declarations == null || declarations.size() == 0) {
@@ -206,6 +217,8 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeOpeningBrace(writer, indent, declarations);
         writeDeclarationBraceSpace(writer, declarations);
 
+        EvaluationContext ruleSetContext = new EvaluationContext(new VariableContainerImpl(ruleSet, context), context);
+
         boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
         for (int idx = 0, declarationSize = declarations.size(); idx < declarationSize; idx++) {
             if (idx > 0) {
@@ -217,7 +230,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             if (oneLineDeclarationList) {
                 declarationIndent = 0;
             }
-            writeDeclaration(writer, declaration, declarationIndent);
+            writeDeclaration(writer, declaration, ruleSetContext, declarationIndent);
         }
 
         writeDeclarationBraceSpace(writer, declarations);
@@ -241,7 +254,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writer.write('{');
     }
 
-    protected void writeDeclaration(Writer writer, Declaration declaration, int indent) throws IOException {
+    protected void writeDeclaration(Writer writer, Declaration declaration, EvaluationContext context, int indent) throws IOException {
         writeIndent(writer, indent);
         if (declaration.isStar()) {
             writer.write('*');
@@ -251,7 +264,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeSpace(writer);
         for (Object value : declaration.getValues()) {
             if (value instanceof Expression) {
-                value = ((Expression)value).evaluate(null);
+                value = ((Expression)value).evaluate(context);
             }
             writer.write(value.toString());
         }

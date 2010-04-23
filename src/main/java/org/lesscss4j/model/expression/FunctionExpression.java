@@ -18,6 +18,7 @@ package org.lesscss4j.model.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+// todo: extend ListExpression
 public class FunctionExpression implements Expression {
     private String _name;
     private List<Expression> _arguments;
@@ -54,10 +55,13 @@ public class FunctionExpression implements Expression {
     }
 
     public Expression evaluate(EvaluationContext context) {
-        for (Expression arg : getArguments()) {
-            arg.evaluate(context);
+        StringBuilder buf = new StringBuilder(getName());
+        buf.append("(");
+        for (Expression expression : getArguments()) {
+            buf.append(expression.evaluate(context).toString());
         }
-        return this;
+        buf.append(')');
+        return new LiteralExpression(buf.toString());
     }
 
     @Override

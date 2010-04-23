@@ -16,14 +16,17 @@
 package org.lesscss4j.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StyleSheet extends BodyElementContainer {
+import org.lesscss4j.model.expression.Expression;
+
+public class StyleSheet extends BodyElementContainer implements VariableContainer {
     private String _charset;
     private List<String> _imports = new ArrayList<String>();
-    private Map<String, Object> _variables = new LinkedHashMap<String, Object>();
+    private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
 
     public String getCharset() {
         return _charset;
@@ -48,11 +51,15 @@ public class StyleSheet extends BodyElementContainer {
         _imports.add(importValue);
     }
 
-    public Object setVariable(String name, Object value) {
+    public Expression setVariable(String name, Expression value) {
         return _variables.put(name, value);
     }
 
-    public Object getVariable(String name) {
+    public Expression getVariable(String name) {
         return _variables.get(name);
+    }
+
+    public Iterator<String> getVariableNames() {
+        return _variables.keySet().iterator();
     }
 }

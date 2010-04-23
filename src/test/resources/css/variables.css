@@ -1,8 +1,13 @@
 .variables { width: 14cm; }
 .variables {
   height: 24px;
-  color: #888888;
+  color: #888;
   font-family: "Trebuchet MS", Verdana, sans-serif;
   quotes: "~" "~";
+  margin: 5px 1cm 0 5px;
 }
-.alpha { filter: alpha(opacity=95); }
+.alpha {
+  filter: alpha(opacity=95);
+  width: 14px;
+  margin: 0 3px 2px 1px;
+}
