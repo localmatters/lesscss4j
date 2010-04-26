@@ -533,7 +533,7 @@ NUMBER
 URI :   U R L 
          (
              LPAREN WS* (STRING) WS* RPAREN
-           | LPAREN WS*  URL_NO_WS (~('\n'|'\r'|'\f'|'\''|'"'|RPAREN))+ URL_NO_WS WS* ( RPAREN | { $type = INVALID; } )
+           | LPAREN WS*  URL_NO_WS (~('\n'|'\r'|'\f'|'\''|'"'|RPAREN)* URL_NO_WS)? WS* ( RPAREN | { $type = INVALID; } )
          )
     ;
 
