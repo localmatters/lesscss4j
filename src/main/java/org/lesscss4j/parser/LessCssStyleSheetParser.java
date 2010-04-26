@@ -129,7 +129,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
         byte[] buf = new byte[getReadBufferSize()];
         int len = pushbackStream.read(buf, 0, buf.length);
         if (len >= 0) {
-            pushbackStream.unread(buf);
+            pushbackStream.unread(buf, 0, len);
             String bufStr = new String(buf, 0, len, "ASCII");
             encoding = parseCharset(bufStr);
         }
