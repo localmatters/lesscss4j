@@ -112,9 +112,6 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
         Tree nameNode = function.getChild(0);
         FunctionExpression func = new FunctionExpression(nameNode.getText());
         switch (nameNode.getType()) {
-            case EXPRESSION:
-                break;
-
             case ALPHA:
                 for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
                     Tree child = function.getChild(idx);
@@ -127,6 +124,19 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 break;
 
             case IDENT:
+                for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
+                    Tree child = function.getChild(idx);
+                    switch (child.getType()) {
+                        case VAR:
+                            func.addArgument(new VariableReferenceExpression(child.getText()));
+                            break;
+
+                        default:
+                            func.addArgument(new LiteralExpression(child.getText()));
+                            break;
+
+                    }
+                }
                 break;
         }
         return func;
