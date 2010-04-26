@@ -42,6 +42,7 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             Tree child = declarationNode.getChild(idx);
             switch (child.getType()) {
                 case IDENT:
+                case FONT:
                     declaration.setProperty(child.getText());
                     if (child.getChild(0) != null && child.getChild(0).getType() == STAR) {
                         declaration.setStar(true);
@@ -87,11 +88,12 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
                     }
                     break;
 
-                    // todo: build a function object of some kind
-//                    values.add(child);
-//                    break;
-                
-                case COMMA: // todo: just make this a literal expression?
+                case COMMA:
+                case NUMBER:
+                case INTEGER:
+                case SOLIDUS:
+                case IDENT:
+                case STRING:
                     // These tokens just spit out as is
                     values.add(child.getText());
                     break;

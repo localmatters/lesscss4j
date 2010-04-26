@@ -23,6 +23,11 @@ p + h1 { font-size: 2.2em; }
 input[type="text"] { font-weight: normal; }
 h2[title] { font-size: 100%; }
 [disabled] { color: transparent; }
+body.ie6 {
+  width: expression(Math.max(document.documentElement.clientWidth,1040) + 'px');
+  filter: expression(this._filter ? this._filter:((this._filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + this.currentStyle.backgroundImage.replace('url("',"").replace('")','') + "',sizingMethod='crop')")&&(this.style.backgroundImage="none") && this._filter));
+  margin: 0;
+}
 #shorthands {
   border: 1px solid #000;
   font: 12px/16px Arial;
@@ -38,10 +43,11 @@ h2[title] { font-size: 100%; }
 .misc {
   -moz-border-radius: 2px;
   display: -moz-inline-stack;
-  width: 0.1em;
+  width: .1em;
   background-color: #009998;
   background-image: url(images/image.jpg);
   background: -webkit-gradient(linear, left top, left bottom, from(red), to(blue));
+  margin: 0;
 }
 #important {
   color: red !important;

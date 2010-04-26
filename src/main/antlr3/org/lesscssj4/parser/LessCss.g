@@ -214,17 +214,53 @@ exprValue
     
 numericValue
     : NUMBER
+    | INTEGER
     | hexColor
     ;
     
 declaration
-    : property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
-    -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?)
+    : (STAR? FONT)=>fontDeclaration
+    | (property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
+    -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?))
+    ;
+    
+fontDeclaration
+    : STAR? FONT WS* COLON WS* fontPropertyValue (WS* important)? WS* SEMI
+    -> ^(DECLARATION ^(FONT STAR?) ^(PROP_VALUE fontPropertyValue) important?)
+    ;
+
+fontPropertyValue
+    : ( 
+        ( (fontStyle WS*)* fontSize (WS!* SOLIDUS WS!* lineHeight)? WS* fontFamily (WS!* COMMA WS* fontFamily)* )
+        | ident
+      )
+//      (WS* propertyValue)*
+    ;
+    
+fontFamily
+    : ident
+    | STRING
+    | variable
+    ;
+    
+lineHeight
+    : ident
+    | numericValue
+    ;
+    
+fontSize
+    : ident
+    | numericValue
+    ;
+
+fontStyle
+    : ident
+    | INTEGER
     ;
 
 property
-    : STAR? ident
-    -> ^(ident STAR?)
+    : STAR? identNoFont
+    -> ^(identNoFont STAR?)
     ;
     
 propertyValue
@@ -233,6 +269,7 @@ propertyValue
     
 propertyTerm
     : (ident WS* LPAREN)=>function
+    | ((ident|variable) WS* SOLIDUS)=>fontSize -> ^(LITERAL fontSize)
     | literal              -> ^(LITERAL literal)
     | additiveExpression   -> ^(EXPR additiveExpression)
     ;
@@ -265,15 +302,19 @@ important
 hexColor 
     : HASH
     ;
-    
-ident    
+
+identNoFont    
     : IDENT 
     | ALPHA 
-    | EXPRESSION 
     | CHARSET
     | MEDIA_SYM
     | IMPORT_SYM
     | PAGE_SYM
+    ;
+    
+ident
+    : identNoFont
+    | FONT
     ;
 
 // ==============================================================
@@ -450,13 +491,13 @@ STRING     : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; } )
            ;
 
 // Some special identifiers
-EXPRESSION : E X P R E S S I O N        ;
 ALPHA      : A L P H A                  ;
 CHARSET    : 'charset'                  ;
 IMPORT_SYM : I M P O R T                ;
 PAGE_SYM   : P A G E                    ;
 MEDIA_SYM  : M E D I A                  ;
 FONT_FACE  : F O N T '-' F A C E        ;
+FONT       : F O N T                    ;
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
@@ -479,6 +520,8 @@ fragment UNIT
     : IDENT
     | PERCENT
     ;
+
+INTEGER : DIGIT+ ;
 
 NUMBER
     :   ( (MINUS WS*)? (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT? 
