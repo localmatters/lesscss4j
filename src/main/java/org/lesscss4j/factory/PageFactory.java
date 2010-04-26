@@ -20,7 +20,7 @@ import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.expression.Expression;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class PageFactory extends AbstractObjectFactory<Page> {
     private ObjectFactory<Declaration> _declarationFactory;

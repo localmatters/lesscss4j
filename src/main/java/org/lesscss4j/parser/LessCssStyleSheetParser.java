@@ -24,6 +24,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.IOExceptionWithCause;
+import org.lesscss4j.exception.ParseException;
 import org.lesscss4j.factory.DeclarationFactory;
 import org.lesscss4j.factory.ExpressionFactory;
 import org.lesscss4j.factory.MediaFactory;
@@ -33,12 +34,15 @@ import org.lesscss4j.factory.RuleSetFactory;
 import org.lesscss4j.factory.SelectorFactory;
 import org.lesscss4j.factory.StyleSheetFactory;
 import org.lesscss4j.model.StyleSheet;
+import org.lesscss4j.parser.antlr.LessCssLexer;
+import org.lesscss4j.parser.antlr.LessCssParser;
 
 public class LessCssStyleSheetParser implements StyleSheetParser {
     private String _defaultEncoding;
     private int _initialBufferSize = ANTLRInputStream.INITIAL_BUFFER_SIZE;
     private int _readBufferSize = ANTLRInputStream.READ_BUFFER_SIZE;
     private ObjectFactory<StyleSheet> _styleSheetFactory;
+    private boolean _ignoreErrors;
 
     public static final String CHARSET_SYM = "@charset";
     public static final String NEWLINE_CHARS = "\n\r\f";
@@ -111,6 +115,10 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
             LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input));
             LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
             LessCssParser.styleSheet_return result = parser.styleSheet();
+
+            if (!parser.getErrors().isEmpty()) {
+                throw new ParseException(parser.getErrors());
+            }
 
             ObjectFactory<StyleSheet> ssFactory = getStyleSheetFactory();
             return ssFactory.create((Tree) result.getTree());

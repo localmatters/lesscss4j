@@ -25,7 +25,7 @@ import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.Css21Parser;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class Test {
     public static void main(String[] args) throws Exception {

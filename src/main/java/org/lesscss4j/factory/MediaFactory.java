@@ -20,7 +20,7 @@ import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.expression.Expression;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class MediaFactory extends AbstractObjectFactory<Media> {
     private ObjectFactory<Expression> _expressionFactory;

@@ -22,7 +22,7 @@ import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<RuleSet> _ruleSetFactory;

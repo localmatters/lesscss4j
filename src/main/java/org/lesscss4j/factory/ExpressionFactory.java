@@ -27,7 +27,7 @@ import org.lesscss4j.model.expression.MultiplyExpression;
 import org.lesscss4j.model.expression.SubtractExpression;
 import org.lesscss4j.model.expression.VariableReferenceExpression;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class ExpressionFactory extends AbstractObjectFactory<Expression> {
     public Expression create(Tree expression) {

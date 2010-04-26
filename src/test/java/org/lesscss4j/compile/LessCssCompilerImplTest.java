@@ -87,4 +87,12 @@ public class LessCssCompilerImplTest extends TestCase {
     public void testPlainCss() throws IOException {
         compileAndValidate("less/css.less", "css/css.css");
     }
+
+    public void testComments() throws IOException {
+        compileAndValidate("less/comments.less", "css/comments.css");
+    }
+
+    public void testCss3() throws IOException {
+        compileAndValidate("less/css-3.less", "css/css-3.css");
+    }
 }

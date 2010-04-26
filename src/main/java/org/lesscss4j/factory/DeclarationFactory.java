@@ -22,7 +22,7 @@ import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.Declaration;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
     private ObjectFactory<Expression> _expressionFactory;
@@ -90,7 +90,6 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
 
                 case COMMA:
                 case NUMBER:
-                case INTEGER:
                 case SOLIDUS:
                 case IDENT:
                 case STRING:

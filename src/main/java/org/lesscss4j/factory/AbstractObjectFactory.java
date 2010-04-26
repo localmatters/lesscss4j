@@ -16,9 +16,9 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.parser.LessCssParser;
+import org.lesscss4j.parser.antlr.LessCssParser;
 
-import static org.lesscss4j.parser.LessCssLexer.*;
+import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public abstract class AbstractObjectFactory<T> implements ObjectFactory<T> {
     protected String formatNode(String prefix, Tree node) {
