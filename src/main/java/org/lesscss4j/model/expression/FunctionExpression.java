@@ -57,8 +57,10 @@ public class FunctionExpression implements Expression {
     public Expression evaluate(EvaluationContext context) {
         StringBuilder buf = new StringBuilder(getName());
         buf.append("(");
-        for (Expression expression : getArguments()) {
-            buf.append(expression.evaluate(context).toString());
+        if (getArguments() != null) {
+            for (Expression expression : getArguments()) {
+                buf.append(expression.evaluate(context).toString());
+            }
         }
         buf.append(')');
         return new LiteralExpression(buf.toString());
