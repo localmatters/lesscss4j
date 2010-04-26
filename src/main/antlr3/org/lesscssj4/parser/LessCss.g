@@ -350,6 +350,7 @@ fragment NMSTART
 
 fragment NMCHAR
     : NMSTART
+    | '0'..'9'
     | '-'
     ;
 
