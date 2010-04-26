@@ -72,7 +72,9 @@ importFile
     -> ^(IMPORT importLocation medium*)
     ;
     
-importLocation : STRING|URI ;
+importLocation 
+    : STRING
+    | URI ;
 
 // ---------
 // Media.   Introduce a set of rules that are to be used if the consumer indicates
@@ -124,11 +126,8 @@ combinatorNonWs
     ;
             
 ruleSet
-    : selector (WS* COMMA WS* selector)* WS* 
-      LBRACE 
-        (WS* ruleSetElement)* 
-      WS* RBRACE
-    -> ^(RULESET ^(SELECTOR selector)+ ruleSetElement*)
+    : ruleSetSelector WS* LBRACE (WS* ruleSetElement)* WS* RBRACE
+    -> ^(RULESET ^(SELECTOR ruleSetSelector)+ ruleSetElement*)
     ;
     
 ruleSetElement
@@ -138,6 +137,11 @@ ruleSetElement
 declarationBlockElement
     : declaration
     | variableDef
+    ;
+    
+ruleSetSelector
+    : '@' FONT_FACE
+    | selector (WS* COMMA WS* selector)*
     ;
 
 selector
@@ -170,17 +174,11 @@ elementName
     ;
 
 attrib
-    : LBRACKET
-        ident
-            (
-                ( OPEQ | INCLUDES | DASHMATCH )
-                ( ident | STRING )
-            )?
-      RBRACKET
-;
+    : LBRACKET WS* ident (WS* ( OPEQ | INCLUDES | DASHMATCH ) WS* ( ident | STRING ))? WS* RBRACKET
+    ;
 
 pseudo
-    : COLON COLON? ident ( LPAREN ident? RPAREN )?
+    : COLON COLON? ident ( LPAREN (WS* ident)? WS* RPAREN )?
     ;
     
 variableDef
@@ -262,38 +260,7 @@ ieExprTerm
 
 important
     : IMPORTANT_SYM
-    ;
-/*    
-expr 
-    : term ((WS+|WS* operator WS*) term)*
-    ;
-
-term
-    : additiveExpression
-    | unaryOperator?
-        (
-              NUMBER
-            | PERCENTAGE
-            | LENGTH
-            | EMS
-            | EXS
-            | ANGLE
-            | TIME
-            | FREQ
-        )
-    | STRING
-    | function
-    | IDENT
-    | URI
-    | hexColor
-    ;
-
-unaryOperator
-    : MINUS
-    | PLUS
-    ;  
-    
- */   
+    ;   
 
 hexColor 
     : HASH
@@ -365,36 +332,27 @@ fragment    UNICODE     : '\\' HEXCHAR
                                         )?
                                     )?
                                 )? 
-                                ('\r'|'\n'|'\t'|'\f'|' ')*  ;
+                                ;
+//                                ('\r'|'\n'|'\t'|'\f'|' ')*  ;
                                 
-fragment    ESCAPE      : UNICODE | '\\' ~('\r'|'\n'|'\f'|HEXCHAR)  ;
+fragment ESCAPE
+    : UNICODE
+    | '\\' ~('\r'|'\n'|'\f'|HEXCHAR)
+    ;
 
-fragment    NMSTART     : '_'
-                        | 'a'..'z'
-                        | 'A'..'Z'
-                        | NONASCII
-                        | ESCAPE
-                        ;
+fragment NMSTART
+    : '_'
+    | 'a'..'z'
+    | 'A'..'Z'
+    | NONASCII
+    | ESCAPE
+    ;
 
-fragment    NMCHAR      : '_'
-                        | 'a'..'z'
-                        | 'A'..'Z'
-                        | '0'..'9'
-                        | '-'
-                        | NONASCII
-                        | ESCAPE
-                        ;
-                        
-fragment    NAME        : NMCHAR+   ;
+fragment NMCHAR
+    : NMSTART
+    | '-'
+    ;
 
-fragment    URL         : ( 
-                              '['|'!'|'#'|'$'|'%'|'&'|'*'|'-'|'~'
-                            | NONASCII
-                            | ESCAPE
-                          )*
-                        ;
-
-                        
 // Basic Alpha characters in upper, lower and escaped form. Note that
 // whitespace and newlines are unimportant even within keywords. We do not
 // however call a further fragment rule to consume these characters for
@@ -437,12 +395,9 @@ fragment DIGIT  :  '0'..'9'
 //              COMMENTS are hidden from the parser which simplifies the parser 
 //              grammar a lot.
 //
-COMMENT         
-    : '/*' ( options { greedy=false; } : .*) '*/' { $channel=HIDDEN; } 
-    ;
-                
-LINE_COMMENT    
-    : '//' (~('\n'|'\r'|'\f'))* ('\r' | '\r'? '\n' | EOF) { $channel=HIDDEN; }
+COMMENT
+    :   '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
+    |   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
     ;
 
 // ---------------------
@@ -451,17 +406,17 @@ LINE_COMMENT
 //                      They comment open is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDO             : '<!--' { $channel=HIDDEN; }  // CDO on channel 3 in case we want it later
-                ;
-    
+CDO : '<!--' { $channel=HIDDEN; }  // CDO on channel 3 in case we want it later
+    ;
+
 // ---------------------            
 // HTML comment close.  HTML/XML comments may be placed around style sheets so that they
 //                      are hidden from higher scope parsing engines such as HTML parsers.
 //                      They comment close is therfore ignored by the CSS parser and we hide
 //                      it from the ANLTR parser.
 //
-CDC             : '-->' { $channel=HIDDEN; }  // CDC on channel 4 in case we want it later
-                ;
+CDC : '-->' { $channel=HIDDEN; }  // CDC on channel 4 in case we want it later
+    ;
                 
 INCLUDES        : '~=' ;
 DASHMATCH       : '|=' ;
@@ -488,9 +443,10 @@ PERCENT         : '%'  ;
 // Literal strings. Delimited by either ' or "
 //
 fragment    INVALID :;
-STRING          : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; } )
-                | '"'  ( ~('\n'|'\r'|'\f'|'"')  )* ( '"'  | { $type = INVALID; } )
-                ;
+
+STRING     : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; } )
+           | '"'  ( ~('\n'|'\r'|'\f'|'"')  )* ( '"'  | { $type = INVALID; } )
+           ;
 
 // Some special identifiers
 EXPRESSION : E X P R E S S I O N        ;
@@ -499,42 +455,25 @@ CHARSET    : 'charset'                  ;
 IMPORT_SYM : I M P O R T                ;
 PAGE_SYM   : P A G E                    ;
 MEDIA_SYM  : M E D I A                  ;
-
+FONT_FACE  : F O N T '-' F A C E        ;
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
 //
-IDENT           : '-'? NMSTART NMCHAR*  ;
+IDENT      : '-'? NMSTART NMCHAR*  ;
 
 // -------------
 // Reference.   Reference to an element in the body we are styling, such as <XXXX id="reference">
 //
-HASH            : '#' NAME              ;
+HASH       : '#' NMCHAR+           ;
 
 
-IMPORTANT_SYM   : '!' (WS|COMMENT)* I M P O R T A N T   ;
+IMPORTANT_SYM   : '!' (WS)* I M P O R T A N T   ;
 
 // ---------
 // Numbers. Numbers can be followed by pre-known units or unknown units
 //          as well as '%' it is a precentage. Whitespace cannot be between
-//          the numebr and teh unit or percent. Hence we scan any numeric, then
-//          if we detect one of the lexical sequences for unit tokens, we change
-//          the lexical type dynamically.
-//
-//          Here we first define the various tokens, then we implement the
-//          number parsing rule.
-//
-/*
-fragment    EMS         :;  // 'em'
-fragment    EXS         :;  // 'ex'
-fragment    LENGTH      :;  // 'px'. 'cm', 'mm', 'in'. 'pt', 'pc'
-fragment    ANGLE       :;  // 'deg', 'rad', 'grad'
-fragment    TIME        :;  // 'ms', 's'
-fragment    FREQ        :;  // 'khz', 'hz'
-fragment    DIMENSION   :;  // nnn'Somethingnotyetinvented'
-fragment    PERCENTAGE  :;  // '%'
-*/
-
+//          the number and the unit or percent.
 fragment UNIT
     : IDENT
     | PERCENT
@@ -549,8 +488,8 @@ NUMBER
 //
 URI :   U R L 
          (
-             '(' WS* (STRING) WS* ')'
-           | '(' WS*  URL_NO_WS (~('\n'|'\r'|'\f'|'\''|'"'|')'))+ URL_NO_WS WS* ( ')' | { $type = INVALID; } )
+             LPAREN WS* (STRING) WS* RPAREN
+           | LPAREN WS*  URL_NO_WS (~('\n'|'\r'|'\f'|'\''|'"'|RPAREN))+ URL_NO_WS WS* ( RPAREN | { $type = INVALID; } )
          )
     ;
 

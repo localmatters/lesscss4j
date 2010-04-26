@@ -32,11 +32,15 @@ div#id {
 }
 
 @media print {
-  font-size: 3em;
+  body {
+    font-size: 3em;
+  }
 }
 
 @media screen {
+    body {
   font-size: 10px;
+  }
 }
 
 @font-face {
@@ -79,13 +83,12 @@ h2[title] {
   padding: 0 auto;
   background: url("http://www.lesscss.org/spec.html") no-repeat 0 4px;
 }
-
+       /*
 #more-shorthands {
   margin: 0;
   padding: 1px 0 2px 0;
   font: normal small/20px 'Trebuchet MS', Verdana, sans-serif; 
 }
-
 .misc {
   -moz-border-radius: 2px;
   display: -moz-inline-stack;
@@ -95,6 +98,7 @@ h2[title] {
   background: -webkit-gradient(linear, left top, left bottom, from(red), to(blue));
   margin: ;
 }
+         */
 
 #important {
   color: red !important;

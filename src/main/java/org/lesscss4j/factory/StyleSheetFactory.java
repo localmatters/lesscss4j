@@ -64,6 +64,9 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
 
     public StyleSheet create(Tree styleSheetNode) {
         StyleSheet stylesheet = new StyleSheet();
+        if (styleSheetNode == null) {
+            return stylesheet;
+        }
         for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = styleSheetNode.getChild(idx);
             switch (child.getType()) {
