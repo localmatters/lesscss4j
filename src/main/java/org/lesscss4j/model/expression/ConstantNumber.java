@@ -93,15 +93,19 @@ public class ConstantNumber implements ConstantValue {
         return new ConstantNumber(this.getValue() + right.getValue(), selectUnit(right));
     }
 
-
     public ConstantValue subtract(ConstantValue right) {
         checkUnits(right);
         return new ConstantNumber(this.getValue() - right.getValue(), selectUnit(right));
     }
 
     public ConstantValue multiply(ConstantValue right) {
-        checkUnits(right);
-        return new ConstantNumber(this.getValue() * right.getValue(), selectUnit(right));
+        if (right instanceof ConstantColor && getUnit() == null) {
+            return right.multiply(this);
+        }
+        else {
+            checkUnits(right);
+            return new ConstantNumber(this.getValue() * right.getValue(), selectUnit(right));
+        }
     }
 
     public ConstantValue divide(ConstantValue right) {
@@ -118,5 +122,28 @@ public class ConstantNumber implements ConstantValue {
         format.setMinimumIntegerDigits(0);
         format.setMinimumFractionDigits(0);
         return format.format(getValue());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        ConstantNumber that = (ConstantNumber) obj;
+
+        if (Double.compare(that._value, _value) != 0) return false;
+        if (_unit != null ? !_unit.equals(that._unit) : that._unit != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = _value != +0.0d ? Double.doubleToLongBits(_value) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (_unit != null ? _unit.hashCode() : 0);
+        return result;
     }
 }

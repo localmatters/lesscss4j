@@ -82,7 +82,7 @@ public class ConstantColor implements ConstantValue {
     }
 
     public void setValue(int value) {
-        _value = value;
+        _value = Math.max(0, Math.min(value, 0xffffff));
     }
 
     public double getValue() {
@@ -132,5 +132,21 @@ public class ConstantColor implements ConstantValue {
             str = "#" + str.charAt(1) + str.charAt(3) + str.charAt(5);
         }
         return str;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        ConstantColor that = (ConstantColor) obj;
+
+        return _value == that._value;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return _value;
     }
 }
