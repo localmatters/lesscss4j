@@ -299,7 +299,7 @@ property
     
 propertyValue
     : propertyTermNoExpr (propTermSep propertyTerm)*
-    | (primaryExpression propTermSep)=>propertyTermExpression (propTermSep propertyTerm)+
+    | (primaryExpression propTermSep propertyTerm)=>propertyTermExpression (propTermSep propertyTerm)+
     | additiveExpression -> ^(EXPR additiveExpression)
     ;
 
@@ -555,9 +555,7 @@ FONT       : F O N T                    ;
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
 //
-fragment IDENT_NO_MINUS : NMSTART NMCHAR*  ;
-
-IDENT      : MINUS? IDENT_NO_MINUS ;
+IDENT      : MINUS? NMSTART NMCHAR* ;
 
 // -------------
 // Reference.   Reference to an element in the body we are styling, such as <XXXX id="reference">
@@ -572,8 +570,7 @@ IMPORTANT_SYM   : '!' (WS)* I M P O R T A N T   ;
 //          as well as '%' it is a precentage. Whitespace cannot be between
 //          the number and the unit or percent.
 fragment UNIT
-    : IDENT_NO_MINUS
-    | PERCENT
+    : ('a'..'z' | 'A'..'Z' | NONASCII | ESCAPE)+ | PERCENT
     ;
 
 NUMBER
