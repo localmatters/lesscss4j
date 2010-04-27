@@ -95,4 +95,8 @@ public class LessCssCompilerImplTest extends TestCase {
     public void testCss3() throws IOException {
         compileAndValidate("less/css-3.less", "css/css-3.css");
     }
+
+    public void testExpressionParens() throws IOException {
+        compileAndValidate("less/parens.less", "css/parens.css");
+    }
 }

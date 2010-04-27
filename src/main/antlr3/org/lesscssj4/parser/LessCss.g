@@ -555,7 +555,9 @@ FONT       : F O N T                    ;
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
 //
-IDENT      : MINUS? NMSTART NMCHAR*  ;
+fragment IDENT_NO_MINUS : NMSTART NMCHAR*  ;
+
+IDENT      : MINUS? IDENT_NO_MINUS ;
 
 // -------------
 // Reference.   Reference to an element in the body we are styling, such as <XXXX id="reference">
@@ -570,14 +572,14 @@ IMPORTANT_SYM   : '!' (WS)* I M P O R T A N T   ;
 //          as well as '%' it is a precentage. Whitespace cannot be between
 //          the number and the unit or percent.
 fragment UNIT
-    : IDENT
+    : IDENT_NO_MINUS
     | PERCENT
     ;
 
 NUMBER
-    :   ( (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT? 
+    :   ( (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT?
     ;
-    
+
 // ------------
 // url and uri.
 //
@@ -588,7 +590,7 @@ URI :   U R L
          )
     ;
 
-fragment URL_NO_WS  : ~('\n'|'\r'|'\f'|'\''|'"'|')'|' '|'\t')  ;
+fragment URL_NO_WS  : ~('\n'|'\r'|'\f'|'\''|'"'|RPAREN|' '|'\t')  ;
 
 // -------------
 // Whitespace.  Though the W3 standard shows a Yacc/Lex style parser and lexer
