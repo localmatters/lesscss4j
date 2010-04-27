@@ -34,4 +34,13 @@ public abstract class AbstractObjectFactory<T> implements ObjectFactory<T> {
             throw new IllegalStateException(formatNode(prefix, child));
         }
     }
+
+    protected String concatChildNodeText(Tree parent) {
+        StringBuilder buf = new StringBuilder();
+        for (int idx = 0, numChildren = parent.getChildCount(); idx < numChildren; idx++) {
+            Tree child = parent.getChild(idx);
+            buf.append(child.getText());
+        }
+        return buf.toString();
+    }
 }

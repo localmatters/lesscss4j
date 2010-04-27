@@ -21,6 +21,7 @@ import java.util.List;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.expression.LiteralExpression;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
@@ -70,14 +71,13 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
     }
 
     protected List<Object> createPropValues(Tree valueNode) {
-        // todo: need to handle LITERAL vs. EXPRESSION child nodes...create list of things rather than a string.
         int numChildren = valueNode.getChildCount();
         List<Object> values = new ArrayList<Object>(numChildren);
         for (int idx = 0; idx < numChildren; idx++) {
             Tree child = valueNode.getChild(idx);
             switch (child.getType()) {
-                case LITERAL: // todo: just make this an expression too?
-                    values.add(child.getChild(0).getText());
+                case LITERAL:
+                    values.add(new LiteralExpression(concatChildNodeText(child)));
                     break;
 
                 case EXPR:

@@ -75,10 +75,10 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
     protected Expression createExpression(Tree expression) {
         switch (expression.getType()) {
             case CONSTANT:
-                return new ConstantExpression(expression.getChild(0).getText());
+                return new ConstantExpression(concatChildNodeText(expression));
 
             case LITERAL:
-                return new LiteralExpression(expression.getChild(0).getText());
+                return new LiteralExpression(concatChildNodeText(expression));
 
             case STAR:
                 return new MultiplyExpression(createExpression(expression.getChild(0)),

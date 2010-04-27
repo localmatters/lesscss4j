@@ -68,7 +68,7 @@ package org.lesscss4j.parser.antlr;
 // A style sheet consists of an optional character set specification, an optional series
 // of imports, and then the main body of style rules.
 //
-styleSheet  
+styleSheet
     : WS!*
       (charSet WS!*)?
       (importFile WS!*)*
@@ -190,7 +190,7 @@ elementName
     ;
 
 attrib
-    : LBRACKET WS* ident (WS* attribOp WS* (ident | STRING | NUMBER))? WS* RBRACKET
+    : LBRACKET WS* ident (WS* attribOp WS* (ident | STRING | number))? WS* RBRACKET
     ;
     
 attribOp
@@ -207,8 +207,8 @@ pseudo
     ;
     
 pseudoArg
-    : NUMBER
-    | (ident|NUMBER) WS* (PLUS | MINUS) WS* NUMBER
+    : number
+    | (ident|number) WS* (PLUS | MINUS) WS* number
     | selector
     ;
     
@@ -240,12 +240,16 @@ primaryExpression
 
 exprValue
     : variable      -> ^(VAR      variable)
-    | numericValue  -> ^(CONSTANT numericValue)
+    | numberOrColor -> ^(CONSTANT numberOrColor)
     ;
     
-numericValue
-    : NUMBER
+numberOrColor
+    : number
     | hexColor
+    ;
+    
+number
+    :  MINUS? NUMBER
     ;
     
 declaration
@@ -275,12 +279,12 @@ fontFamily
     
 lineHeight
     : ident
-    | numericValue
+    | numberOrColor
     ;
     
 fontSize
     : ident
-    | numericValue
+    | numberOrColor
     ;
 
 fontStyle
@@ -294,13 +298,28 @@ property
     ;
     
 propertyValue
-    : propertyTerm ((WS* COMMA WS*|WS+) propertyTerm)*
+    : propertyTermNoExpr (propTermSep propertyTerm)*
+    | (primaryExpression propTermSep)=>propertyTermExpression (propTermSep propertyTerm)+
+    | additiveExpression -> ^(EXPR additiveExpression)
+    ;
+
+propertyTermExpression
+    : primaryExpression -> ^(EXPR primaryExpression)
+    ;
+	        
+propTermSep
+    : WS* COMMA WS*
+    | WS+
     ;
     
-propertyTerm
+propertyTermNoExpr
     : (ident WS* LPAREN)=>function
-    | literal              -> ^(LITERAL literal)
-    | additiveExpression   -> ^(EXPR additiveExpression)
+    | literal -> ^(LITERAL literal)
+    ;
+        
+propertyTerm
+    : propertyTermNoExpr
+    | primaryExpression   -> ^(EXPR primaryExpression)
     ;
 
 // Internet Explorer specific functions
@@ -420,8 +439,8 @@ fragment NMSTART
 
 fragment NMCHAR
     : NMSTART
-    | '0'..'9'
-    | '-'
+    | DIGIT
+    | MINUS
     ;
 
 // Basic Alpha characters in upper, lower and escaped form. Note that
@@ -536,7 +555,7 @@ FONT       : F O N T                    ;
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values
 //
-IDENT      : '-'? NMSTART NMCHAR*  ;
+IDENT      : MINUS? NMSTART NMCHAR*  ;
 
 // -------------
 // Reference.   Reference to an element in the body we are styling, such as <XXXX id="reference">
@@ -556,7 +575,7 @@ fragment UNIT
     ;
 
 NUMBER
-    :   ( (MINUS WS*)? (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT? 
+    :   ( (DIGIT+ (DOT DIGIT*)? | DOT DIGIT+) ) UNIT? 
     ;
     
 // ------------
