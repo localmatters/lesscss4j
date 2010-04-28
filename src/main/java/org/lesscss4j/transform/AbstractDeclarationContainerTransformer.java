@@ -15,14 +15,36 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+
+import org.lesscss4j.exception.UndefinedMixinReference;
+import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.DeclarationContainer;
-import org.lesscss4j.model.expression.EvaluationContext;
+import org.lesscss4j.model.DeclarationElement;
+import org.lesscss4j.model.MixinReference;
+import org.lesscss4j.model.RuleSet;
+import org.lesscss4j.model.Selector;
+import org.lesscss4j.model.expression.Expression;
 
 public abstract class AbstractDeclarationContainerTransformer<T extends DeclarationContainer>
     extends AbstractTransformer<T> {
 
+    private Transformer<RuleSet> _ruleSetTransformer;
     private Transformer<Declaration> _declarationTransformer;
+
+    public Transformer<RuleSet> getRuleSetTransformer() {
+        return _ruleSetTransformer;
+    }
+
+    public void setRuleSetTransformer(Transformer<RuleSet> ruleSetTransformer) {
+        _ruleSetTransformer = ruleSetTransformer;
+    }
 
     public Transformer<Declaration> getDeclarationTransformer() {
         return _declarationTransformer;
@@ -33,9 +55,117 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
     }
 
     protected void transformDeclarations(DeclarationContainer container, EvaluationContext context) {
-        EvaluationContext declContext = new EvaluationContext(container, context);
-        for (Declaration declaration : container.getDeclarationList()) {
-            getDeclarationTransformer().transform(declaration, declContext);
+        EvaluationContext declContext = new EvaluationContext();
+        declContext.setParentContext(context);
+        declContext.setVariableContainer(container);
+        declContext.setRuleSetContainer(container);
+
+        if (!container.isMixinReferenceUsed()) {
+            // No need to create the flattened declaration map.  Just transform the declarations in place
+            for (DeclarationElement declaration : container.getDeclarations()) {
+                if (declaration instanceof Declaration) {
+                    getDeclarationTransformer().transform((Declaration) declaration, declContext);
+                }
+            }
         }
+        else {
+
+            // Insert any mixin references into the declaration list.  Then evaluate them all at the end.
+            Map<String, Declaration> flattenedDeclarations = new LinkedHashMap<String, Declaration>();
+            for (DeclarationElement declaration : container.getDeclarations()) {
+                if (declaration instanceof Declaration) {
+                    flattenedDeclarations.put(((Declaration) declaration).getProperty(), (Declaration) declaration);
+                }
+                else if (declaration instanceof MixinReference) {
+                    MixinReference mixin = (MixinReference) declaration;
+                    Selector selector = mixin.getSelector();
+                    List<RuleSet> ruleSetList = context.getRuleSet(selector);
+                    if (ruleSetList != null) {
+                        for (RuleSet ruleSet : ruleSetList) {
+                            if (ruleSet.isMixinReferenceUsed()) {
+                                throw new UndefinedMixinReference("Mixins must be defined before their use", mixin);
+                            }
+
+                            for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext(); ) {
+                                String varName = iter.next();
+                                Expression expression = ruleSet.getVariable(varName);
+                                container.setVariable(varName, expression);
+
+                            }
+                            for (DeclarationElement element : ruleSet.getDeclarations()) {
+                                if (element instanceof Declaration) {
+                                    flattenedDeclarations.put(((Declaration) element).getProperty(),
+                                                              (Declaration) element);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        throw new UndefinedMixinReference("Mixin not found", mixin);
+                    }
+                }
+            }
+
+            container.clearDeclarations();
+            for (Declaration declaration : flattenedDeclarations.values()) {
+                getDeclarationTransformer().transform(declaration, declContext);
+                container.addDeclaration(declaration);
+            }
+        }
+    }
+
+    protected void transformRuleSets(DeclarationContainer container, EvaluationContext context) {
+        if (container.getRuleSetCount() == 0) {
+            return;
+        }
+
+        EvaluationContext ruleSetContext = new EvaluationContext();
+        ruleSetContext.setParentContext(context);
+        ruleSetContext.setVariableContainer(container);
+        ruleSetContext.setRuleSetContainer(container);
+
+        // First transform all the child rule sets.
+        List<BodyElement> elements = new ArrayList<BodyElement>(container.getBodyElements());
+        for (int idx = 0; idx < elements.size(); idx++) {
+            BodyElement element = elements.get(idx);
+            if (element instanceof RuleSet) {
+                RuleSet childRuleSet = (RuleSet) element;
+                ruleSetContext.setRuleSetIndex(idx);
+                getRuleSetTransformer().transform(childRuleSet, ruleSetContext);
+                if (ruleSetContext.getRuleSetIndex() > idx) {
+                    idx = ruleSetContext.getRuleSetIndex();
+                }
+            }
+        }
+
+        // Now take all the child rule sets, update their selectors to include the current node
+        for (BodyElement element : container.getBodyElements()) {
+            if (element instanceof RuleSet) {
+                RuleSet childRuleSet = (RuleSet) element;
+                if (container instanceof RuleSet) {
+                    RuleSet ruleSet = (RuleSet) container;
+                    for (Selector selector : ruleSet.getSelectors()) {
+                        for (ListIterator<Selector> iterator =
+                            childRuleSet.getSelectors().listIterator(); iterator.hasNext();) {
+                            Selector childSelector = iterator.next();
+                            Selector mergedSelector = new Selector(selector.getText() + " " + childSelector.getText());
+                            iterator.set(mergedSelector);
+                        }
+                    }
+                }
+
+
+                context.setRuleSetIndex(context.getRuleSetIndex() + 1);
+                context.getRuleSetContainer().addRuleSet(childRuleSet, context.getRuleSetIndex());
+            }
+        }
+
+        container.clearBodyElements();
+    }
+
+    public void transform(DeclarationContainer container, EvaluationContext context) {
+        evaluateVariables(container, context);
+        transformDeclarations(container, context);
+        transformRuleSets(container, context);
     }
 }

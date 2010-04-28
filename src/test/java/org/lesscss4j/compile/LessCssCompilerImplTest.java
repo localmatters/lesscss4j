@@ -82,6 +82,9 @@ public class LessCssCompilerImplTest extends TestCase {
 
     public void testVariables() throws IOException {
         compileAndValidate("less/variables.less", "css/variables.css");
+    }
+
+    public void testLazyEvalVariables() throws IOException {
         compileAndValidate("less/lazy-eval.less", "css/lazy-eval.css");
     }
 
@@ -107,5 +110,19 @@ public class LessCssCompilerImplTest extends TestCase {
 
     public void testStrings() throws IOException {
         compileAndValidate("less/strings.less", "css/strings.css");
+    }
+
+    public void testMixins() throws IOException {
+        compileAndValidate("less/mixins.less", "css/mixins.css");
+    }
+
+/*
+    public void testNestedRuleSets() throws IOException {
+        compileAndValidate("less/rulesets.less", "css/rulesets.css");
+    }
+*/
+
+    public void testMixinVariableScope() throws IOException {
+        compileAndValidate("less/scope.less", "css/scope.css");
     }
 }

@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.DeclarationElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
@@ -183,12 +183,11 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             else if (element instanceof RuleSet) {
                 writeRuleSet(writer, (RuleSet) element, indent);
             }
-            // todo: page
         }
     }
 
     protected void writePage(Writer writer, Page page, int indent) throws IOException {
-        Collection<Declaration> declarations = page.getDeclarationList();
+        List<DeclarationElement> declarations = page.getDeclarations();
         if (declarations == null || declarations.size() == 0) {
             return;
         }
@@ -238,7 +237,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     protected void writeRuleSet(Writer writer, RuleSet ruleSet, int indent) throws IOException {
         // Don't write rule sets with empty bodies
-        Collection<Declaration> declarations = ruleSet.getDeclarationList();
+        List<DeclarationElement> declarations = ruleSet.getDeclarations();
         if (declarations == null || declarations.size() == 0) {
             return;
         }
@@ -265,27 +264,29 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     private void writeDeclarations(Writer writer,
-                                   Collection<Declaration> declarations,
+                                   List<DeclarationElement> declarations,
                                    int indent) throws IOException {
         boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
 
         boolean first = true;
-        for (Declaration declaration : declarations) {
-            if (!first) {
-                writeBreak(writer);
-            }
+        for (DeclarationElement declaration : declarations) {
+            if (declaration instanceof Declaration) {
+                if (!first) {
+                    writeBreak(writer);
+                }
 
-            int declarationIndent = indent + 1;
-            if (oneLineDeclarationList) {
-                declarationIndent = 0;
-            }
-            writeDeclaration(writer, declaration, declarationIndent);
+                int declarationIndent = indent + 1;
+                if (oneLineDeclarationList) {
+                    declarationIndent = 0;
+                }
+                writeDeclaration(writer, (Declaration) declaration, declarationIndent);
 
-            first = false;
+                first = false;
+            }
         }
     }
 
-    protected void writeOpeningBrace(Writer writer, int indent, Collection<Declaration> declarations) throws IOException {
+    protected void writeOpeningBrace(Writer writer, int indent, List<DeclarationElement> declarations) throws IOException {
         if (isPrettyPrintEnabled() &&
             getPrettyPrintOptions().isOpeningBraceOnNewLine() &&
             !isOneLineDeclarationList(declarations)) {
@@ -320,7 +321,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeSemi(writer, false);
     }
 
-    protected void writeDeclarationBraceSpace(Writer writer, Collection<Declaration> declarations) throws IOException {
+    protected void writeDeclarationBraceSpace(Writer writer, List<DeclarationElement> declarations) throws IOException {
         if (isOneLineDeclarationList(declarations)) {
             writeSpace(writer);
         }
@@ -329,7 +330,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         }
     }
 
-    private boolean isOneLineDeclarationList(Collection<Declaration> declarations) {
+    private boolean isOneLineDeclarationList(List<DeclarationElement> declarations) {
         return declarations != null &&
                isPrettyPrintEnabled() &&
                getPrettyPrintOptions().isSingleDeclarationOnOneLine() &&

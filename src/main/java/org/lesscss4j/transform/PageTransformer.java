@@ -16,11 +16,6 @@
 package org.lesscss4j.transform;
 
 import org.lesscss4j.model.Page;
-import org.lesscss4j.model.expression.EvaluationContext;
 
 public class PageTransformer extends AbstractDeclarationContainerTransformer<Page> {
-    public void transform(Page page, EvaluationContext context) {
-        evaluateVariables(page, context);
-        transformDeclarations(page, context);
-    }
 }

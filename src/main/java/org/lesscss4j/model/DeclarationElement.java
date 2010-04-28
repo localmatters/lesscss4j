@@ -1,9 +1,9 @@
 /**
- * File: Transformer.java
+ * File: DeclarationElement.java
  *
  * Author: David Hay (dhay@localmatters.com)
  * Creation Date: Apr 28, 2010
- * Creation Time: 8:19:12 AM
+ * Creation Time: 9:55:06 AM
  *
  * Copyright 2010 Local Matters, Inc.
  * All Rights Reserved
@@ -13,8 +13,7 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j.transform;
+package org.lesscss4j.model;
 
-public interface Transformer<T> {
-    void transform(T value, EvaluationContext context);
+public interface DeclarationElement {
 }

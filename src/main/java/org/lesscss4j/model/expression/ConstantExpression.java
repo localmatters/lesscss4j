@@ -16,6 +16,7 @@
 package org.lesscss4j.model.expression;
 
 import org.lesscss4j.model.AbstractElement;
+import org.lesscss4j.transform.EvaluationContext;
 
 public class ConstantExpression extends AbstractElement implements Expression {
     public static final String UNIT_COLOR = "color";

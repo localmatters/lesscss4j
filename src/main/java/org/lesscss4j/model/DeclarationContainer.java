@@ -15,49 +15,46 @@
  */
 package org.lesscss4j.model;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.lesscss4j.model.expression.Expression;
+public class DeclarationContainer extends BodyElementContainer {
+    private Map<String, Declaration> _declarationMap = new LinkedHashMap<String, Declaration>();
+    private List<DeclarationElement> _declarations = new ArrayList<DeclarationElement>();
+    private boolean _mixinReferenceUsed = false;
 
-public class DeclarationContainer extends AbstractElement implements VariableContainer {
-    private Map<String, Declaration> _declarations;
-    private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
+    public boolean isMixinReferenceUsed() {
+        return _mixinReferenceUsed;
+    }
 
-    public Map<String, Declaration> getDeclarations() {
+    public List<DeclarationElement> getDeclarations() {
         return _declarations;
     }
 
-    public Collection<Declaration> getDeclarationList() {
-        return _declarations.values();
+    public void clearDeclarations() {
+        _declarations.clear();
+        _declarationMap.clear();
+        _mixinReferenceUsed = false;
     }
 
-    public void setDeclarations(Map<String, Declaration> declarations) {
-        _declarations = declarations;
-    }
+    public void addDeclaration(DeclarationElement declaration) {
+        _declarations.add(declaration);
+        addDeclarationMapEntry(declaration);
 
-    public void addDeclaration(Declaration declaration) {
-        if (_declarations == null) {
-            _declarations = new LinkedHashMap<String, Declaration>();
+        if (declaration instanceof MixinReference) {
+            _mixinReferenceUsed = true;
         }
-        _declarations.put(declaration.getProperty(), declaration);
+    }
+
+    protected void addDeclarationMapEntry(DeclarationElement declaration) {
+        if (declaration instanceof Declaration) {
+            _declarationMap.put(((Declaration) declaration).getProperty(), (Declaration) declaration);
+        }
     }
 
     public Declaration getDeclaration(String property) {
-        return _declarations.get(property);
-    }
-
-    public void setVariable(String name, Expression value) {
-        _variables.put(name, value);
-    }
-
-    public Expression getVariable(String name) {
-        return _variables.get(name);
-    }
-
-    public Iterator<String> getVariableNames() {
-        return _variables.keySet().iterator();
+        return _declarationMap.get(property);
     }
 }

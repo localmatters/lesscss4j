@@ -18,7 +18,6 @@ package org.lesscss4j.transform;
 import java.util.ListIterator;
 
 import org.lesscss4j.model.Declaration;
-import org.lesscss4j.model.expression.EvaluationContext;
 import org.lesscss4j.model.expression.Expression;
 
 public class DeclarationTransformer implements Transformer<Declaration> {

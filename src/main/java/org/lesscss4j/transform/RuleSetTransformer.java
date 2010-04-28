@@ -16,11 +16,6 @@
 package org.lesscss4j.transform;
 
 import org.lesscss4j.model.RuleSet;
-import org.lesscss4j.model.expression.EvaluationContext;
 
 public class RuleSetTransformer extends AbstractDeclarationContainerTransformer<RuleSet> {
-    public void transform(RuleSet page, EvaluationContext context) {
-        evaluateVariables(page, context);
-        transformDeclarations(page, context);
-    }
 }

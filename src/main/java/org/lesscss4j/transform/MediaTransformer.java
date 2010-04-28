@@ -18,7 +18,6 @@ package org.lesscss4j.transform;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
-import org.lesscss4j.model.expression.EvaluationContext;
 
 public class MediaTransformer extends AbstractTransformer<Media> {
     private Transformer<RuleSet> _ruleSetTransformer;
@@ -37,7 +36,11 @@ public class MediaTransformer extends AbstractTransformer<Media> {
     }
 
     protected void transformBodyElements(Media media, EvaluationContext context) {
-        EvaluationContext mediaContext = new EvaluationContext(media, context);
+        EvaluationContext mediaContext = new EvaluationContext();
+        mediaContext.setParentContext(context);
+        mediaContext.setVariableContainer(media);
+        mediaContext.setRuleSetContainer(media);
+
         for (BodyElement element : media.getBodyElements()) {
             if (element instanceof RuleSet) {
                 getRuleSetTransformer().transform((RuleSet) element, mediaContext);

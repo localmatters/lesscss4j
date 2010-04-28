@@ -15,12 +15,13 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.List;
+
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
-import org.lesscss4j.model.expression.EvaluationContext;
 
 public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
     private Transformer<Page> _pageTransformer;
@@ -60,16 +61,27 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
     }
 
     protected void transformBodyElements(StyleSheet styleSheet, EvaluationContext context) {
-        EvaluationContext styleContext = new EvaluationContext(styleSheet, context);
-        for (BodyElement element : styleSheet.getBodyElements()) {
+        EvaluationContext styleContext = new EvaluationContext();
+        styleContext.setParentContext(context);
+        styleContext.setVariableContainer(styleSheet);
+        styleContext.setRuleSetContainer(styleSheet);
+
+        List<BodyElement> elements = styleSheet.getBodyElements();
+        for (int idx = 0; idx < elements.size(); idx++) {
+            BodyElement element = elements.get(idx);
+            styleContext.setRuleSetIndex(idx);
             if (element instanceof Page) {
-                getPageTransformer().transform((Page)element, styleContext);
+                getPageTransformer().transform((Page) element, styleContext);
             }
             else if (element instanceof Media) {
-                getMediaTransformer().transform((Media)element, styleContext);
+                getMediaTransformer().transform((Media) element, styleContext);
             }
             else if (element instanceof RuleSet) {
-                getRuleSetTransformer().transform((RuleSet)element, styleContext);
+                getRuleSetTransformer().transform((RuleSet) element, styleContext);
+            }
+
+            if (styleContext.getRuleSetIndex() > idx) {
+                idx = styleContext.getRuleSetIndex();
             }
         }
     }
@@ -79,9 +91,11 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
 
         RuleSetTransformer ruleSetTransformer = new RuleSetTransformer();
         ruleSetTransformer.setDeclarationTransformer(declarationTransformer);
+        ruleSetTransformer.setRuleSetTransformer(ruleSetTransformer);
 
         PageTransformer pageTransformer = new PageTransformer();
         pageTransformer.setDeclarationTransformer(declarationTransformer);
+        pageTransformer.setRuleSetTransformer(ruleSetTransformer);
 
         MediaTransformer mediaTransformer = new MediaTransformer();
         mediaTransformer.setRuleSetTransformer(ruleSetTransformer);

@@ -17,7 +17,7 @@ package org.lesscss4j.model;
 
 import java.util.List;
 
-public class Declaration extends AbstractElement {
+public class Declaration extends AbstractElement implements DeclarationElement {
     private String _property;
     private List<Object> _values;
     private boolean _important = false;
@@ -53,5 +53,22 @@ public class Declaration extends AbstractElement {
 
     public void setStar(boolean star) {
         _star = star;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        if (isStar()) {
+            buf.append('*');
+        }
+        buf.append(getProperty());
+        buf.append(": ");
+        for (Object value : getValues()) {
+            buf.append(value.toString());
+        }
+        if (isImportant()) {
+            buf.append(" !important");
+        }
+        return buf.toString();
     }
 }

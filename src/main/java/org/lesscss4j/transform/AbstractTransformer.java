@@ -19,7 +19,6 @@ import java.util.Iterator;
 
 import org.lesscss4j.model.VariableContainer;
 import org.lesscss4j.model.VariableContainerImpl;
-import org.lesscss4j.model.expression.EvaluationContext;
 
 public abstract class AbstractTransformer<T> implements Transformer<T> {
     protected void evaluateVariables(VariableContainer variableContainer, EvaluationContext context) {

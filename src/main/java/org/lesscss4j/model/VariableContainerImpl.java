@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.lesscss4j.model.expression.EvaluationContext;
+import org.lesscss4j.transform.EvaluationContext;
 import org.lesscss4j.model.expression.Expression;
 
 public class VariableContainerImpl implements VariableContainer {

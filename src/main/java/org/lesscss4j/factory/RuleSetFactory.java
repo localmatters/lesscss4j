@@ -17,6 +17,7 @@ package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.MixinReference;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.expression.Expression;
@@ -80,17 +81,41 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     }
                     break;
 
+                case MIXIN_REF:
+                    createMixinReferences(child, ruleSet);
+                    break;
+
+                case RULESET:
+                    RuleSet childRuleSet = create(child);
+                    if (childRuleSet != null) {
+                        ruleSet.addRuleSet(childRuleSet, -1);
+                    }
+                    break;
+
                 default:
                     handleUnexpectedChild("Unexpected ruleset child:", child);
                     break;
             }
         }
 
-        // Ignore empty rule sets
-        if (ruleSet.getDeclarations() == null || ruleSet.getDeclarations().size() == 0) {
-            ruleSet = null;
-        }
-
         return ruleSet;
+    }
+
+    protected void createMixinReferences(Tree mixinNode, RuleSet ruleSet) {
+        for (int idx = 0, numChildren = mixinNode.getChildCount(); idx < numChildren; idx++) {
+            Tree child = mixinNode.getChild(idx);
+            if (child.getType() == SELECTOR) {
+                Selector selector = getSelectorFactory().create(child);
+                MixinReference ref = new MixinReference();
+                ref.setSelector(selector);
+                ref.setLine(mixinNode.getLine());
+                ref.setChar(mixinNode.getCharPositionInLine());
+
+                ruleSet.addDeclaration(ref);
+            }
+            else {
+                handleUnexpectedChild("Unexpected mixin reference child", child);
+            }
+        }
     }
 }

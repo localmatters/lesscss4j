@@ -13,13 +13,21 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j.model.expression;
+package org.lesscss4j.transform;
 
+import java.util.List;
+
+import org.lesscss4j.model.RuleSet;
+import org.lesscss4j.model.RuleSetContainer;
+import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.VariableContainer;
+import org.lesscss4j.model.expression.Expression;
 
 public class EvaluationContext {
     private EvaluationContext _parentContext;
     private VariableContainer _variableContainer;
+    private RuleSetContainer _ruleSetContainer;
+    private int _ruleSetIndex = 0;
 
     public EvaluationContext() {
         this(null);
@@ -50,11 +58,35 @@ public class EvaluationContext {
         _variableContainer = variableContainer;
     }
 
+    public RuleSetContainer getRuleSetContainer() {
+        return _ruleSetContainer;
+    }
+
+    public void setRuleSetContainer(RuleSetContainer ruleSetContainer) {
+        _ruleSetContainer = ruleSetContainer;
+    }
+
+    public int getRuleSetIndex() {
+        return _ruleSetIndex;
+    }
+
+    public void setRuleSetIndex(int ruleSetIndex) {
+        _ruleSetIndex = ruleSetIndex;
+    }
+
     public Expression getVariableExpression(String name) {
         Expression value = getVariableContainer().getVariable(name);
         if (value == null && getParentContext() != null) {
             value = getParentContext().getVariableExpression(name);
         }
         return value;
+    }
+
+    public List<RuleSet> getRuleSet(Selector selector) {
+        List<RuleSet> ruleSet = getRuleSetContainer().getRuleSet(selector);
+        if ((ruleSet == null || ruleSet.size() == 0) && getParentContext() != null) {
+            ruleSet = getParentContext().getRuleSet(selector);
+        }
+        return ruleSet;
     }
 }

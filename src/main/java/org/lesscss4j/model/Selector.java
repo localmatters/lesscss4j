@@ -33,4 +33,23 @@ public class Selector extends AbstractElement {
     public void setText(String text) {
         _text = text;
     }
+
+    @Override
+    public String toString() {
+        return getText();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Selector that = (Selector) obj;
+        return getText().equals(that.getText());
+    }
+
+    @Override
+    public int hashCode() {
+        return _text.hashCode();
+    }
 }

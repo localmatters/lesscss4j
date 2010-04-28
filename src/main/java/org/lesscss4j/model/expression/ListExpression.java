@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lesscss4j.model.AbstractElement;
+import org.lesscss4j.transform.EvaluationContext;
 
 public class ListExpression extends AbstractElement implements Expression {
     private List<Expression> _expressions;

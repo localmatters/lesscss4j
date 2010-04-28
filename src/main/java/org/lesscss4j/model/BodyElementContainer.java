@@ -23,23 +23,45 @@ import java.util.Map;
 
 import org.lesscss4j.model.expression.Expression;
 
-public class BodyElementContainer extends AbstractElement implements VariableContainer {
-    private List<BodyElement> _bodyElements;
+public class BodyElementContainer extends AbstractElement implements VariableContainer, RuleSetContainer {
+    private List<BodyElement> _bodyElements = new ArrayList<BodyElement>();
     private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
+    private Map<Selector, List<RuleSet>> _ruleSetMap = new LinkedHashMap<Selector, List<RuleSet>>();
+    private int _ruleSetCount;
 
     public List<BodyElement> getBodyElements() {
         return _bodyElements;
     }
 
-    public void setBodyElements(List<BodyElement> bodyElements) {
-        _bodyElements = bodyElements;
+    public void addBodyElement(BodyElement bodyElement) {
+        addBodyElement(bodyElement, -1);
     }
 
-    public void addBodyElement(BodyElement bodyElement) {
-        if (_bodyElements == null) {
-            _bodyElements = new ArrayList<BodyElement>();
+    public void addBodyElement(BodyElement bodyElement, int index) {
+        if (index >= 0) {
+            _bodyElements.add(Math.min(_bodyElements.size(), index), bodyElement);
         }
-        _bodyElements.add(bodyElement);
+        else {
+            _bodyElements.add(bodyElement);
+        }
+        if (bodyElement instanceof RuleSet) {
+            RuleSet ruleSet = (RuleSet) bodyElement;
+            for (Selector selector : ruleSet.getSelectors()) {
+                List<RuleSet> ruleSetList = _ruleSetMap.get(selector);
+                if (ruleSetList == null) {
+                    ruleSetList = new ArrayList<RuleSet>();
+                    _ruleSetMap.put(selector, ruleSetList);
+                }
+                ruleSetList.add(ruleSet);
+            }
+            _ruleSetCount++;
+        }
+    }
+
+    public void clearBodyElements() {
+        _ruleSetCount = 0;
+        _ruleSetMap.clear();
+        _bodyElements.clear();
     }
 
     public void setVariable(String name, Expression value) {
@@ -52,5 +74,17 @@ public class BodyElementContainer extends AbstractElement implements VariableCon
 
     public Iterator<String> getVariableNames() {
         return _variables.keySet().iterator();
+    }
+
+    public void addRuleSet(RuleSet ruleSet, int index) {
+        addBodyElement(ruleSet, index);
+    }
+
+    public List<RuleSet> getRuleSet(Selector selector) {
+        return _ruleSetMap.get(selector);
+    }
+
+    public int getRuleSetCount() {
+        return _ruleSetCount;
     }
 }

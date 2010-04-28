@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.model.expression;
 
-import com.sun.org.apache.xalan.internal.extensions.ExpressionContext;
+import org.lesscss4j.transform.EvaluationContext;
 
 public interface Expression {
     Expression evaluate(EvaluationContext context);
