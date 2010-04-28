@@ -127,4 +127,8 @@ public class LessCssCompilerImplTest extends TestCase {
     public void testMultipleSelectors() throws IOException {
         compileAndValidate("less/selectors.less", "css/selectors.css");
     }
+    
+    public void testCss3SingleRun() throws IOException {
+        compileAndValidate("less/singlerun.less", "css/singlerun.css");
+    }
 }

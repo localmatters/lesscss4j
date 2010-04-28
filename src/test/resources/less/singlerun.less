@@ -1,0 +1,12 @@
+.photoviewer .rightEdge {
+    background-position: 100% 100%;
+    right: -1px;
+}
+.ie6 .photoviewer .edge {
+    clear: expression(style.top=offsetParent.offsetHeight-this.offsetHeight-1,style.clear='none',0);
+}
+.ie6 .photoviewer .rightEdge {
+    clear: expression(style.top=offsetParent.offsetHeight-this.offsetHeight-1,
+                      style.left=offsetParent.offsetWidth-this.offsetWidth-1,
+                      style.clear='none',0);
+}
