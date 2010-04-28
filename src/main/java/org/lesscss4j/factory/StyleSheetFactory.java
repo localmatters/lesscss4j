@@ -68,56 +68,68 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         if (styleSheetNode == null) {
             return stylesheet;
         }
-        for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
-            Tree child = styleSheetNode.getChild(idx);
-            switch (child.getType()) {
-                case CHARSET:
-                    String charset = child.getChild(0).getText();
-                    charset = charset.replaceFirst("['\"]\\s*(\\S*)\\s*['\"]", "$1");
-                    if (charset.length() > 0) {
-                        stylesheet.setCharset(charset);
-                    }
-                    break;
 
-                case IMPORT:
-                    stylesheet.addImport(child.getChild(0).getText());
-                    break;
-
-                case VAR:
-                    Tree exprNode = child.getChild(1);
-                    Expression expr = getExpressionFactory().create(exprNode);
-                    if (expr != null) {
-                        stylesheet.setVariable(child.getChild(0).getText(), expr);
-                    }
-                    break;
-
-                case RULESET:
-                    RuleSet ruleSet = getRuleSetFactory().create(child);
-                    if (ruleSet != null) {
-                        stylesheet.addBodyElement(ruleSet);
-                    }
-                    break;
-
-                case MEDIA_SYM:
-                    Media media = getMediaFactory().create(child);
-                    if (media != null) {
-                        stylesheet.addBodyElement(media);
-                    }
-                    break;
-
-                case PAGE_SYM:
-                    Page page = getPageFactory().create(child);
-                    if (page != null) {
-                        stylesheet.addBodyElement(page);
-                    }
-                    break;
-
-                default:
-                    handleUnexpectedChild("Unexpected stylesheet child:", child);
-                    break;
+        if (styleSheetNode.getType() == RULESET) {
+            // Special case for when there's only one ruleset
+            processStyleSheetNode(stylesheet, styleSheetNode);
+        }
+        else {
+            for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
+                Tree child = styleSheetNode.getChild(idx);
+                processStyleSheetNode(stylesheet, child);
             }
         }
+
         return stylesheet;
+    }
+
+    private void processStyleSheetNode(StyleSheet stylesheet, Tree child) {
+        switch (child.getType()) {
+            case CHARSET:
+                String charset = child.getChild(0).getText();
+                charset = charset.replaceFirst("['\"]\\s*(\\S*)\\s*['\"]", "$1");
+                if (charset.length() > 0) {
+                    stylesheet.setCharset(charset);
+                }
+                break;
+
+            case IMPORT:
+                stylesheet.addImport(child.getChild(0).getText());
+                break;
+
+            case VAR:
+                Tree exprNode = child.getChild(1);
+                Expression expr = getExpressionFactory().create(exprNode);
+                if (expr != null) {
+                    stylesheet.setVariable(child.getChild(0).getText(), expr);
+                }
+                break;
+
+            case RULESET:
+                RuleSet ruleSet = getRuleSetFactory().create(child);
+                if (ruleSet != null) {
+                    stylesheet.addBodyElement(ruleSet);
+                }
+                break;
+
+            case MEDIA_SYM:
+                Media media = getMediaFactory().create(child);
+                if (media != null) {
+                    stylesheet.addBodyElement(media);
+                }
+                break;
+
+            case PAGE_SYM:
+                Page page = getPageFactory().create(child);
+                if (page != null) {
+                    stylesheet.addBodyElement(page);
+                }
+                break;
+
+            default:
+                handleUnexpectedChild("Unexpected stylesheet child:", child);
+                break;
+        }
     }
 
     public static ObjectFactory<StyleSheet> createDefaultObjectFactory() {

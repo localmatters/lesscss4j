@@ -131,14 +131,19 @@ ruleSetElement
     ;
     
 declarationBlockElement
-    : (selectorList WS* (SEMI | LBRACE))=>selectorList WS* 
-      (
-          SEMI                                    -> ^(MIXIN_REF selectorList)
-        | LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList ruleSetElement*)
-      )
+    : (combinatorNonWs)=>innerSelectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE    -> ^(RULESET innerSelectorList ruleSetElement*)
+    | (selectorList WS* LBRACE)=>selectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList      ruleSetElement*)
+    | (selectorList WS* SEMI)=>selectorList WS* SEMI -> ^(MIXIN_REF selectorList)
     | declaration
     | variableDef
     ;
+    
+ innerSelectorList
+     : innerSelector (WS* COMMA WS* innerSelector)* -> ^(SELECTOR innerSelector)+
+     ;
+
+innerSelector
+    : combinatorNonWs WS* selector;
     
 ruleSetSelector
     : fontFaceSelector -> ^(SELECTOR fontFaceSelector)
