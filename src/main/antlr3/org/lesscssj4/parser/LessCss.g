@@ -32,34 +32,10 @@ tokens {
     VAR;
     CONSTANT;
     FUNCTION;
+    MIXIN_REF;
 }
 
-@header {
-package org.lesscss4j.parser.antlr;
-
-import org.lesscss4j.parser.ParseError;
-}
-@lexer::header {
-package org.lesscss4j.parser.antlr;
-}
-
-@members {
-    List<ParseError> errors = new ArrayList<ParseError>();
-
-    public List<ParseError> getErrors() {
-        return errors;
-    }
-
-    @Override
-    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-        ParseError error = new ParseError();
-        error.setTokenNames(tokenNames);
-        error.setException(e);
-        error.setHeader(getErrorHeader(e));
-        error.setMessage(getErrorMessage(e, tokenNames));
-        errors.add(error);
-    }
-}
+//@@JAVA@@
 
 // -------------
 // Main rule.   This is the main entry rule for the parser, the top level
@@ -147,7 +123,7 @@ combinatorNonWs
             
 ruleSet
     : ruleSetSelector WS* LBRACE (WS* ruleSetElement)* WS* RBRACE
-    -> ^(RULESET ^(SELECTOR ruleSetSelector)+ ruleSetElement*)
+    -> ^(RULESET ruleSetSelector ruleSetElement*)
     ;
     
 ruleSetElement
@@ -155,13 +131,26 @@ ruleSetElement
     ;
     
 declarationBlockElement
-    : declaration
+    : (selectorList WS* (SEMI | LBRACE))=>selectorList WS* 
+      (
+          SEMI                                    -> ^(MIXIN_REF selectorList)
+        | LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList ruleSetElement*)
+      )
+    | declaration
     | variableDef
     ;
     
 ruleSetSelector
+    : fontFaceSelector -> ^(SELECTOR fontFaceSelector)
+    | selectorList
+    ;
+    
+fontFaceSelector
     : '@' FONT_FACE
-    | selector (WS* COMMA WS* selector)*
+    ;
+    
+selectorList
+    : selector (WS* COMMA WS* selector)* -> ^(SELECTOR selector)+    
     ;
 
 selector

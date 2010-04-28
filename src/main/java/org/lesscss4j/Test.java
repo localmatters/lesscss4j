@@ -23,7 +23,7 @@ import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriterImpl;
-import org.lesscss4j.parser.Css21Parser;
+import org.lesscss4j.parser.antlr.LessCssParser;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
@@ -72,7 +72,7 @@ public class Test {
 
     protected String formatNode(String prefix, Tree node) {
         return String.format("%s [%d=%s] %s",
-                             prefix, node.getType(), Css21Parser.tokenNames[node.getType()], node.toString());
+                             prefix, node.getType(), LessCssParser.tokenNames[node.getType()], node.toString());
     }
 
     protected void processStylesheet(Tree tree, Writer writer) throws IOException {
