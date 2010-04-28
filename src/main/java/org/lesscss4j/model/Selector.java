@@ -19,11 +19,22 @@ public class Selector extends AbstractElement {
     String _text;
 
     public Selector() {
-        this(null);
+        this((String)null);
     }
 
     public Selector(String text) {
         _text = text;
+    }
+
+    public Selector(Selector... selectors) {
+        StringBuilder buf = new StringBuilder();
+        for (Selector selector : selectors) {
+            if (buf.length() > 0 && selector.getText().charAt(0) != ':') {
+                buf.append(' ');
+            }
+            buf.append(selector.getText());
+        }
+        setText(buf.toString());
     }
 
     public String getText() {

@@ -148,7 +148,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                         for (ListIterator<Selector> iterator =
                             childRuleSet.getSelectors().listIterator(); iterator.hasNext();) {
                             Selector childSelector = iterator.next();
-                            Selector mergedSelector = new Selector(selector.getText() + " " + childSelector.getText());
+                            Selector mergedSelector = new Selector(selector, childSelector);
                             iterator.set(mergedSelector);
                         }
                     }
