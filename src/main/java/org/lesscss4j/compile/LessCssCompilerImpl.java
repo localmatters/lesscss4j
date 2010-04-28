@@ -20,14 +20,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.lesscss4j.model.StyleSheet;
-import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.output.StyleSheetWriter;
+import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
+import org.lesscss4j.transform.StyleSheetTransformer;
+import org.lesscss4j.transform.Transformer;
 
 public class LessCssCompilerImpl implements LessCssCompiler {
     private StyleSheetParser _styleSheetParser = new LessCssStyleSheetParser();
     private StyleSheetWriter _styleSheetWriter = new StyleSheetWriterImpl();
+    private Transformer<StyleSheet> _styleSheetTransformer;
+
+    public Transformer<StyleSheet> getStyleSheetTransformer() {
+        if (_styleSheetTransformer == null) {
+            _styleSheetTransformer = StyleSheetTransformer.createDefaultTransformer();
+        }
+        return _styleSheetTransformer;
+    }
+
+    public void setStyleSheetTransformer(Transformer<StyleSheet> styleSheetTransformer) {
+        _styleSheetTransformer = styleSheetTransformer;
+    }
 
     public StyleSheetParser getStyleSheetParser() {
         return _styleSheetParser;
@@ -49,9 +63,7 @@ public class LessCssCompilerImpl implements LessCssCompiler {
     public void compile(InputStream input, OutputStream output) throws IOException {
         StyleSheet styleSheet = getStyleSheetParser().parse(input);
 
-        // todo: process any imports in the StyleSheet to augment the current style sheet.
-        
-        // todo: process the stylesheet for LessCSS constructs...or do we do this while writing?
+        getStyleSheetTransformer().transform(styleSheet, null);
 
         getStyleSheetWriter().write(output, styleSheet);
     }

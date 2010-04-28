@@ -49,8 +49,8 @@ public class DeclarationContainer extends AbstractElement implements VariableCon
         return _declarations.get(property);
     }
 
-    public Expression setVariable(String name, Expression value) {
-        return _variables.put(name, value);
+    public void setVariable(String name, Expression value) {
+        _variables.put(name, value);
     }
 
     public Expression getVariable(String name) {

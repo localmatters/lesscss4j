@@ -31,9 +31,6 @@ import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.StyleSheet;
-import org.lesscss4j.model.VariableContainerImpl;
-import org.lesscss4j.model.expression.EvaluationContext;
-import org.lesscss4j.model.expression.Expression;
 
 // todo: It might make sense to break this up into separate writers for each type of element in the stylesheet
 public class StyleSheetWriterImpl implements StyleSheetWriter {
@@ -140,8 +137,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeCharset(writer, styleSheet);
         writeImports(writer, styleSheet);
 
-        EvaluationContext styleSheetContext = new EvaluationContext(new VariableContainerImpl(styleSheet));
-        writeBodyElements(writer, styleSheet.getBodyElements(), styleSheetContext, 0);
+        writeBodyElements(writer, styleSheet.getBodyElements(), 0);
     }
 
     private void writeImports(Writer writer, StyleSheet styleSheet) throws IOException {
@@ -169,7 +165,6 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     protected void writeBodyElements(Writer writer,
                                      List<BodyElement> bodyElements,
-                                     EvaluationContext context,
                                      int indent) throws IOException {
         if (bodyElements == null) return;
         
@@ -180,19 +175,19 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             }
             writeIndent(writer, indent);
             if (element instanceof Media) {
-                writeMedia(writer, (Media) element, context, indent);
+                writeMedia(writer, (Media) element, indent);
             }
             else if (element instanceof Page) {
-                writePage(writer, (Page)element, context, indent);
+                writePage(writer, (Page)element, indent);
             }
             else if (element instanceof RuleSet) {
-                writeRuleSet(writer, (RuleSet) element, context, indent);
+                writeRuleSet(writer, (RuleSet) element, indent);
             }
             // todo: page
         }
     }
 
-    protected void writePage(Writer writer, Page page, EvaluationContext context, int indent) throws IOException {
+    protected void writePage(Writer writer, Page page, int indent) throws IOException {
         Collection<Declaration> declarations = page.getDeclarationList();
         if (declarations == null || declarations.size() == 0) {
             return;
@@ -208,8 +203,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeOpeningBrace(writer, indent, declarations);
         writeBreak(writer, indent);
 
-        EvaluationContext pageContext = new EvaluationContext(new VariableContainerImpl(page), context);
-        writeDeclarations(writer, declarations, pageContext, indent);
+        writeDeclarations(writer, declarations, indent);
 
         writeDeclarationBraceSpace(writer, declarations);
 
@@ -220,7 +214,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     }
 
-    protected void writeMedia(Writer writer, Media media, EvaluationContext context, int indent) throws IOException {
+    protected void writeMedia(Writer writer, Media media, int indent) throws IOException {
 
         writer.write("@media ");
 
@@ -236,14 +230,13 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeOpeningBrace(writer, indent, null);
         writeBreak(writer, indent);
 
-        EvaluationContext mediaContext = new EvaluationContext(new VariableContainerImpl(media), context);
-        writeBodyElements(writer, media.getBodyElements(), mediaContext, indent + 1);
+        writeBodyElements(writer, media.getBodyElements(), indent + 1);
 
         writeClosingBrace(writer, indent);
     }
 
 
-    protected void writeRuleSet(Writer writer, RuleSet ruleSet, EvaluationContext context, int indent) throws IOException {
+    protected void writeRuleSet(Writer writer, RuleSet ruleSet, int indent) throws IOException {
         // Don't write rule sets with empty bodies
         Collection<Declaration> declarations = ruleSet.getDeclarationList();
         if (declarations == null || declarations.size() == 0) {
@@ -261,8 +254,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeOpeningBrace(writer, indent, declarations);
         writeDeclarationBraceSpace(writer, declarations);
 
-        EvaluationContext ruleSetContext = new EvaluationContext(new VariableContainerImpl(ruleSet, context), context);
-        writeDeclarations(writer, declarations, ruleSetContext, indent);
+        writeDeclarations(writer, declarations, indent);
 
         writeDeclarationBraceSpace(writer, declarations);
 
@@ -273,9 +265,8 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     private void writeDeclarations(Writer writer,
-                                      Collection<Declaration> declarations,
-                                      EvaluationContext ruleSetContext,
-                                      int indent) throws IOException {
+                                   Collection<Declaration> declarations,
+                                   int indent) throws IOException {
         boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
 
         boolean first = true;
@@ -288,7 +279,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             if (oneLineDeclarationList) {
                 declarationIndent = 0;
             }
-            writeDeclaration(writer, declaration, ruleSetContext, declarationIndent);
+            writeDeclaration(writer, declaration, declarationIndent);
 
             first = false;
         }
@@ -311,7 +302,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeBreak(writer, indent);
     }
 
-    protected void writeDeclaration(Writer writer, Declaration declaration, EvaluationContext context, int indent) throws IOException {
+    protected void writeDeclaration(Writer writer, Declaration declaration, int indent) throws IOException {
         writeIndent(writer, indent);
         if (declaration.isStar()) {
             writer.write('*');
@@ -320,9 +311,6 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writer.write(':');
         writeSpace(writer);
         for (Object value : declaration.getValues()) {
-            if (value instanceof Expression) {
-                value = ((Expression)value).evaluate(context);
-            }
             writer.write(value.toString());
         }
         if (declaration.isImportant()) {

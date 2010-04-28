@@ -83,31 +83,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
     }
 
     protected ObjectFactory<StyleSheet> createDefaultStyleSheetFactory() {
-        ExpressionFactory expressionFactory = new ExpressionFactory();
-
-        DeclarationFactory declarationFactory = new DeclarationFactory();
-        declarationFactory.setExpressionFactory(expressionFactory);
-
-        RuleSetFactory ruleSetFactory = new RuleSetFactory();
-        ruleSetFactory.setSelectorFactory(new SelectorFactory());
-        ruleSetFactory.setDeclarationFactory(declarationFactory);
-        ruleSetFactory.setExpressionFactory(expressionFactory);
-
-        MediaFactory mediaFactory = new MediaFactory();
-        mediaFactory.setRuleSetFactory(ruleSetFactory);
-        mediaFactory.setExpressionFactory(expressionFactory);
-
-        PageFactory pageFactory = new PageFactory();
-        pageFactory.setDeclarationFactory(declarationFactory);
-        pageFactory.setExpressionFactory(expressionFactory);
-
-        StyleSheetFactory styleSheetFactory = new StyleSheetFactory();
-        styleSheetFactory.setRuleSetFactory(ruleSetFactory);
-        styleSheetFactory.setMediaFactory(mediaFactory);
-        styleSheetFactory.setPageFactory(pageFactory);
-        styleSheetFactory.setExpressionFactory(expressionFactory);
-
-        return styleSheetFactory;
+        return StyleSheetFactory.createDefaultObjectFactory();
     }
 
     public StyleSheet parse(InputStream input) throws IOException {

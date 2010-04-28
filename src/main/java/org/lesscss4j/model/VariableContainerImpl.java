@@ -51,8 +51,8 @@ public class VariableContainerImpl implements VariableContainer {
         return _variables.keySet().iterator();
     }
     
-    public Expression setVariable(String name, Expression value) {
-        return _variables.put(name, value);
+    public void setVariable(String name, Expression value) {
+        _variables.put(name, value);
     }
 
     public Expression getVariable(String name) {

@@ -21,5 +21,6 @@ import org.lesscss4j.model.expression.Expression;
 
 public interface VariableContainer {
     Expression getVariable(String name);
+    void setVariable(String name, Expression value);
     Iterator<String> getVariableNames();
 }
