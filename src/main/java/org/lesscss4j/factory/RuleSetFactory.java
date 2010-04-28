@@ -54,6 +54,8 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
 
     public RuleSet create(Tree ruleSetNode) {
         RuleSet ruleSet = new RuleSet();
+        ruleSet.setLine(ruleSetNode.getLine());
+        ruleSet.setChar(ruleSetNode.getCharPositionInLine());
         for (int idx = 0, numChildren = ruleSetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = ruleSetNode.getChild(idx);
             switch (child.getType()) {

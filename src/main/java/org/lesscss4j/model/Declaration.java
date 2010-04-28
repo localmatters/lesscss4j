@@ -17,7 +17,7 @@ package org.lesscss4j.model;
 
 import java.util.List;
 
-public class Declaration {
+public class Declaration extends AbstractElement {
     private String _property;
     private List<Object> _values;
     private boolean _important = false;

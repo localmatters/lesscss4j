@@ -15,31 +15,38 @@
  */
 package org.lesscss4j.model;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.lesscss4j.model.expression.Expression;
 
-public class DeclarationContainer implements VariableContainer {
-    private List<Declaration> _declarations;
+public class DeclarationContainer extends AbstractElement implements VariableContainer {
+    private Map<String, Declaration> _declarations;
     private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
 
-    public List<Declaration> getDeclarations() {
+    public Map<String, Declaration> getDeclarations() {
         return _declarations;
     }
 
-    public void setDeclarations(List<Declaration> declarations) {
+    public Collection<Declaration> getDeclarationList() {
+        return _declarations.values();
+    }
+
+    public void setDeclarations(Map<String, Declaration> declarations) {
         _declarations = declarations;
     }
 
     public void addDeclaration(Declaration declaration) {
         if (_declarations == null) {
-            _declarations = new ArrayList<Declaration>();
+            _declarations = new LinkedHashMap<String, Declaration>();
         }
-        _declarations.add(declaration);
+        _declarations.put(declaration.getProperty(), declaration);
+    }
+
+    public Declaration getDeclaration(String property) {
+        return _declarations.get(property);
     }
 
     public Expression setVariable(String name, Expression value) {

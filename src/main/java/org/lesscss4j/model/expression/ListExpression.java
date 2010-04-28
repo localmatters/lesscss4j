@@ -18,7 +18,9 @@ package org.lesscss4j.model.expression;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListExpression implements Expression {
+import org.lesscss4j.model.AbstractElement;
+
+public class ListExpression extends AbstractElement implements Expression {
     private List<Expression> _expressions;
 
     public List<Expression> getExpressions() {

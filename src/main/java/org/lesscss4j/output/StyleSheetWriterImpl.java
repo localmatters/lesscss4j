@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -192,7 +193,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     protected void writePage(Writer writer, Page page, EvaluationContext context, int indent) throws IOException {
-        List<Declaration> declarations = page.getDeclarations();
+        Collection<Declaration> declarations = page.getDeclarationList();
         if (declarations == null || declarations.size() == 0) {
             return;
         }
@@ -244,7 +245,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     protected void writeRuleSet(Writer writer, RuleSet ruleSet, EvaluationContext context, int indent) throws IOException {
         // Don't write rule sets with empty bodies
-        List<Declaration> declarations = ruleSet.getDeclarations();
+        Collection<Declaration> declarations = ruleSet.getDeclarationList();
         if (declarations == null || declarations.size() == 0) {
             return;
         }
@@ -272,25 +273,28 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     private void writeDeclarations(Writer writer,
-                                      List<Declaration> declarations,
+                                      Collection<Declaration> declarations,
                                       EvaluationContext ruleSetContext,
                                       int indent) throws IOException {
         boolean oneLineDeclarationList = isOneLineDeclarationList(declarations);
-        for (int idx = 0, declarationSize = declarations.size(); idx < declarationSize; idx++) {
-            if (idx > 0) {
+
+        boolean first = true;
+        for (Declaration declaration : declarations) {
+            if (!first) {
                 writeBreak(writer);
             }
-            Declaration declaration = declarations.get(idx);
 
             int declarationIndent = indent + 1;
             if (oneLineDeclarationList) {
                 declarationIndent = 0;
             }
             writeDeclaration(writer, declaration, ruleSetContext, declarationIndent);
+
+            first = false;
         }
     }
 
-    protected void writeOpeningBrace(Writer writer, int indent, List<Declaration> declarations) throws IOException {
+    protected void writeOpeningBrace(Writer writer, int indent, Collection<Declaration> declarations) throws IOException {
         if (isPrettyPrintEnabled() &&
             getPrettyPrintOptions().isOpeningBraceOnNewLine() &&
             !isOneLineDeclarationList(declarations)) {
@@ -328,7 +332,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeSemi(writer, false);
     }
 
-    protected void writeDeclarationBraceSpace(Writer writer, List<Declaration> declarations) throws IOException {
+    protected void writeDeclarationBraceSpace(Writer writer, Collection<Declaration> declarations) throws IOException {
         if (isOneLineDeclarationList(declarations)) {
             writeSpace(writer);
         }
@@ -337,7 +341,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         }
     }
 
-    private boolean isOneLineDeclarationList(List<Declaration> declarations) {
+    private boolean isOneLineDeclarationList(Collection<Declaration> declarations) {
         return declarations != null &&
                isPrettyPrintEnabled() &&
                getPrettyPrintOptions().isSingleDeclarationOnOneLine() &&

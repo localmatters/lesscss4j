@@ -38,6 +38,8 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
 
     public Declaration create(Tree declarationNode) {
         Declaration declaration = new Declaration();
+        declaration.setLine(declarationNode.getLine());
+        declaration.setChar(declarationNode.getCharPositionInLine());
 
         for (int idx = 0, numChildren = declarationNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = declarationNode.getChild(idx);
@@ -77,9 +79,6 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             Tree child = valueNode.getChild(idx);
             switch (child.getType()) {
                 case LITERAL:
-                    values.add(new LiteralExpression(concatChildNodeText(child)));
-                    break;
-
                 case EXPR:
                 case FUNCTION:
                     Expression expression = getExpressionFactory().create(child);

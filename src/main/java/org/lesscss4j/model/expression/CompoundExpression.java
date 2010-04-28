@@ -15,7 +15,9 @@
  */
 package org.lesscss4j.model.expression;
 
-public class CompoundExpression implements Expression {
+import org.lesscss4j.model.AbstractElement;
+
+public class CompoundExpression extends AbstractElement implements Expression {
     private Expression _left;
     private Expression _right;
 

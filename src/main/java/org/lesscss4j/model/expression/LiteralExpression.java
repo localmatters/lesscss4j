@@ -15,7 +15,9 @@
  */
 package org.lesscss4j.model.expression;
 
-public class LiteralExpression implements Expression {
+import org.lesscss4j.model.AbstractElement;
+
+public class LiteralExpression extends AbstractElement implements Expression {
     private String _value;
 
     public LiteralExpression() {

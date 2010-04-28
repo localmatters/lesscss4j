@@ -44,6 +44,8 @@ public class PageFactory extends AbstractObjectFactory<Page> {
 
     public Page create(Tree pageNode) {
         Page page = new Page();
+        page.setLine(pageNode.getLine());
+        page.setChar(pageNode.getCharPositionInLine());
         for (int idx = 0, numChildren = pageNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = pageNode.getChild(idx);
             switch (child.getType()) {

@@ -18,8 +18,10 @@ package org.lesscss4j.model.expression;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lesscss4j.model.AbstractElement;
+
 // todo: extend ListExpression
-public class FunctionExpression implements Expression {
+public class FunctionExpression extends AbstractElement implements Expression {
     private String _name;
     private List<Expression> _arguments;
 

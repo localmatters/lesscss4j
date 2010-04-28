@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.lesscss4j.model.expression.Expression;
 
-public class BodyElementContainer implements VariableContainer {
+public class BodyElementContainer extends AbstractElement implements VariableContainer {
     private List<BodyElement> _bodyElements;
     private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();
 

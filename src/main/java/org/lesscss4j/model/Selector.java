@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.model;
 
-public class Selector {
+public class Selector extends AbstractElement {
     String _text;
 
     public Selector() {

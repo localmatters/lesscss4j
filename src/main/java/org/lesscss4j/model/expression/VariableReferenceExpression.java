@@ -16,8 +16,9 @@
 package org.lesscss4j.model.expression;
 
 import org.lesscss4j.exception.UndefinedVariableException;
+import org.lesscss4j.model.AbstractElement;
 
-public class VariableReferenceExpression implements Expression {
+public class VariableReferenceExpression extends AbstractElement implements Expression {
     private String _variableName;
 
     public VariableReferenceExpression() {

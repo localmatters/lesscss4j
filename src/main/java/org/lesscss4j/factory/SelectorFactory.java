@@ -22,18 +22,24 @@ import static org.lesscss4j.parser.antlr.LessCssLexer.WS;
 
 public class SelectorFactory extends AbstractObjectFactory<Selector> {
     public Selector create(Tree selectorNode) {
-        StringBuilder selector = new StringBuilder();
+        StringBuilder selectorText = new StringBuilder();
         for (int idx = 0, numChildren = selectorNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = selectorNode.getChild(idx);
             if (child.getType() == WS) {
                 // Compress all whitespace into a single space
-                selector.append(' ');
+                selectorText.append(' ');
             }
             else {
-                selector.append(child.getText());
+                selectorText.append(child.getText());
             }
         }
 
-        return selector.length() > 0 ? new Selector(selector.toString()) : null;
+        Selector selector = null;
+        if (selectorText.length() > 0) {
+            selector = new Selector(selectorText.toString());
+            selector.setLine(selectorNode.getLine());
+            selector.setChar(selectorNode.getCharPositionInLine());
+        }
+        return selector; 
     }
 }

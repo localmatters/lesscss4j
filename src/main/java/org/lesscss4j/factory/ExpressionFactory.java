@@ -16,6 +16,8 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.model.AbstractElement;
+import org.lesscss4j.model.PositionAware;
 import org.lesscss4j.model.expression.AddExpression;
 import org.lesscss4j.model.expression.ConstantExpression;
 import org.lesscss4j.model.expression.DivideExpression;
@@ -45,7 +47,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 }
 
             case LITERAL:
-                return new LiteralExpression(expression.getChild(0).getText());
+                return createLiteral(expression);
 
             default:
                 handleUnexpectedChild("Unexpected expression type", expression);
@@ -53,14 +55,25 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
         }
     }
 
-    private Expression createListExpression(Tree expression) {
+    protected LiteralExpression createLiteral(Tree expression) {
+        return createLiteral(concatChildNodeText(expression), expression);
+    }
+
+    protected LiteralExpression createLiteral(String text, Tree expression) {
+        LiteralExpression literal = new LiteralExpression(text);
+        literal.setLine(expression.getLine());
+        literal.setChar(expression.getCharPositionInLine());
+        return literal;
+    }
+
+    protected Expression createListExpression(Tree expression) {
         ListExpression listExpr = new ListExpression();
         for (int idx = 0, numChildren = expression.getChildCount(); idx < numChildren; idx++) {
             Tree child = expression.getChild(idx);
             switch (child.getType()) {
                 case COMMA:
                 case WS:
-                    listExpr.addExpression(new LiteralExpression(child.getText()));
+                    listExpr.addExpression(createLiteral(child.getText(), child));
                     break;
 
                 default:
@@ -73,39 +86,55 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
     }
 
     protected Expression createExpression(Tree expression) {
+        Expression result;
         switch (expression.getType()) {
             case CONSTANT:
-                return new ConstantExpression(concatChildNodeText(expression));
+                result = new ConstantExpression(concatChildNodeText(expression));
+                break;
 
             case LITERAL:
-                return new LiteralExpression(concatChildNodeText(expression));
+                result = createLiteral(expression);
+                break;
 
             case STAR:
-                return new MultiplyExpression(createExpression(expression.getChild(0)),
+                result = new MultiplyExpression(createExpression(expression.getChild(0)),
                                               createExpression(expression.getChild(1)));
+                break;
 
             case SOLIDUS:
-                return new DivideExpression(createExpression(expression.getChild(0)),
+                result = new DivideExpression(createExpression(expression.getChild(0)),
                                             createExpression(expression.getChild(1)));
+                break;
 
             case PLUS:
-                return new AddExpression(createExpression(expression.getChild(0)),
+                result = new AddExpression(createExpression(expression.getChild(0)),
                                          createExpression(expression.getChild(1)));
+                break;
 
             case MINUS:
-                return new SubtractExpression(createExpression(expression.getChild(0)),
+                result = new SubtractExpression(createExpression(expression.getChild(0)),
                                               createExpression(expression.getChild(1)));
+                break;
 
             case VAR:
-                return new VariableReferenceExpression(expression.getChild(0).getText());
+                result = new VariableReferenceExpression(expression.getChild(0).getText());
+                break;
 
             case EXPR:
-                return createExpression(expression.getChild(0));
+                result = createExpression(expression.getChild(0));
+                break;
 
             default:
                 handleUnexpectedChild("Unexpected expression type", expression);
                 return null; // shouldn't get here
         }
+
+        if (result instanceof AbstractElement) {
+            ((AbstractElement) result).setLine(expression.getLine());
+            ((AbstractElement) result).setChar(expression.getCharPositionInLine());
+        }
+
+        return result;
     }
 
     protected Expression createFunction(Tree function) {
@@ -115,10 +144,11 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
             case ALPHA:
                 for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
                     Tree child = function.getChild(idx);
-                    String prop = child.getChild(0).getText();
+                    Tree propNode = child.getChild(0);
+                    String prop = propNode.getText();
                     Expression expr = create(child.getChild(1));
-                    func.addArgument(new LiteralExpression(prop));
-                    func.addArgument(new LiteralExpression(child.getText()));
+                    func.addArgument(createLiteral(prop, propNode));
+                    func.addArgument(createLiteral(child.getText(), child));
                     func.addArgument(expr);
                 }
                 break;
@@ -128,17 +158,20 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                     Tree child = function.getChild(idx);
                     switch (child.getType()) {
                         case VAR:
-                            func.addArgument(new VariableReferenceExpression(child.getText()));
+                            func.addArgument(createExpression(child));
                             break;
 
                         default:
-                            func.addArgument(new LiteralExpression(child.getText()));
+                            func.addArgument(createLiteral(child.getText(), child));
                             break;
 
                     }
                 }
                 break;
         }
+
+        func.setLine(function.getLine());
+        func.setChar(function.getCharPositionInLine());
         return func;
     }
 }

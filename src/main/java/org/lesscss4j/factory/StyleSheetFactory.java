@@ -16,6 +16,7 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
@@ -83,7 +84,8 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                     break;
 
                 case VAR:
-                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    Tree exprNode = child.getChild(1);
+                    Expression expr = getExpressionFactory().create(exprNode);
                     if (expr != null) {
                         stylesheet.setVariable(child.getChild(0).getText(), expr);
                     }

@@ -44,6 +44,8 @@ public class MediaFactory extends AbstractObjectFactory<Media> {
 
     public Media create(Tree mediaNode) {
         Media media = new Media();
+        media.setLine(mediaNode.getLine());
+        media.setChar(mediaNode.getCharPositionInLine());
         for (int idx = 0, numChildren = mediaNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = mediaNode.getChild(idx);
             switch (child.getType()) {
