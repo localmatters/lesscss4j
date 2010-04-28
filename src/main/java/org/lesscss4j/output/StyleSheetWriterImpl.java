@@ -244,24 +244,24 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
         for (int idx = 0, selectorsSize = ruleSet.getSelectors().size(); idx < selectorsSize; idx++) {
             Selector selector = ruleSet.getSelectors().get(idx);
-/*
             if (idx > 0) {
                 writeSeparator(writer, ",");
             }
-*/
             writer.write(selector.getText());
-            writeOpeningBrace(writer, indent, declarations);
-            writeDeclarationBraceSpace(writer, declarations);
-
-            writeDeclarations(writer, declarations, indent);
-
-            writeDeclarationBraceSpace(writer, declarations);
-
-            if (!isOneLineDeclarationList(declarations)) {
-                writeIndent(writer, indent);
-            }
-            writeClosingBrace(writer, 0);
         }
+
+
+        writeOpeningBrace(writer, indent, declarations);
+        writeDeclarationBraceSpace(writer, declarations);
+
+        writeDeclarations(writer, declarations, indent);
+
+        writeDeclarationBraceSpace(writer, declarations);
+
+        if (!isOneLineDeclarationList(declarations)) {
+            writeIndent(writer, indent);
+        }
+        writeClosingBrace(writer, 0);
 
     }
 

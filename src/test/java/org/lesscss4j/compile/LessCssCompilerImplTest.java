@@ -123,4 +123,8 @@ public class LessCssCompilerImplTest extends TestCase {
     public void testMixinVariableScope() throws IOException {
         compileAndValidate("less/scope.less", "css/scope.css");
     }
+
+    public void testMultipleSelectors() throws IOException {
+        compileAndValidate("less/selectors.less", "css/selectors.css");
+    }
 }
