@@ -125,7 +125,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
         ruleSetContext.setRuleSetContainer(container);
 
         // First transform all the child rule sets.
-        List<BodyElement> elements = new ArrayList<BodyElement>(container.getBodyElements());
+        List<BodyElement> elements = container.getBodyElements();
         for (int idx = 0; idx < elements.size(); idx++) {
             BodyElement element = elements.get(idx);
             if (element instanceof RuleSet) {
@@ -144,14 +144,18 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                 RuleSet childRuleSet = (RuleSet) element;
                 if (container instanceof RuleSet) {
                     RuleSet ruleSet = (RuleSet) container;
+
+                    List<Selector> selectorList = new ArrayList<Selector>();
                     for (Selector selector : ruleSet.getSelectors()) {
                         for (ListIterator<Selector> iterator =
                             childRuleSet.getSelectors().listIterator(); iterator.hasNext();) {
                             Selector childSelector = iterator.next();
                             Selector mergedSelector = new Selector(selector, childSelector);
-                            iterator.set(mergedSelector);
+                            selectorList.add(mergedSelector);
                         }
                     }
+
+                    childRuleSet.setSelectors(selectorList);
                 }
 
 

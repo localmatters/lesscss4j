@@ -116,11 +116,9 @@ public class LessCssCompilerImplTest extends TestCase {
         compileAndValidate("less/mixins.less", "css/mixins.css");
     }
 
-/*
     public void testNestedRuleSets() throws IOException {
         compileAndValidate("less/rulesets.less", "css/rulesets.css");
     }
-*/
 
     public void testMixinVariableScope() throws IOException {
         compileAndValidate("less/scope.less", "css/scope.css");
