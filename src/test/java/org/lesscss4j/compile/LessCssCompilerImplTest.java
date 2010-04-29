@@ -131,4 +131,8 @@ public class LessCssCompilerImplTest extends TestCase {
     public void testCss3SingleRun() throws IOException {
         compileAndValidate("less/singlerun.less", "css/singlerun.css");
     }
+
+    public void testColorMath() throws IOException {
+        compileAndValidate("less/colors.less", "css/colors.css");
+    }
 }

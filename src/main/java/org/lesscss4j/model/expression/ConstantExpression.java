@@ -32,7 +32,7 @@ public class ConstantExpression extends AbstractElement implements Expression {
     }
 
     public ConstantExpression(String value) {
-        if (value.charAt(0) == '#') {
+        if (value.charAt(0) == '#' || ConstantColor.isColorFunction(value)) {
             _value = new ConstantColor(value);
         }
         else {

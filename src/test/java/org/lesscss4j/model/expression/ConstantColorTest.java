@@ -19,17 +19,48 @@ import junit.framework.TestCase;
 
 public class ConstantColorTest extends TestCase {
     protected void validateColor(int expectedValue, ConstantColor actual) {
-        assertEquals("Unexpected color value", expectedValue, (int)actual.getValue());
+        validateColor(expectedValue, null, actual);
     }
 
-    public void testParse() {
+    protected void validateColor(int expectedValue, Float expectedAlpha, ConstantColor actual) {
+        assertEquals("Unexpected color value", Integer.toHexString(expectedValue), Integer.toHexString((int)actual.getValue()));
+        assertEquals("Unexpected alpha value", expectedAlpha, actual.getAlpha());
+    }
+
+    public void testParseRGB() {
         validateColor(0xfed412, new ConstantColor("#fed412"));
         validateColor(0xffeedd, new ConstantColor("#fed"));
+        validateColor(0xffeedd, new ConstantColor("rgb( 255, 238, 221 )"));
+        validateColor(0xffffff, 0.4f, new ConstantColor("rGBa(255, 255, 255, 0.4)"));
+        validateColor(0xff7f00, 0.4f, new ConstantColor("Rgba(100%, 50%, 0%, 0.4)"));
+    }
+
+    public void testParseHSL() {
+        validateColor(0xff0000, new ConstantColor("hsl(0, 100%, 50%)"));
+        validateColor(0x00ff00, new ConstantColor("hSl(120, 100%, 50%)"));
+        validateColor(0xef8f8f, 1.0f, new ConstantColor("hsLa(0, 75%, 75%, 1.0)"));
+        validateColor(0x80609f, 0.5f, new ConstantColor("HSLa(270, 25%, 50%, 0.5)"));
+        validateColor(0xbfbf40, new ConstantColor("hsl(60, 50, 50)"));
+        validateColor(0x808080, new ConstantColor("hsl(60, 0%, 50%)"));
+        validateColor(0x206020, new ConstantColor("hsl(120, 50%, 25%)"));
+    }
+
+    public void testParseClipping() {
+        validateColor(0xff00ff, new ConstantColor("rgb(256, -10, 255)"));
+        validateColor(0xbfbf40, new ConstantColor("hsl(420, 50, 50)")); // same as hsl(60, 50, 50)
+        validateColor(0xff0000, new ConstantColor("hsl(0, 200%, 50%)"));
     }
 
     public void testToString() {
         assertEquals("#ab12de", new ConstantColor(0xab12de).toString());
         assertEquals("#001234", new ConstantColor(0x001234).toString());
         assertEquals("#ab1", new ConstantColor(0xaabb11).toString());
+        assertEquals("#fed", new ConstantColor("rgb( 255, 238, 221 )").toString());
+        assertEquals("rgba(255,255,255,0.4)", new ConstantColor("RGBA(255, 255, 255, 0.4)").toString());
+
+    }
+    
+    public void testAdd() {
+        assertEquals(new ConstantColor(0x00ff00), new ConstantColor(0x00ee00).add(new ConstantColor(0x009900)));
     }
 }

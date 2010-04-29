@@ -240,6 +240,8 @@ exprValue
 numberOrColor
     : number
     | hexColor
+    | RGB_COLOR
+    | HSL_COLOR
     ;
     
 number
@@ -545,6 +547,16 @@ PAGE_SYM   : P A G E                    ;
 MEDIA_SYM  : M E D I A                  ;
 FONT_FACE  : F O N T '-' F A C E        ;
 FONT       : F O N T                    ;
+
+RGB_COLOR
+    : R G B   WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN
+    | R G B A WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN 
+    ;
+    
+HSL_COLOR
+    : H S L   WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN
+    | H S L A WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN 
+    ;
 
 // -------------
 // Identifier.  Identifier tokens pick up properties names and values

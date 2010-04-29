@@ -1,14 +1,14 @@
 #yelow #short { color: #fea; }
 #yelow #long { color: #fea; }
-#yelow #rgba { color: rgba(255, 238, 170, 0.1); }
+#yelow #rgba { color: rgba(255,238,170,0.1); }
 #blue #short { color: #00f; }
 #blue #long { color: #00f; }
-#blue #rgba { color: rgba(0, 0, 255, 0.1); }
+#blue #rgba { color: rgba(0,0,255,0.1); }
 #overflow .a { color: #000; }
 #overflow .b { color: #fff; }
 #overflow .c { color: #fff; }
 #overflow .d { color: #0f0; }
 #grey {
   color: #c8c8c8;
-  background-color: #323232;
+  background-color: #808080;
 }
