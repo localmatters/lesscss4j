@@ -87,9 +87,9 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
     }
 
     public StyleSheet parse(InputStream input) throws IOException {
+        LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input));
+        LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
         try {
-            LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input));
-            LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
             LessCssParser.styleSheet_return result = parser.styleSheet();
 
             if (!parser.getErrors().isEmpty()) {
@@ -100,8 +100,12 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
             return ssFactory.create((Tree) result.getTree());
         }
         catch (RecognitionException e) {
-            // todo: wrap in our own exception?
-            throw new IOExceptionWithCause(e);
+            ParseError error = new ParseError();
+            error.setException(e);
+            error.setHeader(parser.getErrorHeader(e));
+            error.setMessage(parser.getErrorMessage(e, parser.getTokenNames()));
+
+            throw new ParseException(error);
         }
     }
 
