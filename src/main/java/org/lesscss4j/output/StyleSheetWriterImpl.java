@@ -126,9 +126,11 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
     }
 
     protected void writeIndent(Writer writer, int level) throws IOException {
-        for (int idx = 0; idx < level; idx++) {
-            for (int jdx = 0; jdx < getPrettyPrintOptions().getIndentSize(); jdx++) {
-                writer.write(' ');
+        if (isPrettyPrintEnabled()) {
+            for (int idx = 0; idx < level; idx++) {
+                for (int jdx = 0; jdx < getPrettyPrintOptions().getIndentSize(); jdx++) {
+                    writer.write(' ');
+                }
             }
         }
     }
