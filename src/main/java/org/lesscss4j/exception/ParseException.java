@@ -15,12 +15,17 @@
  */
 package org.lesscss4j.exception;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.lesscss4j.parser.ParseError;
 
 public class ParseException extends RuntimeException {
     private Collection<ParseError> _errors;
+
+    public ParseException(ParseError... errors) {
+        this(Arrays.asList(errors));
+    }
 
     public ParseException(Collection<ParseError> errors) {
         _errors = errors;

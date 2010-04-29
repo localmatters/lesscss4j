@@ -19,7 +19,6 @@ import org.antlr.runtime.RecognitionException;
 
 public class ParseError {
     private RecognitionException _exception;
-    private String[] _tokenNames;
     private String _header;
     private String _message;
 
@@ -29,14 +28,6 @@ public class ParseError {
 
     public void setException(RecognitionException exception) {
         _exception = exception;
-    }
-
-    public String[] getTokenNames() {
-        return _tokenNames;
-    }
-
-    public void setTokenNames(String[] tokenNames) {
-        _tokenNames = tokenNames;
     }
 
     public String getHeader() {
