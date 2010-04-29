@@ -133,12 +133,31 @@ ruleSetElement
 declarationBlockElement
     : (combinatorNonWs)=>innerSelectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE    -> ^(RULESET innerSelectorList ruleSetElement*)
     | (selectorList WS* LBRACE)=>selectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList      ruleSetElement*)
-    | (selectorList WS* SEMI)=>selectorList WS* SEMI -> ^(MIXIN_REF selectorList)
+    | (mixinSelectorList WS* SEMI)=>mixinSelectorList WS* SEMI -> ^(MIXIN_REF mixinSelectorList)
     | declaration
     | variableDef
     ;
     
- innerSelectorList
+mixinSelectorList
+    : mixinSelector (WS* COMMA WS* mixinSelector)* -> ^(SELECTOR mixinSelector)+
+    ;
+    
+mixinSelector
+    : mixinSimpleSelector (combinator mixinSimpleSelector)*
+    ;
+
+mixinSimpleSelector
+    : elementName (mixinSubsequent)*
+    | mixinSubsequent+
+    ;
+    
+mixinSubsequent
+    : HASH
+    | cssClass
+    | attrib
+    ;
+    
+innerSelectorList
      : innerSelector (WS* COMMA WS* innerSelector)* -> ^(SELECTOR innerSelector)+
      ;
 
@@ -164,7 +183,7 @@ selector
 
 simpleSelector
     : elementName (elementSubsequent)*
-    | (elementSubsequent)+
+    | elementSubsequent+
     ;
 
 elementSubsequent
