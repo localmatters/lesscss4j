@@ -86,7 +86,6 @@ package org.lesscss4j.parser.antlr;
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         ParseError error = new ParseError();
-        error.setTokenNames(tokenNames);
         error.setException(e);
         error.setHeader(getErrorHeader(e));
         error.setMessage(getErrorMessage(e, tokenNames));
@@ -114,6 +113,48 @@ package org.lesscss4j.parser.antlr;
                 </configuration>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Profile that builds expanded assembly directory useful for testing the assembly process -->
+        <profile>
+            <id>test-assembly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>test-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>directory-inline</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 </project>
