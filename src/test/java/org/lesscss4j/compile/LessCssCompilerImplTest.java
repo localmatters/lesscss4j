@@ -30,21 +30,22 @@ public class LessCssCompilerImplTest extends TestCase {
     public static final String ENCODING = "UTF-8";
 
     LessCssCompilerImpl _compiler;
+    PrettyPrintOptions _printOptions;
 
     @Override
     protected void setUp() throws Exception {
-        PrettyPrintOptions printOptions = new PrettyPrintOptions();
-        printOptions.setSingleDeclarationOnOneLine(true);
-        printOptions.setLineBetweenRuleSets(false);
-        printOptions.setOpeningBraceOnNewLine(false);
-        printOptions.setIndentSize(2);
+        _printOptions = new PrettyPrintOptions();
+        _printOptions.setSingleDeclarationOnOneLine(true);
+        _printOptions.setLineBetweenRuleSets(false);
+        _printOptions.setOpeningBraceOnNewLine(false);
+        _printOptions.setIndentSize(2);
 
         _compiler = new LessCssCompilerImpl();
 
         ((LessCssStyleSheetParser) _compiler.getStyleSheetParser()).setDefaultEncoding(ENCODING);
 
         ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setPrettyPrintEnabled(true);
-        ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setPrettyPrintOptions(printOptions);
+        ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setPrettyPrintOptions(_printOptions);
         ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setDefaultEncoding(ENCODING);
     }
 
@@ -134,5 +135,10 @@ public class LessCssCompilerImplTest extends TestCase {
 
     public void testColorMath() throws IOException {
         compileAndValidate("less/colors.less", "css/colors.css");
+    }
+
+    public void testBigCssFile() throws IOException {
+        _printOptions.setSingleDeclarationOnOneLine(false);
+        compileAndValidate("less/css-big.less", "css/css-big.css");
     }
 }
