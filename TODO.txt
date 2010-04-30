@@ -2,3 +2,5 @@
 - Mixins with arguments
 - mixin property references
 - imports
+- Support for expressions/variables in IE8's bogus syntax for opacity:
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)" 
