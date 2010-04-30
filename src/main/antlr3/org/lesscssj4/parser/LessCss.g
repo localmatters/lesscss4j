@@ -154,7 +154,6 @@ mixinSimpleSelector
 mixinSubsequent
     : HASH
     | cssClass
-    | attrib
     ;
     
 innerSelectorList
