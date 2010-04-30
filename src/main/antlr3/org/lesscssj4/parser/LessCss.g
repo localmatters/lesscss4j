@@ -348,8 +348,13 @@ ieAlpha
     ;
     
 ieAlphaTerm
-    : ident WS* OPEQ WS* (literal | additiveExpression)
-    -> ^(OPEQ ident ^(LITERAL literal)? ^(EXPR additiveExpression)?)
+    : ident WS* ieAlphaTermOp WS* (literal | additiveExpression)
+    -> ^(ieAlphaTermOp ident ^(LITERAL literal)? ^(EXPR additiveExpression)?)
+    ;
+    
+ieAlphaTermOp
+    : OPEQ
+    | COLON
     ;
 
 ieExprTerm
