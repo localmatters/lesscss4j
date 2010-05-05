@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.PrettyPrintOptions;
@@ -31,6 +32,8 @@ import org.lesscss4j.output.StyleSheetWriterImpl;
 public class CompilerMain {
     public boolean _prettyPrint = false;
     public PrettyPrintOptions _prettyPrintOptions;
+    private String _inputFilename;
+    private String _outputFilename;
 
     public PrettyPrintOptions getPrettyPrintOptions() {
         return _prettyPrintOptions;
@@ -89,9 +92,23 @@ public class CompilerMain {
 
     public int run(String[] args) {
 
-        String inputFilename = null;
-        String outputFilename = null;
+        int result = parseCommandLine(args);
+        if (result != 0) {
+            return result;
+        }
 
+        try {
+            compile();
+        }
+        catch (IOException io) {
+            System.err.println(io.toString());
+            return -1;
+        }
+
+        return 0;
+    }
+
+    protected int parseCommandLine(String[] args) {
         boolean argsFinished = false;
 
         PrettyPrintOptions formatOptions = new PrettyPrintOptions();
@@ -135,11 +152,11 @@ public class CompilerMain {
                 System.err.println("Unknown option: " + arg);
             }
             else{
-                if (inputFilename == null) {
-                    inputFilename = arg;
+                if (_inputFilename == null) {
+                    _inputFilename = arg;
                 }
-                else if (outputFilename == null) {
-                    outputFilename = arg;
+                else if (_outputFilename == null) {
+                    _outputFilename = arg;
                 }
                 else {
                     // error
@@ -149,14 +166,11 @@ public class CompilerMain {
 
         setPrettyPrintOptions(formatOptions);
 
-        try {
-            compile(inputFilename, outputFilename);
-        }
-        catch (IOException io) {
-            System.err.println(io.toString());
-        }
-
         return 0;
+    }
+
+    public void compile() throws IOException {
+        compile(_inputFilename, _outputFilename);
     }
 
     public void compile(String inputFilename, String outputFilename) throws IOException {
@@ -193,7 +207,7 @@ public class CompilerMain {
         }
     }
 
-    private OutputStream createOutputStream(String outputFilename) throws IOException {
+    protected OutputStream createOutputStream(String outputFilename) throws IOException {
         if (outputFilename == null || "-".equals(outputFilename)) {
             return System.out;
         }
@@ -202,7 +216,7 @@ public class CompilerMain {
         }
     }
 
-    private InputStream createInputStream(String inputFilename) throws FileNotFoundException {
+    protected InputStream createInputStream(String inputFilename) throws FileNotFoundException {
         if (inputFilename == null || inputFilename.equals("-")) {
             return System.in;
         }
@@ -211,17 +225,24 @@ public class CompilerMain {
         }
     }
 
-    private String generateOutputFilename(String inputFilename) {
-        String outputFilename;
-        int extIdx = inputFilename.lastIndexOf('.');
-        if (extIdx >= 0 && extIdx == inputFilename.length() - 1 &&
-            inputFilename.regionMatches(true, extIdx + 1, "less", 0, 4)) {
-            outputFilename = inputFilename.substring(0, extIdx) + "css";
+    protected String generateOutputFilename(String inputFilename) {
+
+        String extension = FilenameUtils.getExtension(inputFilename);
+
+        StringBuilder outputFilename = new StringBuilder();
+        outputFilename.append(inputFilename, 0, inputFilename.length() - extension.length());
+        if (outputFilename.charAt(outputFilename.length() - 1) == '.') {
+            outputFilename.deleteCharAt(outputFilename.length() - 1);
         }
-        else {
-            outputFilename = inputFilename + ".css";
+
+        // Don't want to clobber the existing css file.
+        if (extension.equals("css")) {
+            outputFilename.append("-min");
         }
-        return outputFilename;
+
+        outputFilename.append(".css");
+
+        return outputFilename.toString();
     }
 
     public static void main(String[] args) {
