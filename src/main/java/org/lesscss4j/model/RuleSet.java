@@ -16,11 +16,31 @@
 package org.lesscss4j.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.lesscss4j.model.expression.Expression;
 
 
-public class RuleSet extends DeclarationContainer implements BodyElement {
+public class RuleSet extends DeclarationContainer implements BodyElement, Cloneable {
     private List<Selector> _selectors;
+    private Map<String, Expression> _arguments = new LinkedHashMap<String, Expression>();
+
+    public RuleSet() {
+    }
+
+    public RuleSet(RuleSet copy) {
+        super(copy);
+        if (copy._selectors != null) {
+            _selectors = new ArrayList<Selector>(copy._selectors.size());
+            for (Selector selector : copy._selectors) {
+                _selectors.add(selector.clone());
+            }
+        }
+
+        _arguments.putAll(copy._arguments);
+    }
 
     public List<Selector> getSelectors() {
         return _selectors;
@@ -37,4 +57,16 @@ public class RuleSet extends DeclarationContainer implements BodyElement {
         _selectors.add(selector);
     }
 
+    public Map<String, Expression> getArguments() {
+        return _arguments;
+    }
+
+    public void addArgument(String name, Expression value) {
+        _arguments.put(name, value);
+    }
+
+    @Override
+    public RuleSet clone() {
+        return new RuleSet(this);
+    }
 }

@@ -57,6 +57,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
         RuleSet ruleSet = new RuleSet();
         ruleSet.setLine(ruleSetNode.getLine());
         ruleSet.setChar(ruleSetNode.getCharPositionInLine());
+
         for (int idx = 0, numChildren = ruleSetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = ruleSetNode.getChild(idx);
             switch (child.getType()) {
@@ -67,10 +68,19 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     }
                     break;
 
+                case MIXIN_ARG:
                 case VAR:
                     Expression expr = getExpressionFactory().create(child.getChild(1));
                     if (expr != null) {
-                        ruleSet.setVariable(child.getChild(0).getText(), expr);
+                        String varName = child.getChild(0).getText();
+                        if (ruleSet.getVariable(varName) != null) {
+                            // todo: error
+                        }
+                        ruleSet.setVariable(varName, expr);
+
+                        if (child.getType() == MIXIN_ARG) {
+                            ruleSet.addArgument(varName, expr);
+                        }
                     }
                     break;
 
@@ -82,7 +92,10 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     break;
 
                 case MIXIN_REF:
-                    createMixinReferences(child, ruleSet);
+                    MixinReference ref = createMixinReferences(child);
+                    if (ref != null) {
+                        ruleSet.addDeclaration(ref);
+                    }
                     break;
 
                 case RULESET:
@@ -101,21 +114,32 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
         return ruleSet;
     }
 
-    protected void createMixinReferences(Tree mixinNode, RuleSet ruleSet) {
+    protected MixinReference createMixinReferences(Tree mixinNode) {
+        // todo: put this in it's own factory?
+
+        MixinReference ref = new MixinReference();
+        ref.setLine(mixinNode.getLine());
+        ref.setChar(mixinNode.getCharPositionInLine());
+
         for (int idx = 0, numChildren = mixinNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = mixinNode.getChild(idx);
-            if (child.getType() == SELECTOR) {
-                Selector selector = getSelectorFactory().create(child);
-                MixinReference ref = new MixinReference();
-                ref.setSelector(selector);
-                ref.setLine(mixinNode.getLine());
-                ref.setChar(mixinNode.getCharPositionInLine());
+            switch (child.getType()) {
+                case SELECTOR:
+                    Selector selector = getSelectorFactory().create(child);
+                    ref.setSelector(selector);
+                    break;
 
-                ruleSet.addDeclaration(ref);
-            }
-            else {
-                handleUnexpectedChild("Unexpected mixin reference child", child);
+                case MIXIN_ARG:
+                    Expression arg = getExpressionFactory().create(child.getChild(0));
+                    if (arg != null) {
+                        ref.addArgument(arg);
+                    }
+                    break;
+
+                default:
+                    handleUnexpectedChild("Unexpected mixin reference child", child);
             }
         }
+        return ref;
     }
 }

@@ -23,6 +23,11 @@ public class AbstractElement implements PositionAware {
         this(-1, -1);
     }
 
+    public AbstractElement(AbstractElement copy) {
+        _line = copy._line;
+        _char = copy._char;
+    }
+
     public AbstractElement(int line, int aChar) {
         _line = line;
         _char = aChar;

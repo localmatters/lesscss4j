@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.model;
 
-public class Selector extends AbstractElement {
+public class Selector extends AbstractElement implements Cloneable {
     String _text;
 
     public Selector() {
@@ -62,5 +62,10 @@ public class Selector extends AbstractElement {
     @Override
     public int hashCode() {
         return _text.hashCode();
+    }
+
+    @Override
+    public Selector clone() {
+        return new Selector(this);
     }
 }

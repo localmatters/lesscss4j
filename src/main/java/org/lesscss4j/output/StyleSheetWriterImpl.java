@@ -244,6 +244,10 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             return;
         }
 
+        if (ruleSet.getArguments().size() > 0) {
+            return;
+        }
+
         for (int idx = 0, selectorsSize = ruleSet.getSelectors().size(); idx < selectorsSize; idx++) {
             Selector selector = ruleSet.getSelectors().get(idx);
             if (idx > 0) {

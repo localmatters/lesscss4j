@@ -86,6 +86,8 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                                 throw new UndefinedMixinReference("Mixins must be defined before their use", mixin);
                             }
 
+                            ruleSet = evaluateMixinArguments(ruleSet, mixin, declContext);
+
                             for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext(); ) {
                                 String varName = iter.next();
                                 Expression expression = ruleSet.getVariable(varName);
@@ -112,6 +114,38 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                 container.addDeclaration(declaration);
             }
         }
+    }
+
+    protected RuleSet evaluateMixinArguments(RuleSet ruleSet, MixinReference mixin, EvaluationContext declContext) {
+        EvaluationContext context = declContext.getParentContext();
+        if (mixin.getArguments().size() > ruleSet.getArguments().size()) {
+            // todo: exception...more arguments specified than available?
+        }
+
+        // If the rule set takes arguments, we need to evaluate it on the fly.  So make a copy and run it
+        // through the process as if it didn't have any arguments.
+        if (ruleSet.getArguments().size() > 0) {
+            ruleSet = ruleSet.clone();
+
+            if (mixin.getArguments().size() > 0) {
+                Iterator<Expression> callIter = mixin.getArguments().iterator();
+                Iterator<Map.Entry<String, Expression>> argIter =
+                    ruleSet.getArguments().entrySet().iterator();
+
+                while (callIter.hasNext()) {
+                    Expression mixinValue = callIter.next();
+                    Map.Entry<String, Expression> entry = argIter.next();
+
+                    ruleSet.setVariable(entry.getKey(), mixinValue);
+                }
+            }
+            
+            ruleSet.getArguments().clear();
+
+            evaluateVariables(ruleSet, declContext);
+            transformDeclarations(ruleSet, context); // todo: not sure if this is the right context
+        }
+        return ruleSet;
     }
 
     protected void transformRuleSets(DeclarationContainer container, EvaluationContext context) {
@@ -168,6 +202,10 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
     }
 
     public void transform(DeclarationContainer container, EvaluationContext context) {
+        if (container instanceof RuleSet && ((RuleSet)container).getArguments().size() > 0) {
+            return;
+        }
+
         evaluateVariables(container, context);
         transformDeclarations(container, context);
         transformRuleSets(container, context);

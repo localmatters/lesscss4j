@@ -15,6 +15,7 @@
  */
 package org.lesscss4j.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Declaration extends AbstractElement implements DeclarationElement {
@@ -22,6 +23,18 @@ public class Declaration extends AbstractElement implements DeclarationElement {
     private List<Object> _values;
     private boolean _important = false;
     private boolean _star = false; // ie specific thing...not sure what to call this
+
+    public Declaration() {
+    }
+
+    public Declaration(Declaration copy) {
+        _property = copy._property;
+        _important = copy._important;
+        _star = copy._star;
+        if (copy._values != null) {
+            _values = new ArrayList<Object>(copy._values); // todo: needs to be a deep copy?
+        }
+    }
 
     public String getProperty() {
         return _property;
@@ -70,5 +83,10 @@ public class Declaration extends AbstractElement implements DeclarationElement {
             buf.append(" !important");
         }
         return buf.toString();
+    }
+
+    @Override
+    public Declaration clone() {
+        return new Declaration(this);
     }
 }

@@ -15,5 +15,6 @@
  */
 package org.lesscss4j.model;
 
-public interface DeclarationElement {
+public interface DeclarationElement extends Cloneable {
+    DeclarationElement clone();
 }

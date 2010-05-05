@@ -22,6 +22,8 @@ import org.lesscss4j.model.expression.Expression;
 
 public class DeclarationTransformer implements Transformer<Declaration> {
     public void transform(Declaration declaration, EvaluationContext context) {
+        if (declaration.getValues() == null) return;
+        
         for (ListIterator<Object> iter = declaration.getValues().listIterator(); iter.hasNext();) {
             Object value = iter.next();
             if (value instanceof Expression) {

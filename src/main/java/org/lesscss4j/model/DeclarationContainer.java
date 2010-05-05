@@ -25,6 +25,16 @@ public class DeclarationContainer extends BodyElementContainer {
     private List<DeclarationElement> _declarations = new ArrayList<DeclarationElement>();
     private boolean _mixinReferenceUsed = false;
 
+    public DeclarationContainer() {
+    }
+
+    public DeclarationContainer(DeclarationContainer copy) {
+        super(copy);
+        for (DeclarationElement declaration : copy._declarations) {
+            addDeclaration(declaration.clone());
+        }
+    }
+
     public boolean isMixinReferenceUsed() {
         return _mixinReferenceUsed;
     }

@@ -22,6 +22,7 @@ options {
 }
 
 tokens {
+    STYLESHEET;
     RULESET;
     SELECTOR;
     DECLARATION;
@@ -33,6 +34,8 @@ tokens {
     CONSTANT;
     FUNCTION;
     MIXIN_REF;
+    MIXIN_MACRO;
+    MIXIN_ARG;
 }
 
 //@@JAVA@@
@@ -45,11 +48,12 @@ tokens {
 // of imports, and then the main body of style rules.
 //
 styleSheet
-    : WS!*
-      (charSet WS!*)?
-      (importFile WS!*)*
-      (bodyset WS!*)*
-      EOF!
+    : WS*
+      (charSet WS*)?
+      (importFile WS*)*
+      (bodyset WS*)*
+      EOF
+      -> ^(STYLESHEET charSet* importFile* bodyset*)
     ;
     
 // -----------------
@@ -99,6 +103,7 @@ bodyset
     
 ruleList
     : variableDef
+    | mixinMacro
     | ruleSet
     ;
     
@@ -120,6 +125,26 @@ combinatorNonWs
     : PLUS
     | GREATER
     ;
+    
+mixinMacro
+    : mixinMacroSelector WS* LPAREN WS* mixinMacroArg (WS* COMMA WS* mixinMacroArg)* WS* RPAREN WS* LBRACE (WS* ruleSetElement)+ WS* RBRACE
+    -> ^(MIXIN_MACRO ^(SELECTOR mixinMacroSelector) mixinMacroArg+ ruleSetElement+)
+    ;
+    
+mixinMacroArg
+    : variable WS* COLON WS* mixinMacroArgDefault
+    -> ^(MIXIN_ARG variable ^(EXPR mixinMacroArgDefault))
+    ;
+    
+mixinMacroArgDefault
+    : numberOrColor -> ^(CONSTANT numberOrColor)
+    | literal       -> ^(LITERAL literal)
+    ;
+    
+mixinMacroSelector
+    : cssClass
+    | HASH
+    ;
             
 ruleSet
     : ruleSetSelector WS* LBRACE (WS* ruleSetElement)* WS* RBRACE
@@ -133,22 +158,38 @@ ruleSetElement
 declarationBlockElement
     : (combinatorNonWs)=>innerSelectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE    -> ^(RULESET innerSelectorList ruleSetElement*)
     | (selectorList WS* LBRACE)=>selectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList      ruleSetElement*)
-    | (mixinSelectorList WS* SEMI)=>mixinSelectorList WS* SEMI -> ^(MIXIN_REF mixinSelectorList)
+    | (mixinSelectorList WS* SEMI)=>mixinSelectorList WS!* SEMI!
     | declaration
     | variableDef
     ;
     
 mixinSelectorList
-    : mixinSelector (WS* COMMA WS* mixinSelector)* -> ^(SELECTOR mixinSelector)+
+    : mixinSelector (WS!* COMMA! WS!* mixinSelector)*
     ;
     
 mixinSelector
-    : mixinSimpleSelector (combinator mixinSimpleSelector)*
+    : mixinMacroSelector WS* LPAREN (WS* mixinMacroCallArgList)? WS* RPAREN
+      -> ^(MIXIN_REF ^(SELECTOR mixinMacroSelector) mixinMacroCallArgList*)
+    | mixinNoArgSelector
+      -> ^(MIXIN_REF ^(SELECTOR mixinNoArgSelector))
+    ;
+    
+mixinNoArgSelector
+    : mixinSimpleSelector (combinator mixinSimpleSelector)* 
     ;
 
 mixinSimpleSelector
     : elementName (mixinSubsequent)*
     | mixinSubsequent+
+    ;
+    
+mixinMacroCallArgList
+    : mixinMacroCallArg (WS!* COMMA! WS!* mixinMacroCallArg)*
+    ;
+    
+mixinMacroCallArg
+    : literal             -> ^(MIXIN_ARG ^(LITERAL literal))
+    | additiveExpression  -> ^(MIXIN_ARG ^(EXPR additiveExpression))
     ;
     
 mixinSubsequent
@@ -225,7 +266,11 @@ pseudoArg
     ;
     
 variableDef
-    : variable WS* COLON WS* propertyValue WS* SEMI
+    : variableExpr WS* SEMI!
+    ;
+
+variableExpr
+    : variable WS* COLON WS* propertyValue
     -> ^(VAR variable ^(EXPR propertyValue))
     ;
     

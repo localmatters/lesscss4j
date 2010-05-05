@@ -29,6 +29,20 @@ public class BodyElementContainer extends AbstractElement implements VariableCon
     private Map<Selector, List<RuleSet>> _ruleSetMap = new LinkedHashMap<Selector, List<RuleSet>>();
     private int _ruleSetCount;
 
+    public BodyElementContainer() {
+    }
+
+    public BodyElementContainer(BodyElementContainer copy) {
+        super(copy);
+        _variables.putAll(copy._variables); // todo: deep copy of values?
+        for (BodyElement element : _bodyElements) {
+            if (element instanceof RuleSet) {
+                element = ((RuleSet) element).clone();
+            }
+            addBodyElement(element);
+        }
+    }
+
     public List<BodyElement> getBodyElements() {
         return _bodyElements;
     }

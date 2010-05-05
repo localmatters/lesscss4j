@@ -69,15 +69,9 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             return stylesheet;
         }
 
-        if (styleSheetNode.getType() == RULESET) {
-            // Special case for when there's only one ruleset
-            processStyleSheetNode(stylesheet, styleSheetNode);
-        }
-        else {
-            for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
-                Tree child = styleSheetNode.getChild(idx);
-                processStyleSheetNode(stylesheet, child);
-            }
+        for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
+            Tree child = styleSheetNode.getChild(idx);
+            processStyleSheetNode(stylesheet, child);
         }
 
         return stylesheet;
@@ -105,6 +99,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                 }
                 break;
 
+            case MIXIN_MACRO:
             case RULESET:
                 RuleSet ruleSet = getRuleSetFactory().create(child);
                 if (ruleSet != null) {
