@@ -17,6 +17,8 @@ package org.lesscss4j.compile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Comparator;
 
 import junit.framework.TestCase;
 
@@ -25,6 +27,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
+import org.lesscss4j.parser.UrlStyleSheetResource;
 
 public class LessCssCompilerImplTest extends TestCase {
     public static final String ENCODING = "UTF-8";
@@ -62,23 +65,27 @@ public class LessCssCompilerImplTest extends TestCase {
     }
 
     protected void compileAndValidate(String lessFile, String cssFile) throws IOException {
-        InputStream input = null;
-        try {
-            input = getClass().getClassLoader().getResourceAsStream(lessFile);
-            assertNotNull("Unable to open " + lessFile, input);
+        compileAndValidate(lessFile, cssFile, null);
+    }
 
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
+    protected void compileAndValidate(String lessFile, String cssFile, Comparator<String> comparator) throws IOException {
+        URL url = getClass().getClassLoader().getResource(lessFile);
+        assertNotNull("Unable to open " + lessFile, url);
 
-            _compiler.compile(input, output);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            output.close();
+        _compiler.compile(new UrlStyleSheetResource(url), output);
 
-            assertEquals(readCss(cssFile), output.toString(ENCODING));
+        output.close();
+
+        String expected = readCss(cssFile);
+        String actual = output.toString(ENCODING);
+        if (comparator == null) {
+            assertEquals(expected, actual);
         }
-        finally {
-            IOUtils.closeQuietly(input);
+        else {
+            comparator.compare(expected, actual);
         }
-
     }
 
     public void testVariables() throws IOException {
@@ -141,8 +148,21 @@ public class LessCssCompilerImplTest extends TestCase {
         compileAndValidate("less/colors.less", "css/colors.css");
     }
 
+    public void testImport() throws IOException {
+        compileAndValidate("less/import.less", "css/import.css");
+    }
+
     public void testBigCssFile() throws IOException {
         _printOptions.setSingleDeclarationOnOneLine(false);
         compileAndValidate("less/css-big.less", "css/css-big.css");
+    }
+
+    public void testBigCssFileCompareToSelf()  throws IOException {
+        compileAndValidate("css/big.css", "css/big.css", new Comparator<String>() {
+            public int compare(String expected, String actual) {
+                assertEquals(expected.toLowerCase(), actual.toLowerCase());
+                return 0;
+            }
+        });
     }
 }

@@ -74,16 +74,23 @@ public class EvaluationContext {
         _ruleSetIndex = ruleSetIndex;
     }
 
-    public Expression getVariableExpression(String name) {
-        Expression value = getVariableContainer().getVariable(name);
+    public Expression getVariable(String name) {
+        Expression value = null;
+        if (getVariableContainer() != null) {
+            value = getVariableContainer().getVariable(name);
+        }
         if (value == null && getParentContext() != null) {
-            value = getParentContext().getVariableExpression(name);
+            value = getParentContext().getVariable(name);
         }
         return value;
     }
 
     public List<RuleSet> getRuleSet(Selector selector) {
-        List<RuleSet> ruleSet = getRuleSetContainer().getRuleSet(selector);
+
+        List<RuleSet> ruleSet = null;
+        if (getRuleSetContainer() != null) {
+            ruleSet = getRuleSetContainer().getRuleSet(selector);
+        }
         if ((ruleSet == null || ruleSet.size() == 0) && getParentContext() != null) {
             ruleSet = getParentContext().getRuleSet(selector);
         }

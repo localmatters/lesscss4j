@@ -16,18 +16,19 @@
 package org.lesscss4j.cli;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriterImpl;
+import org.lesscss4j.parser.FileStyleSheetResource;
+import org.lesscss4j.parser.InputStreamStyleSheetResource;
+import org.lesscss4j.parser.StyleSheetResource;
 
 public class CompilerMain {
     public boolean _prettyPrint = false;
@@ -174,17 +175,33 @@ public class CompilerMain {
     }
 
     public void compile(String inputFilename, String outputFilename) throws IOException {
-        InputStream input = null;
+        StyleSheetResource input;
         OutputStream output = null;
+        boolean outputFileExisted = false;
+        File outputFile = null;
         try {
+            // todo: verify that inputfilename and outputfilename don't correspond to directories
+
+            URL inputUrl = null;
+            if (inputFilename != null) {
+                inputUrl = new File(inputFilename).toURI().toURL();
+            }
 
             // Generate an output filename from the input filename
             if (outputFilename == null && inputFilename != null) {
                 outputFilename = generateOutputFilename(inputFilename);
             }
 
-            input = createInputStream(inputFilename);
+            if (outputFilename != null) {
+                outputFile = new File(outputFilename);
+                if (outputFile.exists()) {
+                    outputFileExisted = true;
+                }
+            }
+
+            input = createInput(inputFilename);
             output = createOutputStream(outputFilename);
+
 
             LessCssCompilerImpl compiler = new LessCssCompilerImpl();
 
@@ -196,13 +213,12 @@ public class CompilerMain {
             compiler.compile(input, output);
         }
         catch (IOException ex) {
-            // delete the bogus output file if we're not writing to stdout
-            if (outputFilename != null) {
-                new File(outputFilename).delete();
+            // delete the bogus output file if we're not writing to stdout and it didn't exist before.
+            if (outputFile != null && !outputFileExisted) {
+                FileUtils.deleteQuietly(outputFile);
             }
         }
         finally {
-            IOUtils.closeQuietly(input);
             IOUtils.closeQuietly(output);
         }
     }
@@ -212,16 +228,16 @@ public class CompilerMain {
             return System.out;
         }
         else {
-            return new FileOutputStream(outputFilename);
+            return FileUtils.openOutputStream(new File(outputFilename));
         }
     }
 
-    protected InputStream createInputStream(String inputFilename) throws FileNotFoundException {
+    protected StyleSheetResource createInput(String inputFilename) throws IOException {
         if (inputFilename == null || inputFilename.equals("-")) {
-            return System.in;
+            return new InputStreamStyleSheetResource(System.in);
         }
         else {
-            return new FileInputStream(inputFilename);
+            return new FileStyleSheetResource(inputFilename);
         }
     }
 

@@ -39,7 +39,7 @@ public class VariableReferenceExpression extends AbstractElement implements Expr
     }
 
     public Expression evaluate(EvaluationContext context) {
-        Expression value = context.getVariableExpression(getVariableName());
+        Expression value = context.getVariable(getVariableName());
         if (value == null) {
             throw new UndefinedVariableException(getVariableName()); // todo: pass 'this' instead?
         }

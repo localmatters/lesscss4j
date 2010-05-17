@@ -15,13 +15,27 @@
  */
 package org.lesscss4j.factory;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.model.AbstractElement;
+import org.apache.commons.io.FilenameUtils;
+import org.lesscss4j.exception.ParseException;
+import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
+import org.lesscss4j.parser.FileStyleSheetResource;
+import org.lesscss4j.parser.StyleSheetParser;
+import org.lesscss4j.parser.StyleSheetResource;
+import org.lesscss4j.parser.StyleSheetTree;
+import org.lesscss4j.parser.UrlStyleSheetResource;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
@@ -30,6 +44,16 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<Media> _mediaFactory;
     private ObjectFactory<Page> _pageFactory;
     private ObjectFactory<Expression> _expressionFactory;
+    private StyleSheetParser _styleSheetParser;
+    private Pattern _importCleanupPattern = Pattern.compile("(?i:u\\s*r\\s*l\\(\\s*)?['\"](.*)['\"](\\s*\\))?");
+
+    public StyleSheetParser getStyleSheetParser() {
+        return _styleSheetParser;
+    }
+
+    public void setStyleSheetParser(StyleSheetParser styleSheetParser) {
+        _styleSheetParser = styleSheetParser;
+    }
 
     public ObjectFactory<Expression> getExpressionFactory() {
         return _expressionFactory;
@@ -69,15 +93,20 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             return stylesheet;
         }
 
+        StyleSheetResource resource = null;
+        if (styleSheetNode instanceof StyleSheetTree) {
+            resource = ((StyleSheetTree) styleSheetNode).getResource();
+        }
+
         for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = styleSheetNode.getChild(idx);
-            processStyleSheetNode(stylesheet, child);
+            processStyleSheetNode(stylesheet, child, resource);
         }
 
         return stylesheet;
     }
 
-    private void processStyleSheetNode(StyleSheet stylesheet, Tree child) {
+    protected void processStyleSheetNode(StyleSheet stylesheet, Tree child, StyleSheetResource resource) {
         switch (child.getType()) {
             case CHARSET:
                 String charset = child.getChild(0).getText();
@@ -88,7 +117,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                 break;
 
             case IMPORT:
-                stylesheet.addImport(child.getChild(0).getText());
+                handleImport(stylesheet, child, resource);
                 break;
 
             case VAR:
@@ -124,6 +153,69 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             default:
                 handleUnexpectedChild("Unexpected stylesheet child:", child);
                 break;
+        }
+    }
+
+    protected void handleImport(StyleSheet stylesheet, Tree importNode, StyleSheetResource resource) {
+        String path = cleanImportPath(importNode.getChild(0).getText());
+
+        if (!stylesheet.getImports().contains(path)) {
+            stylesheet.addImport(path);
+            StyleSheet imported = importStylesheet(path, resource);
+            mergeStyleSheets(imported, stylesheet);
+        }
+    }
+
+    protected void mergeStyleSheets(StyleSheet src, StyleSheet dest) {
+        for (BodyElement element : src.getBodyElements()) {
+            dest.addBodyElement(element);
+        }
+
+        for (String importPath : src.getImports()) {
+            dest.addImport(importPath);
+        }
+
+        for (Iterator<String> iter = src.getVariableNames(); iter.hasNext(); ) {
+            String varName = iter.next();
+            // todo: check for collisions?
+            dest.setVariable(varName, src.getVariable(varName));
+        }
+    }
+
+    protected StyleSheet importStylesheet(String path, StyleSheetResource relativeTo) {
+        try {
+            StyleSheetResource importResource = getImportResource(path, relativeTo);
+            return getStyleSheetParser().parse(importResource);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+            // todo: throw ImportException
+        }
+    }
+
+    protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo)
+        throws MalformedURLException {
+        String extension = FilenameUtils.getExtension(path);
+        if (extension == null || (!extension.equals("css") && !extension.equals("less"))) {
+            path = path + ".less";
+        }
+        URL importUrl = new URL(relativeTo.getUrl(), path);
+        if ("file".equals(importUrl.getProtocol())) {
+            return new FileStyleSheetResource(importUrl.getPath());
+        }
+        else {
+            return new UrlStyleSheetResource(importUrl);
+        }
+    }
+
+    protected String cleanImportPath(String path) {
+        Matcher matcher = _importCleanupPattern.matcher(path);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        else {
+            throw new ParseException("Unsupported import path:" + path, null);
         }
     }
 

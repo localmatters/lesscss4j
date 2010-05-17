@@ -16,7 +16,6 @@
 package org.lesscss4j.compile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.lesscss4j.model.StyleSheet;
@@ -24,6 +23,8 @@ import org.lesscss4j.output.StyleSheetWriter;
 import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
+import org.lesscss4j.parser.StyleSheetResource;
+import org.lesscss4j.transform.StyleSheetEvaluationContext;
 import org.lesscss4j.transform.StyleSheetTransformer;
 import org.lesscss4j.transform.Transformer;
 
@@ -60,10 +61,13 @@ public class LessCssCompilerImpl implements LessCssCompiler {
     }
 
 
-    public void compile(InputStream input, OutputStream output) throws IOException {
+    public void compile(StyleSheetResource input, OutputStream output) throws IOException {
         StyleSheet styleSheet = getStyleSheetParser().parse(input);
 
-        getStyleSheetTransformer().transform(styleSheet, null);
+        StyleSheetEvaluationContext context = new StyleSheetEvaluationContext();
+        context.setResource(input);
+
+        getStyleSheetTransformer().transform(styleSheet, context);
 
         getStyleSheetWriter().write(output, styleSheet);
     }

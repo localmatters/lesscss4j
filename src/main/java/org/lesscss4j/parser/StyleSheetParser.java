@@ -16,10 +16,9 @@
 package org.lesscss4j.parser;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.lesscss4j.model.StyleSheet;
 
 public interface StyleSheetParser {
-    StyleSheet parse(InputStream input) throws IOException ;
+    StyleSheet parse(StyleSheetResource input) throws IOException ;
 }

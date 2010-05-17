@@ -16,9 +16,10 @@
 package org.lesscss4j.compile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.lesscss4j.parser.StyleSheetResource;
+
 public interface LessCssCompiler {
-    void compile(InputStream input, OutputStream output) throws IOException;
+    void compile(StyleSheetResource input, OutputStream output) throws IOException;
 }

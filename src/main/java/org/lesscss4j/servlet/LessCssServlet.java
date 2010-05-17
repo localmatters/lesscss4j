@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,6 +31,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.StyleSheetWriterImpl;
+import org.lesscss4j.parser.UrlStyleSheetResource;
 
 public class LessCssServlet extends HttpServlet {
     public static final long CACHE_FOREVER = -1;
@@ -267,11 +268,11 @@ public class LessCssServlet extends HttpServlet {
     }
 
     protected byte[] compileResource(String resource) {
-        InputStream input = getServletContext().getResourceAsStream(resource);
         try {
-            if (input != null) {
+            URL url = getServletContext().getResource(resource);
+            if (url != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                getLessCompiler().compile(input, output);
+                getLessCompiler().compile(new UrlStyleSheetResource(url), output);
                 return output.toByteArray();
             }
             else {
@@ -280,9 +281,6 @@ public class LessCssServlet extends HttpServlet {
         }
         catch (Exception ex) {
             getServletContext().log("Unable to compile resource: " + resource, ex);
-        }
-        finally {
-            IOUtils.closeQuietly(input);
         }
         return null;
     }

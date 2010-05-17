@@ -53,11 +53,14 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
     }
 
     public void transform(StyleSheet styleSheet, EvaluationContext context) {
-        // todo: process imports
-
+        processImports(styleSheet, context);
         evaluateVariables(styleSheet, context);
 
         transformBodyElements(styleSheet, context);
+    }
+
+    protected void processImports(StyleSheet styleSheet, EvaluationContext context) {
+        styleSheet.setImports(null);
     }
 
     protected void transformBodyElements(StyleSheet styleSheet, EvaluationContext context) {

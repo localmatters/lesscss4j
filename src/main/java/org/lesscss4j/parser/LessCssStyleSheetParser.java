@@ -23,15 +23,8 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
-import org.apache.commons.io.IOExceptionWithCause;
 import org.lesscss4j.exception.ParseException;
-import org.lesscss4j.factory.DeclarationFactory;
-import org.lesscss4j.factory.ExpressionFactory;
-import org.lesscss4j.factory.MediaFactory;
 import org.lesscss4j.factory.ObjectFactory;
-import org.lesscss4j.factory.PageFactory;
-import org.lesscss4j.factory.RuleSetFactory;
-import org.lesscss4j.factory.SelectorFactory;
 import org.lesscss4j.factory.StyleSheetFactory;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.parser.antlr.LessCssLexer;
@@ -83,11 +76,13 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
     }
 
     protected ObjectFactory<StyleSheet> createDefaultStyleSheetFactory() {
-        return StyleSheetFactory.createDefaultObjectFactory();
+        StyleSheetFactory styleSheetObjectFactory = (StyleSheetFactory) StyleSheetFactory.createDefaultObjectFactory();
+        styleSheetObjectFactory.setStyleSheetParser(this);
+        return styleSheetObjectFactory;
     }
 
-    public StyleSheet parse(InputStream input) throws IOException {
-        LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input));
+    public StyleSheet parse(StyleSheetResource input) throws IOException {
+        LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input.getInputStream()));
         LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
         try {
             LessCssParser.styleSheet_return result = parser.styleSheet();
@@ -97,7 +92,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
             }
 
             ObjectFactory<StyleSheet> ssFactory = getStyleSheetFactory();
-            return ssFactory.create((Tree) result.getTree());
+            return ssFactory.create(new StyleSheetTree((Tree) result.getTree(), input));
         }
         catch (RecognitionException e) {
             ParseError error = new ParseError();

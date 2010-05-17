@@ -35,7 +35,12 @@ public class StyleSheet extends BodyElementContainer {
     }
 
     public void setImports(List<String> imports) {
-        _imports = imports;
+        if (imports == null) {
+            _imports.clear();
+        }
+        else {
+            _imports = imports;
+        }
     }
 
     public void addImport(String importValue) {
