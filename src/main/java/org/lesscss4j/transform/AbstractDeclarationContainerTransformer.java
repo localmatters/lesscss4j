@@ -74,7 +74,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
             Map<String, Declaration> flattenedDeclarations = new LinkedHashMap<String, Declaration>();
             for (DeclarationElement declaration : container.getDeclarations()) {
                 if (declaration instanceof Declaration) {
-                    flattenedDeclarations.put(((Declaration) declaration).getProperty(), (Declaration) declaration);
+                    addToFlattenedDeclrations(flattenedDeclarations, declaration);
                 }
                 else if (declaration instanceof MixinReference) {
                     MixinReference mixin = (MixinReference) declaration;
@@ -95,10 +95,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
 
                             }
                             for (DeclarationElement element : ruleSet.getDeclarations()) {
-                                if (element instanceof Declaration) {
-                                    flattenedDeclarations.put(((Declaration) element).getProperty(),
-                                                              (Declaration) element);
-                                }
+                                addToFlattenedDeclrations(flattenedDeclarations, element);
                             }
                         }
                     }
@@ -113,6 +110,18 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                 getDeclarationTransformer().transform(declaration, declContext);
                 container.addDeclaration(declaration);
             }
+        }
+    }
+
+    protected void addToFlattenedDeclrations(Map<String, Declaration> flattenedDeclarations,
+                                 DeclarationElement declarationElement) {
+        if (declarationElement instanceof Declaration) {
+            // We remove and then add the declaration so that the proper order is maintained in the
+            // LinkedHashMap.  If we just did a 'put', the existing HashMap entry just gets updated with
+            // the original order.
+            Declaration declaration = (Declaration) declarationElement;
+            flattenedDeclarations.remove(declaration.getProperty());
+            flattenedDeclarations.put(declaration.getProperty(), declaration);
         }
     }
 
