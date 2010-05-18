@@ -16,7 +16,6 @@
 package org.lesscss4j.factory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -32,9 +31,10 @@ import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.parser.FileStyleSheetResource;
-import org.lesscss4j.parser.StyleSheetParser;
+import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetResource;
 import org.lesscss4j.parser.StyleSheetTree;
+import org.lesscss4j.parser.StyleSheetTreeParser;
 import org.lesscss4j.parser.UrlStyleSheetResource;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
@@ -44,15 +44,28 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<Media> _mediaFactory;
     private ObjectFactory<Page> _pageFactory;
     private ObjectFactory<Expression> _expressionFactory;
-    private StyleSheetParser _styleSheetParser;
-    private Pattern _importCleanupPattern = Pattern.compile("(?i:u\\s*r\\s*l\\(\\s*)?['\"](.*)['\"](\\s*\\))?");
+    private StyleSheetTreeParser _styleSheetTreeParser;
 
-    public StyleSheetParser getStyleSheetParser() {
-        return _styleSheetParser;
+    /**
+     * Pattern to extract the path from an <code>@import</code> statement.
+     * Possible options (whitespace is insignificant):
+     * <ul>
+     * <li>url("some/path")</li>
+     * <li>url('some/path')</li>
+     * <li>url(some/path)</li>
+     * <li>"some/path"</li>
+     * <li>'some/path'</li>
+     * </ul>
+     */
+    private Pattern _importCleanupPattern =
+        Pattern.compile("(?i:u\\s*r\\s*l\\(\\s*['\"]?|['\"])(.*?)(?:['\"]?\\s*\\)|['\"])");
+
+    public StyleSheetTreeParser getStyleSheetTreeParser() {
+        return _styleSheetTreeParser;
     }
 
-    public void setStyleSheetParser(StyleSheetParser styleSheetParser) {
-        _styleSheetParser = styleSheetParser;
+    public void setStyleSheetTreeParser(StyleSheetTreeParser styleSheetTreeParser) {
+        _styleSheetTreeParser = styleSheetTreeParser;
     }
 
     public ObjectFactory<Expression> getExpressionFactory() {
@@ -98,12 +111,16 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             resource = ((StyleSheetTree) styleSheetNode).getResource();
         }
 
+        processStyleSheet(stylesheet, styleSheetNode, resource);
+
+        return stylesheet;
+    }
+
+    protected void processStyleSheet(StyleSheet stylesheet, Tree styleSheetNode, StyleSheetResource resource) {
         for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = styleSheetNode.getChild(idx);
             processStyleSheetNode(stylesheet, child, resource);
         }
-
-        return stylesheet;
     }
 
     protected void processStyleSheetNode(StyleSheet stylesheet, Tree child, StyleSheetResource resource) {
@@ -159,43 +176,28 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     protected void handleImport(StyleSheet stylesheet, Tree importNode, StyleSheetResource resource) {
         String path = cleanImportPath(importNode.getChild(0).getText());
 
+        // circular/duplicate import check
         if (!stylesheet.getImports().contains(path)) {
             stylesheet.addImport(path);
-            StyleSheet imported = importStylesheet(path, resource);
-            mergeStyleSheets(imported, stylesheet);
+            importStylesheet(path, resource, stylesheet);
         }
     }
 
-    protected void mergeStyleSheets(StyleSheet src, StyleSheet dest) {
-        for (BodyElement element : src.getBodyElements()) {
-            dest.addBodyElement(element);
-        }
-
-        for (String importPath : src.getImports()) {
-            dest.addImport(importPath);
-        }
-
-        for (Iterator<String> iter = src.getVariableNames(); iter.hasNext(); ) {
-            String varName = iter.next();
-            // todo: check for collisions?
-            dest.setVariable(varName, src.getVariable(varName));
-        }
-    }
-
-    protected StyleSheet importStylesheet(String path, StyleSheetResource relativeTo) {
+    protected StyleSheet importStylesheet(String path, StyleSheetResource relativeTo, StyleSheet stylesheet) {
         try {
             StyleSheetResource importResource = getImportResource(path, relativeTo);
-            return getStyleSheetParser().parse(importResource);
+            Tree result = getStyleSheetTreeParser().parseTree(importResource);
+            processStyleSheet(stylesheet, result, importResource);
+            return stylesheet;
         }
         catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-            // todo: throw ImportException
+            // todo: throw some kind of Import related exception
         }
     }
 
-    protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo)
-        throws MalformedURLException {
+    protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo) throws IOException {
         String extension = FilenameUtils.getExtension(path);
         if (extension == null || (!extension.equals("css") && !extension.equals("less"))) {
             path = path + ".less";

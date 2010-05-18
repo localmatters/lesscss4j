@@ -58,11 +58,13 @@ public class ParseException extends RuntimeException {
     public String getMessage() {
         String superMessage = super.getMessage();
         StringBuilder message = new StringBuilder(superMessage == null ? "" : superMessage);
-        for (ParseError error : getErrors()) {
-            message.append("\n");
-            message.append(error.getHeader());
-            message.append(' ');
-            message.append(error.getMessage());
+        if (getErrors() != null) {
+            for (ParseError error : getErrors()) {
+                message.append("\n");
+                message.append(error.getHeader());
+                message.append(' ');
+                message.append(error.getMessage());
+            }
         }
         return message.toString();
     }

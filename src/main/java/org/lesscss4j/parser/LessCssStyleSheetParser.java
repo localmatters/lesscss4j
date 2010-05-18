@@ -30,12 +30,11 @@ import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.parser.antlr.LessCssLexer;
 import org.lesscss4j.parser.antlr.LessCssParser;
 
-public class LessCssStyleSheetParser implements StyleSheetParser {
+public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTreeParser {
     private String _defaultEncoding;
     private int _initialBufferSize = ANTLRInputStream.INITIAL_BUFFER_SIZE;
     private int _readBufferSize = ANTLRInputStream.READ_BUFFER_SIZE;
     private ObjectFactory<StyleSheet> _styleSheetFactory;
-    private boolean _ignoreErrors;
 
     public static final String CHARSET_SYM = "@charset";
     public static final String NEWLINE_CHARS = "\n\r\f";
@@ -77,22 +76,24 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
 
     protected ObjectFactory<StyleSheet> createDefaultStyleSheetFactory() {
         StyleSheetFactory styleSheetObjectFactory = (StyleSheetFactory) StyleSheetFactory.createDefaultObjectFactory();
-        styleSheetObjectFactory.setStyleSheetParser(this);
+        styleSheetObjectFactory.setStyleSheetTreeParser(this);
         return styleSheetObjectFactory;
     }
 
     public StyleSheet parse(StyleSheetResource input) throws IOException {
+        return getStyleSheetFactory().create(new StyleSheetTree(parseTree(input), input));
+
+    }
+
+    public Tree parseTree(StyleSheetResource input) throws IOException {
         LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input.getInputStream()));
         LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
         try {
             LessCssParser.styleSheet_return result = parser.styleSheet();
-
             if (!parser.getErrors().isEmpty()) {
                 throw new ParseException(parser.getErrors());
             }
-
-            ObjectFactory<StyleSheet> ssFactory = getStyleSheetFactory();
-            return ssFactory.create(new StyleSheetTree((Tree) result.getTree(), input));
+            return (Tree) result.getTree();
         }
         catch (RecognitionException e) {
             ParseError error = new ParseError();
@@ -108,6 +109,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser {
         String encoding = null;
 
         // Read a buffer of data to see if we can find the @charset symbol in the beginning of the file.
+        // Otherwise just use the default encoding.
         PushbackInputStream pushbackStream = new PushbackInputStream(input, getReadBufferSize());
         byte[] buf = new byte[getReadBufferSize()];
         int len = pushbackStream.read(buf, 0, buf.length);

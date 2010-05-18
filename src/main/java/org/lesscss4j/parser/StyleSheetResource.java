@@ -21,5 +21,5 @@ import java.net.URL;
 
 public interface StyleSheetResource {
     InputStream getInputStream() throws IOException;
-    URL getUrl();
+    URL getUrl() throws IOException;
 }

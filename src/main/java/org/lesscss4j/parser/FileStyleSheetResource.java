@@ -18,7 +18,6 @@ package org.lesscss4j.parser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
@@ -42,13 +41,7 @@ public class FileStyleSheetResource implements StyleSheetResource {
         return FileUtils.openInputStream(getFile());
     }
 
-    public URL getUrl() {
-        File file = getFile();
-        try {
-            return file.toURI().toURL();
-        }
-        catch (MalformedURLException e) {
-            throw new IllegalStateException("Unable to create URL for file:" + file.getAbsolutePath(), e);
-        }
+    public URL getUrl() throws IOException {
+        return getFile().toURI().toURL();
     }
 }
