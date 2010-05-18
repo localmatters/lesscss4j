@@ -1,0 +1,13 @@
+body {
+  *font-size: 108%;
+  width: expression(Math.max(document.documentElement.clientWidth,1040) + 'px');
+  height: 150px;
+  _height: 100px;
+}
+.ie6 .tooltip .shadow {
+  width: expression(this.parentNode.offsetWidth + 'px');
+  height: expression(this.parentNode.offsetHeight + 'px');
+  filter: alpha(opacity=0);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+}
+.ie6 .searchPopup a.closer { filter: expression(this._filter ? this._filter:((this._filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + this.currentStyle.backgroundImage.replace('url("',"").replace('")','') + "',sizingMethod='crop')")&&(this.style.backgroundImage="none") && this._filter)); }

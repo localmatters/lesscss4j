@@ -312,14 +312,19 @@ number
     ;
     
 declaration
-    : (STAR? FONT)=>fontDeclaration
+    : (propPrefix? FONT)=>fontDeclaration
     | (property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
     -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?))
     ;
     
+propPrefix
+    : STAR
+    | UNDERSCORE
+    ;
+    
 fontDeclaration
-    : STAR? FONT WS* COLON WS* fontPropertyValue (WS* important)? WS* SEMI
-    -> ^(DECLARATION ^(FONT STAR?) ^(PROP_VALUE fontPropertyValue) important?)
+    : propPrefix? FONT WS* COLON WS* fontPropertyValue (WS* important)? WS* SEMI
+    -> ^(DECLARATION ^(FONT propPrefix?) ^(PROP_VALUE fontPropertyValue) important?)
     ;
 
 fontPropertyValue
@@ -352,8 +357,8 @@ fontStyle
     ;
 
 property
-    : STAR? identNoFont
-    -> ^(identNoFont STAR?)
+    : propPrefix? identNoFont
+    -> ^(identNoFont propPrefix?)
     ;
     
 propertyValue
@@ -622,6 +627,7 @@ RPAREN          : ')'  ;
 COMMA           : ','  ;
 DOT             : '.'  ;
 PERCENT         : '%'  ;
+UNDERSCORE      : '_'  ;
 
 // -----------------
 // Literal strings. Delimited by either ' or "

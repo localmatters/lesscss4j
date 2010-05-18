@@ -313,9 +313,6 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
 
     protected void writeDeclaration(Writer writer, Declaration declaration, int indent) throws IOException {
         writeIndent(writer, indent);
-        if (declaration.isStar()) {
-            writer.write('*');
-        }
         writer.write(declaration.getProperty());
         writer.write(':');
         writeSpace(writer);

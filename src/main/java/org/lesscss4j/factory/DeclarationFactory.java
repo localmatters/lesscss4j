@@ -46,10 +46,12 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             switch (child.getType()) {
                 case IDENT:
                 case FONT:
-                    declaration.setProperty(child.getText());
-                    if (child.getChild(0) != null && child.getChild(0).getType() == STAR) {
-                        declaration.setStar(true);
+                    String propName = child.getText();
+                    Tree propChild = child.getChild(0);
+                    if (propChild != null) {
+                        propName = propChild.getText() + propName;
                     }
+                    declaration.setProperty(propName);
                     break;
 
                 case PROP_VALUE:

@@ -154,6 +154,10 @@ public class LessCssCompilerImplTest extends TestCase {
         compileAndValidate("less/dash-prefix.less", "css/dash-prefix.css");
     }
 
+    public void testInternetExplorer() throws IOException {
+        compileAndValidate("less/ie.less", "css/ie.css");
+    }
+
     public void testBigCssFile() throws IOException {
         _printOptions.setSingleDeclarationOnOneLine(false);
         compileAndValidate("less/css-big.less", "css/css-big.css");
