@@ -361,10 +361,12 @@ property
     -> ^(identNoFont propPrefix?)
     ;
     
+// Added optional EOF tokens so that this rule can be called directly.  This
+// is necessary to support IE8 Alpha expressions
 propertyValue
-    : propertyTermNoExpr (propTermSep propertyTerm)*
-    | (primaryExpression propTermSep propertyTerm)=>propertyTermExpression (propTermSep propertyTerm)+
-    | additiveExpression -> ^(EXPR additiveExpression)
+    : propertyTermNoExpr (propTermSep propertyTerm)* EOF?
+    | (primaryExpression propTermSep propertyTerm)=>propertyTermExpression (propTermSep propertyTerm)+ EOF?
+    | additiveExpression EOF? -> ^(EXPR additiveExpression)
     ;
 
 propertyTermExpression

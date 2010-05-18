@@ -25,6 +25,7 @@ import org.lesscss4j.transform.EvaluationContext;
 public class FunctionExpression extends AbstractElement implements Expression {
     private String _name;
     private List<Expression> _arguments;
+    private boolean _quoted = false; // for IE specific stuff
 
     public FunctionExpression() {
         this(null);
@@ -57,26 +58,44 @@ public class FunctionExpression extends AbstractElement implements Expression {
         _arguments.add(arg);
     }
 
+    public boolean isQuoted() {
+        return _quoted;
+    }
+
+    public void setQuoted(boolean quoted) {
+        _quoted = quoted;
+    }
+
     public Expression evaluate(EvaluationContext context) {
-        StringBuilder buf = new StringBuilder(getName());
+        return new LiteralExpression(toString(context));
+    }
+
+    public String toString(EvaluationContext context) {
+        StringBuilder buf = new StringBuilder();
+        if (isQuoted()) {
+            buf.append("\"");
+        }
+        buf.append(getName());
         buf.append("(");
         if (getArguments() != null) {
             for (Expression expression : getArguments()) {
-                buf.append(expression.evaluate(context).toString());
+                if (context != null) {
+                    buf.append(expression.evaluate(context).toString());
+                }
+                else {
+                    buf.append(expression.toString());
+                }
             }
         }
         buf.append(')');
-        return new LiteralExpression(buf.toString());
+        if (isQuoted()) {
+            buf.append("\"");
+        }
+        return buf.toString();
     }
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder(getName());
-        buf.append('(');
-        for (Expression arg : getArguments()) {
-            buf.append(arg.toString());
-        }
-        buf.append(')');
-        return buf.toString();
+        return toString(null);
     }
 }

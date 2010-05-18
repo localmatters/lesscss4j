@@ -7,13 +7,14 @@ body {
     _height: 100px;
 }
 
+@opacity: 0;
 .ie6 .tooltip .shadow {
     width: expression(this.parentNode.offsetWidth + 'px');
     height: expression(this.parentNode.offsetHeight + 'px');
 
     // todo: test var evaluation in the opacity value 
-    filter: alpha(opacity = 0);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: alpha(opacity = @opacity);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=@opacity)";
 }
 
 .ie6 .searchPopup a.closer {

@@ -17,11 +17,19 @@ package org.lesscss4j.factory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.expression.Expression;
+import org.lesscss4j.model.expression.FunctionExpression;
 import org.lesscss4j.model.expression.LiteralExpression;
+import org.lesscss4j.parser.antlr.LessCssLexer;
+import org.lesscss4j.parser.antlr.LessCssParser;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
@@ -86,6 +94,10 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
                 case FUNCTION:
                     Expression expression = getExpressionFactory().create(child);
                     if (expression != null) {
+                        Expression ieFilter = parseIE8AlphaFilter(expression);
+                        if (ieFilter != null) {
+                            expression = ieFilter;
+                        }
                         values.add(expression);
                     }
                     break;
@@ -110,5 +122,46 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             }
         }
         return values.size() > 0 ? values : null;
+    }
+
+    private Pattern _ieAlphaPattern =
+        Pattern.compile("(?i)['\"]progid:DXImageTransform\\.Microsoft\\.(Alpha\\(.*\\))['\"]");
+
+    /**
+     * We can't handle the IE8 way of processing Alpha in the Lexer...it just looks like a literal string.  This method
+     * takes the LiteralExpression and attempts to parse it as a declaration property value so that variables and
+     * expressions can be used in the opacity value.
+     *
+     * @param value The Literal expression to parse
+     * @return The parsed Expression.  Null if it isn't an Alpha expression or it cannot be parsed.
+     */
+    protected Expression parseIE8AlphaFilter(Expression value) {
+        if (value instanceof LiteralExpression) {
+            String text = ((LiteralExpression) value).getValue();
+
+            // Short circuit test to avoid doing the regex match if we don't have to
+            if ((text.charAt(0) == '"' || text.charAt(0) == '\'') &&
+                text.length() > "'progid:DXImageTransform.Microsoft.Alpha()'".length() &&
+                (text.charAt(text.length() - 1) == '"' || text.charAt(text.length() - 1) == '\'')) {
+
+                Matcher matcher = _ieAlphaPattern.matcher(text);
+                if (matcher.matches()) {
+                    LessCssLexer lexer = new LessCssLexer(new ANTLRStringStream(matcher.group(1)));
+                    LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
+                    try {
+                        LessCssParser.propertyValue_return result = parser.propertyValue();
+                        List<Object> propValues = createPropValues((Tree) result.getTree());
+                        FunctionExpression alphaFunction = (FunctionExpression) propValues.get(0);
+                        alphaFunction.setName("progid:DXImageTransform.Microsoft.Alpha");
+                        alphaFunction.setQuoted(true);
+                        return alphaFunction;
+                    }
+                    catch (RecognitionException e) {
+                        // Can't do anything with it.  Just leave it alone
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
