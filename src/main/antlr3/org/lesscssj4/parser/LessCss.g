@@ -372,8 +372,12 @@ propTermSep
     ;
     
 propertyTermNoExpr
-    : (ident WS* LPAREN)=>function
+    : (functionPred)=>function
     | literal -> ^(LITERAL literal)
+    ;
+    
+functionPred
+    : ident WS* LPAREN
     ;
         
 propertyTerm
@@ -384,7 +388,22 @@ propertyTerm
 // Internet Explorer specific functions
 function
     : (ALPHA)=>ieAlpha
-    | (ident WS* LPAREN ieExprTerm RPAREN -> ^(FUNCTION ident ieExprTerm))
+    | (EXPRESSION)=>ieExpression
+    | (ident WS* LPAREN functionArgList? RPAREN -> ^(FUNCTION ident functionArgList))
+    ;
+    
+functionArgList
+    : functionArg ((WS!* COMMA WS!*|WS+) functionArg)*
+    ;
+    
+functionArg
+    : propertyTerm
+    ;
+    
+functionArgItem
+    : (functionPred)=>function
+    | literal
+    | additiveExpression
     ;
 
 ieAlpha
@@ -402,6 +421,11 @@ ieAlphaTermOp
     | COLON
     ;
 
+ieExpression
+    : EXPRESSION WS* LPAREN ieExprTerm RPAREN 
+    -> ^(FUNCTION EXPRESSION ieExprTerm)
+    ;
+    
 ieExprTerm
     : (STRING|'&'|'?'|~('&'|'?'|'('|')'|STRING))*
       ( LPAREN ieExprTerm RPAREN (STRING | ~('('|')'|STRING))* )*
@@ -418,6 +442,7 @@ hexColor
 identNoFont    
     : IDENT 
     | ALPHA 
+    | EXPRESSION
     | CHARSET
     | MEDIA_SYM
     | IMPORT_SYM
@@ -609,6 +634,7 @@ STRING     : '\'' ( ~('\n'|'\r'|'\f'|'\'') )* ( '\'' | { $type = INVALID; } )
 
 // Some special identifiers
 ALPHA      : A L P H A                  ;
+EXPRESSION : E X P R E S S I O N        ;
 CHARSET    : 'charset'                  ;
 IMPORT_SYM : I M P O R T                ;
 PAGE_SYM   : P A G E                    ;

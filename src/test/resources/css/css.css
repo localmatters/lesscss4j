@@ -46,7 +46,7 @@ body.ie6 {
   width: .1em;
   background-color: #009998;
   background-image: url(images/image.jpg);
-  background: -webkit-gradient(linear, left top, left bottom, from(red), to(blue));
+  background: -webkit-gradient(linear,left top,left bottom,from(red),to(blue));
   margin: 0;
 }
 #important {

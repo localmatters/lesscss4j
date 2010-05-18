@@ -80,6 +80,7 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             switch (child.getType()) {
                 case LITERAL:
                 case EXPR:
+                case EXPRESSION:
                 case FUNCTION:
                     Expression expression = getExpressionFactory().create(child);
                     if (expression != null) {

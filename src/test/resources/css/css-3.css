@@ -7,7 +7,7 @@
   font-family: Headline;
   src: local(Futura-Medium), url(fonts.svg#MyGeometricModern) format("svg");
 }
-.other { -moz-transform: translate(0, 11em) rotate(-90deg); }
+.other { -moz-transform: translate(0,11em) rotate(-90deg); }
 p:not([class*="lead"]) { color: black; }
 input[type="text"].class#id[attr=32]:not(1) { color: white; }
 div#id.class[a=1][b=2].class:not(1) { color: white; }

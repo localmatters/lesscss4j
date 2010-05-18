@@ -85,7 +85,7 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
         LessCssCompilerImpl compiler = new LessCssCompilerImpl();
         initializeParser(compiler.getStyleSheetParser());
         initializeWriter(compiler.getStyleSheetWriter());
-        return null;
+        return compiler;
     }
 
     protected void initializeWriter(StyleSheetWriter styleSheetWriter) {

@@ -17,7 +17,6 @@ package org.lesscss4j.transform;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -71,10 +70,10 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
         else {
 
             // Insert any mixin references into the declaration list.  Then evaluate them all at the end.
-            Map<String, Declaration> flattenedDeclarations = new LinkedHashMap<String, Declaration>();
+            List<Declaration> flattenedDeclarations = new ArrayList<Declaration>(container.getDeclarations().size());
             for (DeclarationElement declaration : container.getDeclarations()) {
                 if (declaration instanceof Declaration) {
-                    addToFlattenedDeclrations(flattenedDeclarations, declaration);
+                    flattenedDeclarations.add((Declaration) declaration);
                 }
                 else if (declaration instanceof MixinReference) {
                     MixinReference mixin = (MixinReference) declaration;
@@ -95,7 +94,9 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
 
                             }
                             for (DeclarationElement element : ruleSet.getDeclarations()) {
-                                addToFlattenedDeclrations(flattenedDeclarations, element);
+                                if (element instanceof Declaration) {
+                                    flattenedDeclarations.add((Declaration) element);
+                                }
                             }
                         }
                     }
@@ -106,22 +107,10 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
             }
 
             container.clearDeclarations();
-            for (Declaration declaration : flattenedDeclarations.values()) {
+            for (Declaration declaration : flattenedDeclarations) {
                 getDeclarationTransformer().transform(declaration, declContext);
                 container.addDeclaration(declaration);
             }
-        }
-    }
-
-    protected void addToFlattenedDeclrations(Map<String, Declaration> flattenedDeclarations,
-                                 DeclarationElement declarationElement) {
-        if (declarationElement instanceof Declaration) {
-            // We remove and then add the declaration so that the proper order is maintained in the
-            // LinkedHashMap.  If we just did a 'put', the existing HashMap entry just gets updated with
-            // the original order.
-            Declaration declaration = (Declaration) declarationElement;
-            flattenedDeclarations.remove(declaration.getProperty());
-            flattenedDeclarations.put(declaration.getProperty(), declaration);
         }
     }
 

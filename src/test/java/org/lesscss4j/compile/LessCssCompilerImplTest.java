@@ -25,14 +25,13 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.lesscss4j.output.PrettyPrintOptions;
-import org.lesscss4j.output.StyleSheetWriterImpl;
-import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.UrlStyleSheetResource;
+import org.lesscss4j.spring.LessCssCompilerFactoryBean;
 
 public class LessCssCompilerImplTest extends TestCase {
     public static final String ENCODING = "UTF-8";
 
-    LessCssCompilerImpl _compiler;
+    LessCssCompiler _compiler;
     PrettyPrintOptions _printOptions;
 
     @Override
@@ -43,13 +42,12 @@ public class LessCssCompilerImplTest extends TestCase {
         _printOptions.setOpeningBraceOnNewLine(false);
         _printOptions.setIndentSize(2);
 
-        _compiler = new LessCssCompilerImpl();
-
-        ((LessCssStyleSheetParser) _compiler.getStyleSheetParser()).setDefaultEncoding(ENCODING);
-
-        ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setPrettyPrintEnabled(true);
-        ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setPrettyPrintOptions(_printOptions);
-        ((StyleSheetWriterImpl) _compiler.getStyleSheetWriter()).setDefaultEncoding(ENCODING);
+        LessCssCompilerFactoryBean factoryBean = new LessCssCompilerFactoryBean();
+        factoryBean.setDefaultEncoding(ENCODING);
+        factoryBean.setPrettyPrintEnabled(true);
+        factoryBean.setPrettyPrintOptions(_printOptions);
+        factoryBean.afterPropertiesSet();
+        _compiler = (LessCssCompiler) factoryBean.getObject();
     }
 
     protected String readCss(String cssFile) throws IOException {
@@ -150,6 +148,10 @@ public class LessCssCompilerImplTest extends TestCase {
 
     public void testImport() throws IOException {
         compileAndValidate("less/import.less", "css/import.css");
+    }
+
+    public void testDashPrefix() throws IOException {
+        compileAndValidate("less/dash-prefix.less", "css/dash-prefix.css");
     }
 
     public void testBigCssFile() throws IOException {

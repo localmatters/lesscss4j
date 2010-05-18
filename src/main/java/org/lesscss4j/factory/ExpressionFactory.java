@@ -153,11 +153,18 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 }
                 break;
 
+            case EXPRESSION:
             case IDENT:
                 for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
                     Tree child = function.getChild(idx);
                     switch (child.getType()) {
+                        case FUNCTION:
+                            func.addArgument(createFunction(child));
+                            break;
+
                         case VAR:
+                        case LITERAL:
+                        case EXPR:
                             func.addArgument(createExpression(child));
                             break;
 
