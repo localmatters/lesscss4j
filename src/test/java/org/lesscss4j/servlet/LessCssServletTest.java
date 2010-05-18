@@ -21,8 +21,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.easymock.EasyMock;
 
@@ -39,10 +41,10 @@ public class LessCssServletTest extends TestCase {
     HttpServletResponse _response;
     ServletContext _servletContext;
     MockServletConfig _servletConfig;
-    String _path = "path/to/test.less";
-    String _cssStr = "body{color:blue;}";
+    String _path = "less/tiny.less";
+    URL _url;
     byte[] _cssBytes;
-
+    String _cssStr;
     long _systemMillis;
 
     @Override
@@ -56,14 +58,23 @@ public class LessCssServletTest extends TestCase {
 
         _systemMillis = System.currentTimeMillis();
 
-        _cssBytes = _cssStr.getBytes("UTF-8");
-
         _servlet = new LessCssServlet() {
             @Override
             protected long getTime() {
                 return _systemMillis;
             }
         };
+
+        _url = getClass().getClassLoader().getResource(_path);
+
+        InputStream input = _url.openStream();
+        try {
+            _cssBytes = IOUtils.toByteArray(input);
+            _cssStr = new String(_cssBytes, "UTF-8");
+        }
+        finally {
+            IOUtils.closeQuietly(input);
+        }
     }
 
     protected void doReplay() {
@@ -85,8 +96,7 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getDateHeader(LessCssServlet.IF_MOD_SINCE)).andReturn(-1L);
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
 
-        ByteArrayInputStream input = new ByteArrayInputStream(_cssBytes);
-        EasyMock.expect(_servletContext.getResourceAsStream(_path)).andReturn(input);
+        EasyMock.expect(_servletContext.getResource(_path)).andReturn(_url);
 
         _response.addDateHeader(LessCssServlet.LAST_MODIFIED, _systemMillis);
         _response.addDateHeader(LessCssServlet.EXPIRES, _systemMillis + 900000);
@@ -156,9 +166,7 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
 
         EasyMock.expect(_servletContext.getRealPath(_path)).andReturn(_path);
-
-        ByteArrayInputStream input = new ByteArrayInputStream(_cssBytes);
-        EasyMock.expect(_servletContext.getResourceAsStream(_path)).andReturn(input);
+        EasyMock.expect(_servletContext.getResource(_path)).andReturn(_url);
 
         _response.addDateHeader(LessCssServlet.LAST_MODIFIED, _systemMillis);
         _response.addDateHeader(LessCssServlet.EXPIRES, _systemMillis + 900000);

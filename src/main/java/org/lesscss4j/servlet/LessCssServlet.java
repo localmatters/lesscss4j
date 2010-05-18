@@ -31,7 +31,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.StyleSheetWriterImpl;
-import org.lesscss4j.parser.UrlStyleSheetResource;
+import org.lesscss4j.parser.ResourceUtils;
 
 public class LessCssServlet extends HttpServlet {
     public static final long CACHE_FOREVER = -1;
@@ -272,7 +272,7 @@ public class LessCssServlet extends HttpServlet {
             URL url = getServletContext().getResource(resource);
             if (url != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                getLessCompiler().compile(new UrlStyleSheetResource(url), output);
+                getLessCompiler().compile(ResourceUtils.getResourceForUrl(url), output);
                 return output.toByteArray();
             }
             else {

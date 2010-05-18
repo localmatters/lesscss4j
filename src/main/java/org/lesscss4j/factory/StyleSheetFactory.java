@@ -17,21 +17,19 @@ package org.lesscss4j.factory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.FilenameUtils;
 import org.lesscss4j.exception.ParseException;
-import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.parser.FileStyleSheetResource;
-import org.lesscss4j.parser.LessCssStyleSheetParser;
+import org.lesscss4j.parser.ResourceUtils;
 import org.lesscss4j.parser.StyleSheetResource;
 import org.lesscss4j.parser.StyleSheetTree;
 import org.lesscss4j.parser.StyleSheetTreeParser;
@@ -110,6 +108,9 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         if (styleSheetNode instanceof StyleSheetTree) {
             resource = ((StyleSheetTree) styleSheetNode).getResource();
         }
+
+        stylesheet.setLine(styleSheetNode.getLine());
+        stylesheet.setChar(styleSheetNode.getCharPositionInLine());
 
         processStyleSheet(stylesheet, styleSheetNode, resource);
 
@@ -203,12 +204,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             path = path + ".less";
         }
         URL importUrl = new URL(relativeTo.getUrl(), path);
-        if ("file".equals(importUrl.getProtocol())) {
-            return new FileStyleSheetResource(importUrl.getPath());
-        }
-        else {
-            return new UrlStyleSheetResource(importUrl);
-        }
+        return ResourceUtils.getResourceForUrl(importUrl);
     }
 
     protected String cleanImportPath(String path) {
