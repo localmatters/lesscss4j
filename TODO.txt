@@ -1,5 +1,8 @@
 - mixin property references
-- imports
 - Support for expressions/variables in IE8's bogus syntax for opacity:
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)" 
-
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)"
+- dash-prefix.less doesn't resolve variables
+- Better error handling
+  - warnings/errors
+  - Report as many errors as possible (don't break on first one)
+  - Try to recover from errors (e.g. ignore missing imports, etc.)
