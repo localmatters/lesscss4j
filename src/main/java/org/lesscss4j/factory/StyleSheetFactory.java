@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.FilenameUtils;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.error.ParseException;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
@@ -96,7 +97,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         _pageFactory = pageFactory;
     }
 
-    public StyleSheet create(Tree styleSheetNode) {
+    public StyleSheet create(Tree styleSheetNode, ErrorHandler errorHandler) {
         StyleSheet stylesheet = new StyleSheet();
         if (styleSheetNode == null) {
             return stylesheet;
@@ -110,19 +111,25 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         stylesheet.setLine(styleSheetNode.getLine());
         stylesheet.setChar(styleSheetNode.getCharPositionInLine());
 
-        processStyleSheet(stylesheet, styleSheetNode, resource);
+        processStyleSheet(stylesheet, styleSheetNode, resource, errorHandler);
 
         return stylesheet;
     }
 
-    protected void processStyleSheet(StyleSheet stylesheet, Tree styleSheetNode, StyleSheetResource resource) {
+    protected void processStyleSheet(StyleSheet stylesheet,
+                                     Tree styleSheetNode,
+                                     StyleSheetResource resource,
+                                     ErrorHandler errorHandler) {
         for (int idx = 0, numChildren = styleSheetNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = styleSheetNode.getChild(idx);
-            processStyleSheetNode(stylesheet, child, resource);
+            processStyleSheetNode(stylesheet, child, resource, errorHandler);
         }
     }
 
-    protected void processStyleSheetNode(StyleSheet stylesheet, Tree child, StyleSheetResource resource) {
+    protected void processStyleSheetNode(StyleSheet stylesheet,
+                                         Tree child,
+                                         StyleSheetResource resource,
+                                         ErrorHandler errorHandler) {
         switch (child.getType()) {
             case CHARSET:
                 String charset = child.getChild(0).getText();
@@ -133,12 +140,12 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                 break;
 
             case IMPORT:
-                handleImport(stylesheet, child, resource);
+                handleImport(stylesheet, child, resource, errorHandler);
                 break;
 
             case VAR:
                 Tree exprNode = child.getChild(1);
-                Expression expr = getExpressionFactory().create(exprNode);
+                Expression expr = getExpressionFactory().create(exprNode, errorHandler);
                 if (expr != null) {
                     stylesheet.setVariable(child.getChild(0).getText(), expr);
                 }
@@ -146,21 +153,21 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
 
             case MIXIN_MACRO:
             case RULESET:
-                RuleSet ruleSet = getRuleSetFactory().create(child);
+                RuleSet ruleSet = getRuleSetFactory().create(child, errorHandler);
                 if (ruleSet != null) {
                     stylesheet.addBodyElement(ruleSet);
                 }
                 break;
 
             case MEDIA_SYM:
-                Media media = getMediaFactory().create(child);
+                Media media = getMediaFactory().create(child, errorHandler);
                 if (media != null) {
                     stylesheet.addBodyElement(media);
                 }
                 break;
 
             case PAGE_SYM:
-                Page page = getPageFactory().create(child);
+                Page page = getPageFactory().create(child, errorHandler);
                 if (page != null) {
                     stylesheet.addBodyElement(page);
                 }
@@ -172,21 +179,27 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         }
     }
 
-    protected void handleImport(StyleSheet stylesheet, Tree importNode, StyleSheetResource resource) {
+    protected void handleImport(StyleSheet stylesheet,
+                                Tree importNode,
+                                StyleSheetResource resource,
+                                ErrorHandler errorHandler) {
         String path = cleanImportPath(importNode.getChild(0).getText());
 
         // circular/duplicate import check
         if (!stylesheet.getImports().contains(path)) {
             stylesheet.addImport(path);
-            importStylesheet(path, resource, stylesheet);
+            importStylesheet(path, resource, stylesheet, errorHandler);
         }
     }
 
-    protected StyleSheet importStylesheet(String path, StyleSheetResource relativeTo, StyleSheet stylesheet) {
+    protected StyleSheet importStylesheet(String path,
+                                          StyleSheetResource relativeTo,
+                                          StyleSheet stylesheet,
+                                          ErrorHandler errorHandler) {
         try {
             StyleSheetResource importResource = getImportResource(path, relativeTo);
-            Tree result = getStyleSheetTreeParser().parseTree(importResource);
-            processStyleSheet(stylesheet, result, importResource);
+            Tree result = getStyleSheetTreeParser().parseTree(importResource, errorHandler);
+            processStyleSheet(stylesheet, result, importResource, errorHandler);
             return stylesheet;
         }
         catch (IOException e) {

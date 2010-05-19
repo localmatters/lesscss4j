@@ -23,8 +23,9 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.error.ParseError;
-import org.lesscss4j.error.ParseException;
+import org.lesscss4j.error.ErrorHandler;
+import org.lesscss4j.error.ErrorUtils;
+import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.factory.ObjectFactory;
 import org.lesscss4j.factory.StyleSheetFactory;
 import org.lesscss4j.model.StyleSheet;
@@ -39,7 +40,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTree
 
     public static final String CHARSET_SYM = "@charset";
     public static final String NEWLINE_CHARS = "\n\r\f";
-    
+
     public String getDefaultEncoding() {
         return _defaultEncoding;
     }
@@ -81,24 +82,26 @@ public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTree
         return styleSheetObjectFactory;
     }
 
-    public StyleSheet parse(StyleSheetResource input) throws IOException {
-        return getStyleSheetFactory().create(new StyleSheetTree(parseTree(input), input));
+    public StyleSheet parse(StyleSheetResource input, ErrorHandler errorHandler) throws IOException {
+        return getStyleSheetFactory().create(new StyleSheetTree(parseTree(input, errorHandler), input), null);
 
     }
 
-    public Tree parseTree(StyleSheetResource input) throws IOException {
+    public Tree parseTree(StyleSheetResource input, ErrorHandler errorHandler) throws IOException {
         LessCssLexer lexer = new LessCssLexer(createANTLRInputStream(input.getInputStream()));
         LessCssParser parser = new LessCssParser(new CommonTokenStream(lexer));
         try {
+            parser.setErrorHandler(errorHandler);
             LessCssParser.styleSheet_return result = parser.styleSheet();
-            if (!parser.getErrors().isEmpty()) {
-                throw new ParseException(parser.getErrors());
-            }
             return (Tree) result.getTree();
         }
         catch (RecognitionException e) {
-            throw new ParseError(e, parser.getErrorHeader(e), parser.getErrorMessage(e, parser.getTokenNames()));
+            ErrorUtils.handleError(errorHandler, e, parser);
         }
+        catch (LessCssException e) {
+            ErrorUtils.handleError(errorHandler, e);
+        }
+        return null;
     }
 
     protected ANTLRInputStream createANTLRInputStream(InputStream input) throws IOException {

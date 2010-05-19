@@ -103,22 +103,22 @@
 @header {
 package org.lesscss4j.parser.antlr;
 
-import org.lesscss4j.parser.ParseError;
+import org.lesscss4j.error.ErrorHandler;
+import org.lesscss4j.error.ErrorUtils;
 }
 @lexer::header {
 package org.lesscss4j.parser.antlr;
 }
 @members {
-    List<ParseError> errors = new ArrayList<ParseError>();
+    private ErrorHandler _errorHandler;
 
-    public List<ParseError> getErrors() {
-        return errors;
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        _errorHandler = errorHandler;
     }
 
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-        ParseError error = new ParseError(e, getErrorHeader(e), getErrorMessage(e, tokenNames));
-        errors.add(error);
+        ErrorUtils.handleError(_errorHandler, e, this);
     }
 }
                             ]]></replacevalue>

@@ -16,6 +16,7 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.expression.Expression;
@@ -42,7 +43,7 @@ public class PageFactory extends AbstractObjectFactory<Page> {
         _declarationFactory = declarationFactory;
     }
 
-    public Page create(Tree pageNode) {
+    public Page create(Tree pageNode, ErrorHandler errorHandler) {
         Page page = new Page();
         page.setLine(pageNode.getLine());
         page.setChar(pageNode.getCharPositionInLine());
@@ -50,14 +51,14 @@ public class PageFactory extends AbstractObjectFactory<Page> {
             Tree child = pageNode.getChild(idx);
             switch (child.getType()) {
                 case DECLARATION:
-                    Declaration declaration = getDeclarationFactory().create(child);
+                    Declaration declaration = getDeclarationFactory().create(child, errorHandler);
                     if (declaration != null) {
                         page.addDeclaration(declaration);
                     }
                     break;
 
                 case VAR:
-                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    Expression expr = getExpressionFactory().create(child.getChild(1), errorHandler);
                     if (expr != null) {
                         page.setVariable(child.getChild(0).getText(), expr);
                     }

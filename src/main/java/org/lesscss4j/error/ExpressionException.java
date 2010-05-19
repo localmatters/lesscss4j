@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.error;
 
-public abstract class ExpressionException extends RuntimeException {
+public abstract class ExpressionException extends LessCssException {
     public ExpressionException() {
     }
 

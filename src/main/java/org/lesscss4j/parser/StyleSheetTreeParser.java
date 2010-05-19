@@ -18,10 +18,11 @@ package org.lesscss4j.parser;
 import java.io.IOException;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 
 /**
  * Parses the given input into an AST tree.
  */
 public interface StyleSheetTreeParser {
-    Tree parseTree(StyleSheetResource input) throws IOException;
+    Tree parseTree(StyleSheetResource input, ErrorHandler handler) throws IOException;
 }

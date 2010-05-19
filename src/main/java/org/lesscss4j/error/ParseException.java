@@ -18,7 +18,7 @@ package org.lesscss4j.error;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class ParseException extends RuntimeException {
+public class ParseException extends LessCssException {
     private Collection<ParseError> _errors;
 
     public ParseException(ParseError... errors) {

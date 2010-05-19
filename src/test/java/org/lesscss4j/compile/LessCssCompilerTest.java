@@ -16,75 +16,9 @@
 package org.lesscss4j.compile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Comparator;
 
-import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.lesscss4j.output.PrettyPrintOptions;
-import org.lesscss4j.parser.UrlStyleSheetResource;
-import org.lesscss4j.spring.LessCssCompilerFactoryBean;
-
-public class LessCssCompilerImplTest extends TestCase {
-    public static final String ENCODING = "UTF-8";
-
-    LessCssCompiler _compiler;
-    PrettyPrintOptions _printOptions;
-
-    @Override
-    protected void setUp() throws Exception {
-        _printOptions = new PrettyPrintOptions();
-        _printOptions.setSingleDeclarationOnOneLine(true);
-        _printOptions.setLineBetweenRuleSets(false);
-        _printOptions.setOpeningBraceOnNewLine(false);
-        _printOptions.setIndentSize(2);
-
-        LessCssCompilerFactoryBean factoryBean = new LessCssCompilerFactoryBean();
-        factoryBean.setDefaultEncoding(ENCODING);
-        factoryBean.setPrettyPrintEnabled(true);
-        factoryBean.setPrettyPrintOptions(_printOptions);
-        factoryBean.afterPropertiesSet();
-        _compiler = (LessCssCompiler) factoryBean.getObject();
-    }
-
-    protected String readCss(String cssFile) throws IOException {
-        InputStream input = null;
-        try {
-            input = getClass().getClassLoader().getResourceAsStream(cssFile);
-            assertNotNull("Unable to open " + cssFile, input);
-            return IOUtils.toString(input, ENCODING);
-        }
-        finally {
-            IOUtils.closeQuietly(input);
-        }
-    }
-
-    protected void compileAndValidate(String lessFile, String cssFile) throws IOException {
-        compileAndValidate(lessFile, cssFile, null);
-    }
-
-    protected void compileAndValidate(String lessFile, String cssFile, Comparator<String> comparator) throws IOException {
-        URL url = getClass().getClassLoader().getResource(lessFile);
-        assertNotNull("Unable to open " + lessFile, url);
-
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        _compiler.compile(new UrlStyleSheetResource(url), output);
-
-        output.close();
-
-        String expected = readCss(cssFile);
-        String actual = output.toString(ENCODING);
-        if (comparator == null) {
-            assertEquals(expected, actual);
-        }
-        else {
-            comparator.compare(expected, actual);
-        }
-    }
+public class LessCssCompilerTest extends AbstractLessCssCompilerTest {
 
     public void testVariables() throws IOException {
         compileAndValidate("less/variables.less", "css/variables.css");

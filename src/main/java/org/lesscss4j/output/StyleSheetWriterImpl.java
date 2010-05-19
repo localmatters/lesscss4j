@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.DeclarationElement;
@@ -74,7 +75,7 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         _prettyPrintEnabled = prettyPrintEnabled;
     }
 
-    public void write(OutputStream output, StyleSheet styleSheet) throws IOException {
+    public void write(OutputStream output, StyleSheet styleSheet, ErrorHandler errorHandler) throws IOException {
         String encoding = styleSheet.getCharset();
         if (encoding == null || encoding.length() == 0) {
             encoding = getDefaultEncoding();

@@ -16,6 +16,7 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.MixinReference;
 import org.lesscss4j.model.RuleSet;
@@ -53,7 +54,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
         _selectorFactory = selectorFactory;
     }
 
-    public RuleSet create(Tree ruleSetNode) {
+    public RuleSet create(Tree ruleSetNode, ErrorHandler errorHandler) {
         RuleSet ruleSet = new RuleSet();
         ruleSet.setLine(ruleSetNode.getLine());
         ruleSet.setChar(ruleSetNode.getCharPositionInLine());
@@ -62,7 +63,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
             Tree child = ruleSetNode.getChild(idx);
             switch (child.getType()) {
                 case SELECTOR:
-                    Selector selector = getSelectorFactory().create(child);
+                    Selector selector = getSelectorFactory().create(child, errorHandler);
                     if (selector != null) {
                         ruleSet.addSelector(selector);
                     }
@@ -70,7 +71,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
 
                 case MIXIN_ARG:
                 case VAR:
-                    Expression expr = getExpressionFactory().create(child.getChild(1));
+                    Expression expr = getExpressionFactory().create(child.getChild(1), null);
                     if (expr != null) {
                         String varName = child.getChild(0).getText();
                         if (ruleSet.getVariable(varName) != null) {
@@ -85,21 +86,21 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     break;
 
                 case DECLARATION:
-                    Declaration declaration = getDeclarationFactory().create(child);
+                    Declaration declaration = getDeclarationFactory().create(child, errorHandler);
                     if (declaration != null) {
                         ruleSet.addDeclaration(declaration);
                     }
                     break;
 
                 case MIXIN_REF:
-                    MixinReference ref = createMixinReferences(child);
+                    MixinReference ref = createMixinReferences(child, errorHandler);
                     if (ref != null) {
                         ruleSet.addDeclaration(ref);
                     }
                     break;
 
                 case RULESET:
-                    RuleSet childRuleSet = create(child);
+                    RuleSet childRuleSet = create(child, errorHandler);
                     if (childRuleSet != null) {
                         ruleSet.addRuleSet(childRuleSet, -1);
                     }
@@ -114,7 +115,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
         return ruleSet;
     }
 
-    protected MixinReference createMixinReferences(Tree mixinNode) {
+    protected MixinReference createMixinReferences(Tree mixinNode, ErrorHandler errorHandler) {
         // todo: put this in it's own factory?
 
         MixinReference ref = new MixinReference();
@@ -125,12 +126,12 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
             Tree child = mixinNode.getChild(idx);
             switch (child.getType()) {
                 case SELECTOR:
-                    Selector selector = getSelectorFactory().create(child);
+                    Selector selector = getSelectorFactory().create(child, errorHandler);
                     ref.setSelector(selector);
                     break;
 
                 case MIXIN_ARG:
-                    Expression arg = getExpressionFactory().create(child.getChild(0));
+                    Expression arg = getExpressionFactory().create(child.getChild(0), errorHandler);
                     if (arg != null) {
                         ref.addArgument(arg);
                     }

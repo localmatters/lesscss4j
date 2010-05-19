@@ -17,30 +17,30 @@ package org.lesscss4j.error;
 
 import org.lesscss4j.model.expression.ConstantValue;
 
-public class UnitMismatchException extends ExpressionException {
+public class UnitMismatchException extends LessCssException {
     private ConstantValue _left;
     private ConstantValue _right;
 
     public UnitMismatchException(ConstantValue left, ConstantValue right) {
-        super(left.toString() + " " + right.toString());
+        super("Unit mismatch: " + left.toString() + " " + right.toString());
         _left = left;
         _right = right;
     }
 
     public UnitMismatchException(String message, ConstantValue left, ConstantValue right) {
-        super(message + ": " + left.toString() + " " + right.toString());
+        super("Unit mismatch: " + message + ": " + left.toString() + " " + right.toString());
         _left = left;
         _right = right;
     }
 
     public UnitMismatchException(String message, ConstantValue left, ConstantValue right, Throwable cause) {
-        super(message + ": " + left.toString() + " " + right.toString(), cause);
+        super("Unit mismatch:" + message + ": " + left.toString() + " " + right.toString(), cause);
         _left = left;
         _right = right;
     }
 
     public UnitMismatchException(ConstantValue left, ConstantValue right, Throwable cause) {
-        super(left.toString() + " " + right.toString(),cause);
+        super("Unit mismatch:" + left.toString() + " " + right.toString(),cause);
         _left = left;
         _right = right;
     }

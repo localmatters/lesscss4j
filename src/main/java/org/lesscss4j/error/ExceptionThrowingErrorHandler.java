@@ -15,8 +15,9 @@
  */
 package org.lesscss4j.error;
 
-public class ExceptionThrowingErrorHandler implements ErrorHandler {
+public class ExceptionThrowingErrorHandler extends AbstractErrorHandler {
     public void handleError(String message, Throwable exception) {
+        super.handleError(message, exception);
         if (exception != null) {
             if (message != null) {
                 throw new LessCssException(message, exception);

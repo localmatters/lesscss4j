@@ -16,7 +16,8 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 
 public interface ObjectFactory<T> {
-    T create(Tree tree);
+    T create(Tree tree, ErrorHandler errorHandler);
 }

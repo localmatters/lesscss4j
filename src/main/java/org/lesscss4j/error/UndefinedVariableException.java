@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.error;
 
-public class UndefinedVariableException extends ExpressionException {
+public class UndefinedVariableException extends LessCssException {
     public UndefinedVariableException(String variableName) {
         super(variableName);
     }

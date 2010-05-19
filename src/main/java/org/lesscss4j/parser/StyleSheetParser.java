@@ -17,11 +17,12 @@ package org.lesscss4j.parser;
 
 import java.io.IOException;
 
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.StyleSheet;
 
 /**
  * Parses the given input into a StyleSheet object
  */
 public interface StyleSheetParser {
-    StyleSheet parse(StyleSheetResource input) throws IOException;
+    StyleSheet parse(StyleSheetResource input, ErrorHandler errorHandler) throws IOException;
 }

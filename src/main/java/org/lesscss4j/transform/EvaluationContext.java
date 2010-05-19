@@ -17,6 +17,7 @@ package org.lesscss4j.transform;
 
 import java.util.List;
 
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.RuleSetContainer;
 import org.lesscss4j.model.Selector;
@@ -27,6 +28,7 @@ public class EvaluationContext {
     private EvaluationContext _parentContext;
     private VariableContainer _variableContainer;
     private RuleSetContainer _ruleSetContainer;
+    private ErrorHandler _errorHandler;
     private int _ruleSetIndex = 0;
 
     public EvaluationContext() {
@@ -95,5 +97,21 @@ public class EvaluationContext {
             ruleSet = getParentContext().getRuleSet(selector);
         }
         return ruleSet;
+    }
+
+    public ErrorHandler getErrorHandler() {
+        if (_errorHandler != null) {
+            return _errorHandler;
+        }
+        else if (getParentContext() != null) {
+            return getParentContext().getErrorHandler();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        _errorHandler = errorHandler;
     }
 }

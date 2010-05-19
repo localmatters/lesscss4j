@@ -17,7 +17,10 @@ package org.lesscss4j.transform;
 
 import java.util.ListIterator;
 
+import org.lesscss4j.error.ErrorUtils;
+import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.PositionAware;
 import org.lesscss4j.model.expression.Expression;
 
 public class DeclarationTransformer implements Transformer<Declaration> {
@@ -27,7 +30,12 @@ public class DeclarationTransformer implements Transformer<Declaration> {
         for (ListIterator<Object> iter = declaration.getValues().listIterator(); iter.hasNext();) {
             Object value = iter.next();
             if (value instanceof Expression) {
-                iter.set(((Expression) value).evaluate(context));
+                try {
+                    iter.set(((Expression) value).evaluate(context));
+                }
+                catch (LessCssException ex) {
+                    ErrorUtils.handleError(context.getErrorHandler(), (PositionAware) value, ex);
+                }
             }
         }
     }

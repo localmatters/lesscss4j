@@ -18,8 +18,9 @@ package org.lesscss4j.output;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.StyleSheet;
 
 public interface StyleSheetWriter {
-    void write(OutputStream output, StyleSheet styleSheet) throws IOException;
+    void write(OutputStream output, StyleSheet styleSheet, ErrorHandler errorHandler) throws IOException;
 }

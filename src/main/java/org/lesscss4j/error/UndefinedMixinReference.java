@@ -17,7 +17,7 @@ package org.lesscss4j.error;
 
 import org.lesscss4j.model.MixinReference;
 
-public class UndefinedMixinReference extends RuntimeException {
+public class UndefinedMixinReference extends LessCssException {
     private MixinReference _mixin;
 
     public UndefinedMixinReference(MixinReference mixin) {

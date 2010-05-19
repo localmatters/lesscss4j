@@ -16,12 +16,13 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.Selector;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.WS;
 
 public class SelectorFactory extends AbstractObjectFactory<Selector> {
-    public Selector create(Tree selectorNode) {
+    public Selector create(Tree selectorNode, ErrorHandler errorHandler) {
         StringBuilder selectorText = new StringBuilder();
         for (int idx = 0, numChildren = selectorNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = selectorNode.getChild(idx);

@@ -16,8 +16,8 @@
 package org.lesscss4j.factory;
 
 import org.antlr.runtime.tree.Tree;
+import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.AbstractElement;
-import org.lesscss4j.model.PositionAware;
 import org.lesscss4j.model.expression.AddExpression;
 import org.lesscss4j.model.expression.ConstantExpression;
 import org.lesscss4j.model.expression.DivideExpression;
@@ -32,22 +32,22 @@ import org.lesscss4j.model.expression.VariableReferenceExpression;
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class ExpressionFactory extends AbstractObjectFactory<Expression> {
-    public Expression create(Tree expression) {
+    public Expression create(Tree expression, ErrorHandler errorHandler) {
 
         switch (expression.getType()) {
             case FUNCTION:
-                return createFunction(expression);
+                return createFunction(expression, errorHandler);
 
             case EXPR:
                 if (expression.getChildCount() > 1) {
-                    return createListExpression(expression);
+                    return createListExpression(expression, errorHandler);
                 }
                 else {
-                    return createExpression(expression.getChild(0));
+                    return createExpression(expression.getChild(0), errorHandler);
                 }
 
             case LITERAL:
-                return createLiteral(expression);
+                return createLiteral(expression, errorHandler);
 
             default:
                 handleUnexpectedChild("Unexpected expression type", expression);
@@ -55,29 +55,29 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
         }
     }
 
-    protected LiteralExpression createLiteral(Tree expression) {
-        return createLiteral(concatChildNodeText(expression), expression);
+    protected LiteralExpression createLiteral(Tree expression, ErrorHandler errorHandler) {
+        return createLiteral(concatChildNodeText(expression), expression, errorHandler);
     }
 
-    protected LiteralExpression createLiteral(String text, Tree expression) {
+    protected LiteralExpression createLiteral(String text, Tree expression, ErrorHandler errorHandler) {
         LiteralExpression literal = new LiteralExpression(text);
         literal.setLine(expression.getLine());
         literal.setChar(expression.getCharPositionInLine());
         return literal;
     }
 
-    protected Expression createListExpression(Tree expression) {
+    protected Expression createListExpression(Tree expression, ErrorHandler errorHandler) {
         ListExpression listExpr = new ListExpression();
         for (int idx = 0, numChildren = expression.getChildCount(); idx < numChildren; idx++) {
             Tree child = expression.getChild(idx);
             switch (child.getType()) {
                 case COMMA:
                 case WS:
-                    listExpr.addExpression(createLiteral(child.getText(), child));
+                    listExpr.addExpression(createLiteral(child.getText(), child, errorHandler));
                     break;
 
                 default:
-                    listExpr.addExpression(createExpression(child));
+                    listExpr.addExpression(createExpression(child, errorHandler));
                     break;
             }
         }
@@ -85,7 +85,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
         return listExpr;
     }
 
-    protected Expression createExpression(Tree expression) {
+    protected Expression createExpression(Tree expression, ErrorHandler errorHandler) {
         Expression result;
         switch (expression.getType()) {
             case CONSTANT:
@@ -93,27 +93,27 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 break;
 
             case LITERAL:
-                result = createLiteral(expression);
+                result = createLiteral(expression, errorHandler);
                 break;
 
             case STAR:
-                result = new MultiplyExpression(createExpression(expression.getChild(0)),
-                                              createExpression(expression.getChild(1)));
+                result = new MultiplyExpression(createExpression(expression.getChild(0), errorHandler),
+                                                createExpression(expression.getChild(1), errorHandler));
                 break;
 
             case SOLIDUS:
-                result = new DivideExpression(createExpression(expression.getChild(0)),
-                                            createExpression(expression.getChild(1)));
+                result = new DivideExpression(createExpression(expression.getChild(0), errorHandler),
+                                              createExpression(expression.getChild(1), errorHandler));
                 break;
 
             case PLUS:
-                result = new AddExpression(createExpression(expression.getChild(0)),
-                                         createExpression(expression.getChild(1)));
+                result = new AddExpression(createExpression(expression.getChild(0), errorHandler),
+                                           createExpression(expression.getChild(1), errorHandler));
                 break;
 
             case MINUS:
-                result = new SubtractExpression(createExpression(expression.getChild(0)),
-                                              createExpression(expression.getChild(1)));
+                result = new SubtractExpression(createExpression(expression.getChild(0), errorHandler),
+                                                createExpression(expression.getChild(1), errorHandler));
                 break;
 
             case VAR:
@@ -121,7 +121,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                 break;
 
             case EXPR:
-                result = createExpression(expression.getChild(0));
+                result = createExpression(expression.getChild(0), errorHandler);
                 break;
 
             default:
@@ -137,7 +137,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
         return result;
     }
 
-    protected Expression createFunction(Tree function) {
+    protected Expression createFunction(Tree function, ErrorHandler errorHandler) {
         Tree nameNode = function.getChild(0);
         FunctionExpression func = new FunctionExpression(nameNode.getText());
         switch (nameNode.getType()) {
@@ -146,9 +146,9 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                     Tree child = function.getChild(idx);
                     Tree propNode = child.getChild(0);
                     String prop = propNode.getText();
-                    Expression expr = create(child.getChild(1));
-                    func.addArgument(createLiteral(prop, propNode));
-                    func.addArgument(createLiteral(child.getText(), child));
+                    Expression expr = create(child.getChild(1), null);
+                    func.addArgument(createLiteral(prop, propNode, errorHandler));
+                    func.addArgument(createLiteral(child.getText(), child, errorHandler));
                     func.addArgument(expr);
                 }
                 break;
@@ -159,17 +159,17 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
                     Tree child = function.getChild(idx);
                     switch (child.getType()) {
                         case FUNCTION:
-                            func.addArgument(createFunction(child));
+                            func.addArgument(createFunction(child, errorHandler));
                             break;
 
                         case VAR:
                         case LITERAL:
                         case EXPR:
-                            func.addArgument(createExpression(child));
+                            func.addArgument(createExpression(child, errorHandler));
                             break;
 
                         default:
-                            func.addArgument(createLiteral(child.getText(), child));
+                            func.addArgument(createLiteral(child.getText(), child, errorHandler));
                             break;
 
                     }

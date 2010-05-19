@@ -210,7 +210,7 @@ public class CompilerMain {
                 ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintOptions(getPrettyPrintOptions());
             }
 
-            compiler.compile(input, output);
+            compiler.compile(input, output, null);
         }
         catch (IOException ex) {
             // delete the bogus output file if we're not writing to stdout and it didn't exist before.

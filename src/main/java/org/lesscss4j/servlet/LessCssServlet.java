@@ -272,7 +272,7 @@ public class LessCssServlet extends HttpServlet {
             URL url = getServletContext().getResource(resource);
             if (url != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                getLessCompiler().compile(ResourceUtils.getResourceForUrl(url), output);
+                getLessCompiler().compile(ResourceUtils.getResourceForUrl(url), output, null);
                 return output.toByteArray();
             }
             else {
