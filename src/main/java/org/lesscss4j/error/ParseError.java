@@ -13,36 +13,25 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j.parser;
+package org.lesscss4j.error;
 
 import org.antlr.runtime.RecognitionException;
 
-public class ParseError {
-    private RecognitionException _exception;
+public class ParseError extends RuntimeException {
     private String _header;
     private String _message;
 
-    public RecognitionException getException() {
-        return _exception;
-    }
-
-    public void setException(RecognitionException exception) {
-        _exception = exception;
+    public ParseError(RecognitionException exception, String header, String message) {
+        super(header + " " + message, exception);
+        _header = header;
+        _message = message;
     }
 
     public String getHeader() {
         return _header;
     }
 
-    public void setHeader(String header) {
-        _header = header;
-    }
-
     public String getMessage() {
         return _message;
-    }
-
-    public void setMessage(String message) {
-        _message = message;
     }
 }

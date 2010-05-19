@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.model.expression;
 
-import org.lesscss4j.exception.UndefinedVariableException;
+import org.lesscss4j.error.UndefinedVariableException;
 import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.transform.EvaluationContext;
 

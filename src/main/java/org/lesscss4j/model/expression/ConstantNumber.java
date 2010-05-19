@@ -17,7 +17,7 @@ package org.lesscss4j.model.expression;
 
 import java.text.DecimalFormat;
 
-import org.lesscss4j.exception.UnitMismatchException;
+import org.lesscss4j.error.UnitMismatchException;
 
 public class ConstantNumber implements ConstantValue {
     private double _value;

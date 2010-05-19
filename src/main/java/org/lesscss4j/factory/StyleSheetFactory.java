@@ -22,18 +22,16 @@ import java.util.regex.Pattern;
 
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.FilenameUtils;
-import org.lesscss4j.exception.ParseException;
+import org.lesscss4j.error.ParseException;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
-import org.lesscss4j.parser.FileStyleSheetResource;
 import org.lesscss4j.parser.ResourceUtils;
 import org.lesscss4j.parser.StyleSheetResource;
 import org.lesscss4j.parser.StyleSheetTree;
 import org.lesscss4j.parser.StyleSheetTreeParser;
-import org.lesscss4j.parser.UrlStyleSheetResource;
 
 import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 

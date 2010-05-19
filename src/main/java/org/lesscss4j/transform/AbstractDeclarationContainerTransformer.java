@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.lesscss4j.exception.UndefinedMixinReference;
+import org.lesscss4j.error.UndefinedMixinReference;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.DeclarationContainer;

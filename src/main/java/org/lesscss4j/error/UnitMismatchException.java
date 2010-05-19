@@ -13,7 +13,7 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j.exception;
+package org.lesscss4j.error;
 
 import org.lesscss4j.model.expression.ConstantValue;
 

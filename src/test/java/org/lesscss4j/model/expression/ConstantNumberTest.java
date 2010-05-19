@@ -17,7 +17,7 @@ package org.lesscss4j.model.expression;
 
 import junit.framework.TestCase;
 
-import org.lesscss4j.exception.UnitMismatchException;
+import org.lesscss4j.error.UnitMismatchException;
 
 public class ConstantNumberTest extends TestCase {
     protected void validateNumber(double expectedValue, String expectedUnit, ConstantNumber actual) {

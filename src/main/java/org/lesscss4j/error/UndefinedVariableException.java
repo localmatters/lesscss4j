@@ -13,7 +13,7 @@
  *  $Revision$
  *  $Date$
  */
-package org.lesscss4j.exception;
+package org.lesscss4j.error;
 
 public class UndefinedVariableException extends ExpressionException {
     public UndefinedVariableException(String variableName) {

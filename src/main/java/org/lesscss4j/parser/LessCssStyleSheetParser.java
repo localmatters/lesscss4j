@@ -23,7 +23,8 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
-import org.lesscss4j.exception.ParseException;
+import org.lesscss4j.error.ParseError;
+import org.lesscss4j.error.ParseException;
 import org.lesscss4j.factory.ObjectFactory;
 import org.lesscss4j.factory.StyleSheetFactory;
 import org.lesscss4j.model.StyleSheet;
@@ -96,12 +97,7 @@ public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTree
             return (Tree) result.getTree();
         }
         catch (RecognitionException e) {
-            ParseError error = new ParseError();
-            error.setException(e);
-            error.setHeader(parser.getErrorHeader(e));
-            error.setMessage(parser.getErrorMessage(e, parser.getTokenNames()));
-
-            throw new ParseException(error);
+            throw new ParseError(e, parser.getErrorHeader(e), parser.getErrorMessage(e, parser.getTokenNames()));
         }
     }
 

@@ -40,6 +40,11 @@
             <version>1.4</version>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.4</version>
@@ -112,10 +117,7 @@ package org.lesscss4j.parser.antlr;
 
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-        ParseError error = new ParseError();
-        error.setException(e);
-        error.setHeader(getErrorHeader(e));
-        error.setMessage(getErrorMessage(e, tokenNames));
+        ParseError error = new ParseError(e, getErrorHeader(e), getErrorMessage(e, tokenNames));
         errors.add(error);
     }
 }

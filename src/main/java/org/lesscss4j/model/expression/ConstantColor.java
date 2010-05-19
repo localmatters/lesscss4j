@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lesscss4j.exception.UnitMismatchException;
+import org.lesscss4j.error.UnitMismatchException;
 
 public class ConstantColor implements ConstantValue {
     private int _red;
