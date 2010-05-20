@@ -22,6 +22,8 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.lesscss4j.error.ErrorUtils;
+import org.lesscss4j.error.LessCssException;
+import org.lesscss4j.error.MixinArgumentMismatchException;
 import org.lesscss4j.error.UndefinedMixinReference;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
@@ -78,32 +80,36 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                 }
                 else if (declaration instanceof MixinReference) {
                     MixinReference mixin = (MixinReference) declaration;
-                    Selector selector = mixin.getSelector();
-                    List<RuleSet> ruleSetList = context.getRuleSet(selector);
-                    if (ruleSetList != null) {
-                        for (RuleSet ruleSet : ruleSetList) {
-                            if (ruleSet.isMixinReferenceUsed()) {
-                                throw new UndefinedMixinReference("Mixins must be defined before their use", mixin);
-                            }
+                    try {
+                        Selector selector = mixin.getSelector();
+                        List<RuleSet> ruleSetList = context.getRuleSet(selector);
+                        if (ruleSetList != null) {
+                            for (RuleSet ruleSet : ruleSetList) {
+                                if (ruleSet.isMixinReferenceUsed()) {
+                                    throw new UndefinedMixinReference("Mixins must be defined before their use", mixin);
+                                }
 
-                            ruleSet = evaluateMixinArguments(ruleSet, mixin, declContext);
+                                ruleSet = evaluateMixinArguments(ruleSet, mixin, declContext);
 
-                            for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext(); ) {
-                                String varName = iter.next();
-                                Expression expression = ruleSet.getVariable(varName);
-                                container.setVariable(varName, expression);
+                                for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext();) {
+                                    String varName = iter.next();
+                                    Expression expression = ruleSet.getVariable(varName);
+                                    container.setVariable(varName, expression);
 
-                            }
-                            for (DeclarationElement element : ruleSet.getDeclarations()) {
-                                if (element instanceof Declaration) {
-                                    flattenedDeclarations.add((Declaration) element);
+                                }
+                                for (DeclarationElement element : ruleSet.getDeclarations()) {
+                                    if (element instanceof Declaration) {
+                                        flattenedDeclarations.add((Declaration) element);
+                                    }
                                 }
                             }
                         }
+                        else {
+                            throw new UndefinedMixinReference(mixin);
+                        }
                     }
-                    else {
-                        ErrorUtils.handleError(context.getErrorHandler(), mixin,
-                                               new UndefinedMixinReference(mixin));
+                    catch (LessCssException ex) {
+                        ErrorUtils.handleError(context.getErrorHandler(), mixin, ex);
                     }
                 }
             }
@@ -119,7 +125,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
     protected RuleSet evaluateMixinArguments(RuleSet ruleSet, MixinReference mixin, EvaluationContext declContext) {
         EvaluationContext context = declContext.getParentContext();
         if (mixin.getArguments().size() > ruleSet.getArguments().size()) {
-            // todo: exception...more arguments specified than available?
+            throw new MixinArgumentMismatchException(mixin, ruleSet);
         }
 
         // If the rule set takes arguments, we need to evaluate it on the fly.  So make a copy and run it

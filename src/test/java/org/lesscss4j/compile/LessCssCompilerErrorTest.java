@@ -57,9 +57,10 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
     public void testMixinErrors() throws IOException {
         compileAndValidate("less/exceptions/mixin-error.less", null);
         assertEquals("[2:2] - Undefined mixin: .mixin\n" +
-                     "[2:10] - Undefined mixin: .mixout\n",
+                     "[2:10] - Undefined mixin: .mixout\n" +
+                     "[11:2] - Mixin argument mismatch. Expected maximum of 2 but got 3.\n",
                      _writer.toString());
-        assertEquals(2, _errorHandler.getErrorCount());
+        assertEquals(3, _errorHandler.getErrorCount());
     }
 
     public void testSyntaxErrors() throws IOException {
