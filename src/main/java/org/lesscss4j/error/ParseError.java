@@ -22,7 +22,7 @@ public class ParseError extends LessCssException {
     private String _message;
 
     public ParseError(RecognitionException exception, String header, String message) {
-        super(header + " " + message, exception);
+        super(header + " - " + message, exception);
         _header = header;
         _message = message;
     }

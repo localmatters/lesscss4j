@@ -15,7 +15,11 @@
  */
 package org.lesscss4j.error;
 
+import org.lesscss4j.model.PositionAware;
+
 public class LessCssException extends RuntimeException {
+    private PositionAware _position;
+
     public LessCssException() {
     }
 
@@ -29,5 +33,13 @@ public class LessCssException extends RuntimeException {
 
     public LessCssException(Throwable cause) {
         super(cause);
+    }
+
+    public void setPosition(PositionAware position) {
+        _position = position;
+    }
+
+    public PositionAware getPosition() {
+        return _position;
     }
 }

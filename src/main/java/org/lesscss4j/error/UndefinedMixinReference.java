@@ -21,22 +21,22 @@ public class UndefinedMixinReference extends LessCssException {
     private MixinReference _mixin;
 
     public UndefinedMixinReference(MixinReference mixin) {
-        super(mixin.getSelector().getText());
+        super("Undefined mixin: " + mixin.getSelector().getText());
         _mixin = mixin;
     }
 
     public UndefinedMixinReference(String message, MixinReference mixin) {
-        super(message + ": " + mixin.getSelector().getText());
+        super("Undefined mixin: " + message + mixin.getSelector().getText());
         _mixin = mixin;
     }
 
     public UndefinedMixinReference(String message, MixinReference mixin, Throwable cause) {
-        super(message + ": " + mixin.getSelector().getText(), cause);
+        super("Undefined mixin: " + message + mixin.getSelector().getText(), cause);
         _mixin = mixin;
     }
 
     public UndefinedMixinReference(MixinReference mixin, Throwable cause) {
-        super(mixin.getSelector().getText(), cause);
+        super("Undefined mixin: " + mixin.getSelector().getText(), cause);
         _mixin = mixin;
     }
 

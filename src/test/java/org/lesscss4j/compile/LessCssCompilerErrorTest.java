@@ -38,10 +38,25 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
     public void testMismatchedUnits() throws IOException {
         compileAndValidate("less/exceptions/mixed-units-error.less", null);
         assertEquals(3, _errorHandler.getErrorCount());
-        String errors = _writer.toString();
-        assertEquals("[1:8] - Unit mismatch: 1px 1%\n" +
-                     "[5:17] - Unit mismatch: #000 1em\n" +
-                     "[3:13] - Unit mismatch: 1px #fff\n",
-                     errors);
+        assertEquals("[1:4] - Unit mismatch: 1px 1%\n" +
+                     "[5:4] - Unit mismatch: #000 1em\n" +
+                     "[3:9] - Unit mismatch: 1px #fff\n",
+                     _writer.toString());
+    }
+
+    public void testUndefinedVariable() throws IOException {
+        compileAndValidate("less/exceptions/name-error-1.0.less", null);
+        assertEquals(2, _errorHandler.getErrorCount());
+        assertEquals("[1:5] - Undefined variable: @var\n" +
+                     "[3:10] - Undefined variable: @var2\n",
+                     _writer.toString());
+    }
+
+    public void testMixinErrors() throws IOException {
+        compileAndValidate("less/exceptions/mixin-error.less", null);
+        assertEquals(2, _errorHandler.getErrorCount());
+        assertEquals("[2:2] - Undefined mixin: .mixin\n" +
+                     "[2:10] - Undefined mixin: .mixout\n",
+                     _writer.toString());
     }
 }

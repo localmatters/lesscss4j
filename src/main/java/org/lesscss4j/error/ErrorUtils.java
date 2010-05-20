@@ -41,8 +41,12 @@ public abstract class ErrorUtils {
                                    String message,
                                    LessCssException error) {
         if (errorHandler != null) {
+            if (error.getPosition() != null) {
+                pos = error.getPosition();
+            }
+            
             if (pos != null) {
-                message = "[" + pos.getLine() + ":" + pos.getChar() + "] - " + (message == null ? "" : message);
+                message = formatPosition(pos.getLine(), pos.getChar()) + " - " + (message == null ? "" : message);
             }
             errorHandler.handleError(message, error);
         }
@@ -52,9 +56,12 @@ public abstract class ErrorUtils {
     }
 
     public static void handleError(ErrorHandler errorHandler, RecognitionException error, BaseRecognizer parser) {
-        ParseError parseError = new ParseError(error, parser.getErrorHeader(error),
-                                               parser.getErrorMessage(error, parser.getTokenNames()));
-        handleError(errorHandler, null, null, parseError);
+        handleError(errorHandler, null, null,
+                    new ParseError(error, formatPosition(error.line, error.charPositionInLine),
+                                   parser.getErrorMessage(error, parser.getTokenNames())));
     }
 
+    public static String formatPosition(int lineNum, int charPos) {
+        return "[" + lineNum + ":" + charPos + "]";
+    }
 }

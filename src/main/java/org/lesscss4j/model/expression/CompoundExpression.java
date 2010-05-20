@@ -15,6 +15,7 @@
  */
 package org.lesscss4j.model.expression;
 
+import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.transform.EvaluationContext;
 
@@ -35,13 +36,20 @@ public class CompoundExpression extends AbstractElement implements Expression {
         Expression left = getLeft().evaluate(context);
         Expression right = getRight().evaluate(context);
         if (left instanceof ConstantExpression && right instanceof ConstantExpression) {
-            ConstantValue result = evaluate(((ConstantExpression) left).getValue(),
-                                     ((ConstantExpression) right).getValue());
-            if (result != null) {
-                return new ConstantExpression(result);
+            try {
+                ConstantValue result = evaluate(((ConstantExpression) left).getValue(),
+                                                ((ConstantExpression) right).getValue());
+                if (result != null) {
+                    return new ConstantExpression(result);
+                }
+            }
+            catch (LessCssException ex) {
+                if (ex.getPosition() == null) {
+                    ex.setPosition(left);
+                }
+                throw ex;
             }
         }
-
         return this;
     }
 

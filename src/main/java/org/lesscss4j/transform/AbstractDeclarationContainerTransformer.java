@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.lesscss4j.error.ErrorUtils;
 import org.lesscss4j.error.UndefinedMixinReference;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Declaration;
@@ -101,7 +102,8 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                         }
                     }
                     else {
-                        throw new UndefinedMixinReference("Mixin not found", mixin);
+                        ErrorUtils.handleError(context.getErrorHandler(), mixin,
+                                               new UndefinedMixinReference(mixin));
                     }
                 }
             }
