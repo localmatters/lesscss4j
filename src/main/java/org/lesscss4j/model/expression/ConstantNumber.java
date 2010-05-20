@@ -17,6 +17,7 @@ package org.lesscss4j.model.expression;
 
 import java.text.DecimalFormat;
 
+import org.lesscss4j.error.DivideByZeroException;
 import org.lesscss4j.error.UnitMismatchException;
 
 public class ConstantNumber implements ConstantValue {
@@ -111,7 +112,7 @@ public class ConstantNumber implements ConstantValue {
     public ConstantValue divide(ConstantValue right) {
         checkUnits(right);
         if (right.getValue() == 0.0) {
-            // todo: throw exception
+            throw new DivideByZeroException();
         }
         return new ConstantNumber(this.getValue() / right.getValue(), selectUnit(right));
     }

@@ -21,7 +21,6 @@ import java.util.List;
 import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.transform.EvaluationContext;
 
-// todo: extend ListExpression
 public class FunctionExpression extends AbstractElement implements Expression {
     private String _name;
     private List<Expression> _arguments;

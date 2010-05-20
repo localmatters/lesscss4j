@@ -84,4 +84,12 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
                       _writer.toString());
         assertEquals(3, _errorHandler.getErrorCount());
     }
+
+    public void testDivideByZero() throws IOException {
+        compileAndValidate("less/exceptions/divide-by-zero.less", null);
+        assertEquals( "divide-by-zero.less [1:4] - Division by zero.\n" +
+                      "divide-by-zero.less [2:4] - Division by zero.\n",
+                      _writer.toString());
+        assertEquals(2, _errorHandler.getErrorCount());
+    }
 }

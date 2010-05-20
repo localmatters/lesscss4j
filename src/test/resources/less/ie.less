@@ -12,7 +12,7 @@ body {
     width: expression(this.parentNode.offsetWidth + 'px');
     height: expression(this.parentNode.offsetHeight + 'px');
 
-    // todo: test var evaluation in the opacity value 
+    // test var evaluation in the opacity value for both IE8 and pre-IE8 
     filter: alpha(opacity = @opacity);
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=@opacity)";
 }

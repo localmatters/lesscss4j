@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.lesscss4j.error.DivideByZeroException;
 import org.lesscss4j.error.UnitMismatchException;
 
 public class ConstantColor implements ConstantValue {
@@ -253,7 +254,7 @@ public class ConstantColor implements ConstantValue {
     public ConstantValue divide(ConstantValue right) {
         checkUnits(right);
         if (right.getValue() == 0.0) {
-            // todo: throw exception
+            throw new DivideByZeroException();
         }
         return new ConstantColor((int) (getRed() / right.getValue()),
                                  (int) (getGreen() / right.getValue()),

@@ -75,7 +75,7 @@ public class RuleSetFactory extends AbstractObjectFactory<RuleSet> {
                     if (expr != null) {
                         String varName = child.getChild(0).getText();
                         if (ruleSet.getVariable(varName) != null) {
-                            // todo: error
+                            // todo: error -- duplicate error
                         }
                         ruleSet.setVariable(varName, expr);
 
