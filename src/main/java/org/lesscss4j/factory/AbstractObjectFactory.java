@@ -15,6 +15,7 @@
  */
 package org.lesscss4j.factory;
 
+import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.parser.antlr.LessCssParser;
 

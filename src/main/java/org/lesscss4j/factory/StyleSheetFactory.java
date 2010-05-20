@@ -23,7 +23,9 @@ import java.util.regex.Pattern;
 import org.antlr.runtime.tree.Tree;
 import org.apache.commons.io.FilenameUtils;
 import org.lesscss4j.error.ErrorHandler;
-import org.lesscss4j.error.ParseException;
+import org.lesscss4j.error.ErrorUtils;
+import org.lesscss4j.error.ImportException;
+import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
@@ -183,30 +185,31 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                                 Tree importNode,
                                 StyleSheetResource resource,
                                 ErrorHandler errorHandler) {
-        String path = cleanImportPath(importNode.getChild(0).getText());
+        String importUrl = importNode.getChild(0).getText();
+        try {
+            String path = cleanImportPath(importUrl);
 
-        // circular/duplicate import check
-        if (!stylesheet.getImports().contains(path)) {
-            stylesheet.addImport(path);
-            importStylesheet(path, resource, stylesheet, errorHandler);
+            // circular/duplicate import check
+            if (!stylesheet.getImports().contains(path)) {
+                stylesheet.addImport(path);
+                importStylesheet(path, resource, stylesheet, errorHandler);
+            }
+        }
+        catch (IOException e) {
+            ErrorUtils.handleError(errorHandler,
+                                   new AbstractElement(importNode.getLine(), importNode.getCharPositionInLine()),
+                                   new ImportException(e.getMessage(), importUrl, e));
         }
     }
 
     protected StyleSheet importStylesheet(String path,
                                           StyleSheetResource relativeTo,
                                           StyleSheet stylesheet,
-                                          ErrorHandler errorHandler) {
-        try {
+                                          ErrorHandler errorHandler) throws IOException {
             StyleSheetResource importResource = getImportResource(path, relativeTo);
             Tree result = getStyleSheetTreeParser().parseTree(importResource, errorHandler);
             processStyleSheet(stylesheet, result, importResource, errorHandler);
             return stylesheet;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-            // todo: throw some kind of Import related exception
-        }
     }
 
     protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo) throws IOException {
@@ -224,7 +227,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             return matcher.group(1);
         }
         else {
-            throw new ParseException("Unsupported import path:" + path, null);
+            throw new ImportException("Unsupported import path: ", path, null);
         }
     }
 

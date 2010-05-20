@@ -18,7 +18,9 @@ package org.lesscss4j.compile;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lesscss4j.error.WriterErrorHandler;
 
 public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
@@ -37,26 +39,48 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
 
     public void testMismatchedUnits() throws IOException {
         compileAndValidate("less/exceptions/mixed-units-error.less", null);
-        assertEquals(3, _errorHandler.getErrorCount());
         assertEquals("[1:4] - Unit mismatch: 1px 1%\n" +
                      "[5:4] - Unit mismatch: #000 1em\n" +
                      "[3:9] - Unit mismatch: 1px #fff\n",
                      _writer.toString());
+        assertEquals(3, _errorHandler.getErrorCount());
     }
 
     public void testUndefinedVariable() throws IOException {
         compileAndValidate("less/exceptions/name-error-1.0.less", null);
-        assertEquals(2, _errorHandler.getErrorCount());
         assertEquals("[1:5] - Undefined variable: @var\n" +
                      "[3:10] - Undefined variable: @var2\n",
                      _writer.toString());
+        assertEquals(2, _errorHandler.getErrorCount());
     }
 
     public void testMixinErrors() throws IOException {
         compileAndValidate("less/exceptions/mixin-error.less", null);
-        assertEquals(2, _errorHandler.getErrorCount());
         assertEquals("[2:2] - Undefined mixin: .mixin\n" +
                      "[2:10] - Undefined mixin: .mixout\n",
                      _writer.toString());
+        assertEquals(2, _errorHandler.getErrorCount());
+    }
+
+    public void testSyntaxErrors() throws IOException {
+        compileAndValidate("less/exceptions/syntax-error-1.0.less", null);
+        assertEquals("[2:14] - no viable alternative at input ';'\n" +
+                     "[3:0] - missing EOF at '}'\n",
+                     _writer.toString());
+        assertEquals(2, _errorHandler.getErrorCount());
+    }
+
+    public void testImportMissingError() throws IOException {
+        String resource = "less/exceptions/import-error.less";
+        compileAndValidate(resource, null);
+
+        URL url = getClass().getClassLoader().getResource(resource);
+        String baseDir = FilenameUtils.getFullPath(url.getPath());
+        
+        assertEquals( "[2:8] - Import error: \"bogus.less\": File '" + baseDir + "bogus.less' does not exist\n" +
+                      "[3:8] - Import error: 'missing.less': File '" + baseDir + "missing.less' does not exist\n" +
+                      "[1:8] - Import error: url(nope.less): File '" + baseDir + "nope.less' does not exist\n",
+                      _writer.toString());
+        assertEquals(3, _errorHandler.getErrorCount());
     }
 }

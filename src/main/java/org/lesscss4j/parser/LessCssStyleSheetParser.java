@@ -83,8 +83,12 @@ public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTree
     }
 
     public StyleSheet parse(StyleSheetResource input, ErrorHandler errorHandler) throws IOException {
-        return getStyleSheetFactory().create(new StyleSheetTree(parseTree(input, errorHandler), input), null);
-
+        Tree parseTree = parseTree(input, errorHandler);
+        StyleSheet styleSheet = null;
+        if (parseTree != null) {
+            styleSheet = getStyleSheetFactory().create(new StyleSheetTree(parseTree, input), errorHandler);
+        }
+        return styleSheet;
     }
 
     public Tree parseTree(StyleSheetResource input, ErrorHandler errorHandler) throws IOException {
@@ -93,7 +97,11 @@ public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTree
         try {
             parser.setErrorHandler(errorHandler);
             LessCssParser.styleSheet_return result = parser.styleSheet();
-            return (Tree) result.getTree();
+            Tree parseTree = null;
+            if (parser.getErrorCount() == 0) {
+                parseTree = (Tree) result.getTree();
+            }
+            return parseTree;
         }
         catch (RecognitionException e) {
             ErrorUtils.handleError(errorHandler, e, parser);

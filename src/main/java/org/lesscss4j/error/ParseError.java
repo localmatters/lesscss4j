@@ -18,20 +18,7 @@ package org.lesscss4j.error;
 import org.antlr.runtime.RecognitionException;
 
 public class ParseError extends LessCssException {
-    private String _header;
-    private String _message;
-
-    public ParseError(RecognitionException exception, String header, String message) {
-        super(header + " - " + message, exception);
-        _header = header;
-        _message = message;
-    }
-
-    public String getHeader() {
-        return _header;
-    }
-
-    public String getMessage() {
-        return _message;
+    public ParseError(String message, RecognitionException exception) {
+        super(message, exception);
     }
 }

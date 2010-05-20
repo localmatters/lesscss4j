@@ -57,8 +57,8 @@ public abstract class ErrorUtils {
 
     public static void handleError(ErrorHandler errorHandler, RecognitionException error, BaseRecognizer parser) {
         handleError(errorHandler, null, null,
-                    new ParseError(error, formatPosition(error.line, error.charPositionInLine),
-                                   parser.getErrorMessage(error, parser.getTokenNames())));
+                    new ParseError(formatPosition(error.line, error.charPositionInLine) + " - " +
+                                   parser.getErrorMessage(error, parser.getTokenNames()), error));
     }
 
     public static String formatPosition(int lineNum, int charPos) {

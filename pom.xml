@@ -111,13 +111,19 @@ package org.lesscss4j.parser.antlr;
 }
 @members {
     private ErrorHandler _errorHandler;
+    private int _errorCount = 0;
 
     public void setErrorHandler(ErrorHandler errorHandler) {
         _errorHandler = errorHandler;
     }
 
+    public int getErrorCount() {
+        return _errorCount;
+    }
+
     @Override
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        _errorCount++;
         ErrorUtils.handleError(_errorHandler, e, this);
     }
 }
