@@ -47,16 +47,16 @@ public class WriterErrorHandler extends AbstractErrorHandler {
                 logMessage = message + logMessage;
             }
 
-            getWriter().println(logMessage);
+            getWriter().println(getContextString() + logMessage);
             if (isLogStackTrace()) {
                 exception.printStackTrace(getWriter());
             }
         }
         else if (message != null) {
-            getWriter().println(message);
+            getWriter().println(getContextString() + message);
         }
         else {
-            getWriter().println("Unknown error");
+            getWriter().println(getContextString() + "Unknown error");
         }
     }
 }

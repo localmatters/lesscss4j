@@ -18,6 +18,7 @@ package org.lesscss4j.compile;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.output.StyleSheetWriter;
@@ -62,6 +63,10 @@ public class LessCssCompilerImpl implements LessCssCompiler {
     }
 
     public void compile(StyleSheetResource input, OutputStream output, ErrorHandler errorHandler) throws IOException {
+        if (errorHandler != null && input.getUrl() != null) {
+            // Set the context in the error handler to the name of the file we're reading.
+            errorHandler.setContext(FilenameUtils.getName(input.getUrl().getPath()));
+        }
         StyleSheet styleSheet = getStyleSheetParser().parse(input, errorHandler);
 
         if (errorHandler == null || errorHandler.getErrorCount() == 0) {

@@ -20,17 +20,17 @@ public class ExceptionThrowingErrorHandler extends AbstractErrorHandler {
         super.handleError(message, exception);
         if (exception != null) {
             if (message != null) {
-                throw new LessCssException(message, exception);
+                throw new LessCssException(getContextString() + message, exception);
             }
             else {
-                throw new LessCssException(exception);
+                throw new LessCssException(getContextString(), exception);
             }
         }
         else if (message != null) {
-            throw new LessCssException(message);
+            throw new LessCssException(getContextString() + message);
         }
         else {
-            throw new LessCssException("Unknown error");
+            throw new LessCssException(getContextString() + "Unknown error");
         }
     }
 }

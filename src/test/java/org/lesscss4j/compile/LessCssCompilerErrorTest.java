@@ -39,34 +39,34 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
 
     public void testMismatchedUnits() throws IOException {
         compileAndValidate("less/exceptions/mixed-units-error.less", null);
-        assertEquals("[1:4] - Unit mismatch: 1px 1%\n" +
-                     "[5:4] - Unit mismatch: #000 1em\n" +
-                     "[3:9] - Unit mismatch: 1px #fff\n",
+        assertEquals("mixed-units-error.less [1:4] - Unit mismatch: 1px 1%\n" +
+                     "mixed-units-error.less [5:4] - Unit mismatch: #000 1em\n" +
+                     "mixed-units-error.less [3:9] - Unit mismatch: 1px #fff\n",
                      _writer.toString());
         assertEquals(3, _errorHandler.getErrorCount());
     }
 
     public void testUndefinedVariable() throws IOException {
         compileAndValidate("less/exceptions/name-error-1.0.less", null);
-        assertEquals("[1:5] - Undefined variable: @var\n" +
-                     "[3:10] - Undefined variable: @var2\n",
+        assertEquals("name-error-1.0.less [1:5] - Undefined variable: @var\n" +
+                     "name-error-1.0.less [3:10] - Undefined variable: @var2\n",
                      _writer.toString());
         assertEquals(2, _errorHandler.getErrorCount());
     }
 
     public void testMixinErrors() throws IOException {
         compileAndValidate("less/exceptions/mixin-error.less", null);
-        assertEquals("[2:2] - Undefined mixin: .mixin\n" +
-                     "[2:10] - Undefined mixin: .mixout\n" +
-                     "[11:2] - Mixin argument mismatch. Expected maximum of 2 but got 3.\n",
+        assertEquals("mixin-error.less [2:2] - Undefined mixin: .mixin\n" +
+                     "mixin-error.less [2:10] - Undefined mixin: .mixout\n" +
+                     "mixin-error.less [11:2] - Mixin argument mismatch. Expected maximum of 2 but got 3.\n",
                      _writer.toString());
         assertEquals(3, _errorHandler.getErrorCount());
     }
 
     public void testSyntaxErrors() throws IOException {
         compileAndValidate("less/exceptions/syntax-error-1.0.less", null);
-        assertEquals("[2:14] - no viable alternative at input ';'\n" +
-                     "[3:0] - missing EOF at '}'\n",
+        assertEquals("syntax-error-1.0.less [2:14] - no viable alternative at input ';'\n" +
+                     "syntax-error-1.0.less [3:0] - missing EOF at '}'\n",
                      _writer.toString());
         assertEquals(2, _errorHandler.getErrorCount());
     }
@@ -78,9 +78,9 @@ public class LessCssCompilerErrorTest extends AbstractLessCssCompilerTest {
         URL url = getClass().getClassLoader().getResource(resource);
         String baseDir = FilenameUtils.getFullPath(url.getPath());
         
-        assertEquals( "[2:8] - Import error: \"bogus.less\": File '" + baseDir + "bogus.less' does not exist\n" +
-                      "[3:8] - Import error: 'missing.less': File '" + baseDir + "missing.less' does not exist\n" +
-                      "[1:8] - Import error: url(nope.less): File '" + baseDir + "nope.less' does not exist\n",
+        assertEquals( "import-error.less [2:8] - Import error: \"bogus.less\": File '" + baseDir + "bogus.less' does not exist\n" +
+                      "imported-with-error.less [1:8] - Import error: url(nope.less): File '" + baseDir + "nope.less' does not exist\n" +
+                      "import-error.less [4:8] - Import error: 'missing.less': File '" + baseDir + "missing.less' does not exist\n",
                       _writer.toString());
         assertEquals(3, _errorHandler.getErrorCount());
     }

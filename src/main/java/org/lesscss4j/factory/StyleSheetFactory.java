@@ -206,10 +206,22 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                                           StyleSheetResource relativeTo,
                                           StyleSheet stylesheet,
                                           ErrorHandler errorHandler) throws IOException {
+        Object saveContext = null;
+        if (errorHandler != null) {
+            saveContext = errorHandler.getContext();
+            errorHandler.setContext(path);
+        }
+        try {
             StyleSheetResource importResource = getImportResource(path, relativeTo);
             Tree result = getStyleSheetTreeParser().parseTree(importResource, errorHandler);
             processStyleSheet(stylesheet, result, importResource, errorHandler);
             return stylesheet;
+        }
+        finally {
+            if (errorHandler != null) {
+                errorHandler.setContext(saveContext);
+            }
+        }
     }
 
     protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo) throws IOException {

@@ -17,6 +17,19 @@ package org.lesscss4j.error;
 
 public class AbstractErrorHandler implements ErrorHandler {
     private int _errorCount = 0;
+    private Object _context;
+
+    public Object getContext() {
+        return _context;
+    }
+
+    public String getContextString() {
+        return _context != null ? _context.toString() + ' ' : "";
+    }
+
+    public void setContext(Object context) {
+        _context = context;
+    }
 
     public void handleError(String message, Throwable exception) {
         _errorCount++;
