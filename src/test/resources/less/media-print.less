@@ -1,0 +1,16 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    button.btn {
+        padding: 0 15px 0 0;
+    }
+}
+
+@media print,speech{
+    @var: blue;
+    @var2: orange;
+
+    div.text {
+        @var2: green;
+        color: @var;
+        background-color: @var2;
+    }
+}

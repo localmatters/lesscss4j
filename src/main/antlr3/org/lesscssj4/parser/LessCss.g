@@ -36,6 +36,7 @@ tokens {
     MIXIN_REF;
     MIXIN_MACRO;
     MIXIN_ARG;
+    MEDIA_EXPR;
 }
 
 //@@JAVA@@
@@ -85,14 +86,27 @@ media
         LBRACE WS*
             (ruleList WS*)*
         RBRACE
-    -> ^(MEDIA_SYM medium+ ruleList*)
+    -> ^(MEDIA_SYM ^(MEDIA_EXPR medium)+ ruleList*)
     ;
 
 // ---------    
 // Medium.  The name of a medim that are particulare set of rules applies to.
 //
 medium
+    : ((ONLY | NOT) WS+)? mediaType (WS+ AND WS+ mediaExpression)*
+    | mediaExpression (WS+ AND WS+ mediaExpression)*
+    ;
+    
+mediaType
     : ident 
+    ;
+    
+mediaExpression
+    : LPAREN WS* mediaFeature (WS* COLON WS* (ident | numberOrColor))? WS* RPAREN
+    ;
+    
+mediaFeature
+    : ident
     ;
     
 bodyset
@@ -454,6 +468,9 @@ identNoFont
     | MEDIA_SYM
     | IMPORT_SYM
     | PAGE_SYM
+    | AND
+    | ONLY
+    | NOT
     ;
     
 ident
@@ -649,6 +666,9 @@ PAGE_SYM   : P A G E                    ;
 MEDIA_SYM  : M E D I A                  ;
 FONT_FACE  : F O N T '-' F A C E        ;
 FONT       : F O N T                    ;
+ONLY       : O N L Y                    ;
+NOT        : N O T                      ;
+AND        : A N D                      ;
 
 RGB_COLOR
     : R G B   WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN

@@ -97,6 +97,10 @@ public class LessCssCompilerTest extends AbstractLessCssCompilerTest {
         compileAndValidate("less/css-big.less", "css/css-big.css");
     }
 
+    public void testMediaAndPrint() throws IOException {
+        compileAndValidate("less/media-print.less", "css/media-print.css");
+    }
+    
     public void testBigCssFileCompareToSelf()  throws IOException {
         compileAndValidate("css/big.css", "css/big.css", new Comparator<String>() {
             public int compare(String expected, String actual) {

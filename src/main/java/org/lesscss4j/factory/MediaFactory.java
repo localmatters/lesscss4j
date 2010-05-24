@@ -50,8 +50,8 @@ public class MediaFactory extends AbstractObjectFactory<Media> {
         for (int idx = 0, numChildren = mediaNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = mediaNode.getChild(idx);
             switch (child.getType()) {
-                case IDENT:
-                    media.addMedium(child.getText());
+                case MEDIA_EXPR:
+                    media.addMedium(concatChildNodeText(child));
                     break;
 
                 case RULESET:
