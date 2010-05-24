@@ -29,7 +29,7 @@ import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.parser.UrlStyleSheetResource;
 import org.lesscss4j.spring.LessCssCompilerFactoryBean;
 
-public class AbstractLessCssCompilerTest extends TestCase {
+public abstract class AbstractLessCssCompilerTest extends TestCase {
     public static final String ENCODING = "UTF-8";
 
     protected LessCssCompiler _compiler;
