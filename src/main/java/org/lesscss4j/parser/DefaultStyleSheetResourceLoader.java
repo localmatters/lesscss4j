@@ -1,5 +1,5 @@
 /**
- * File: ResourceUtils.java
+ * File: StyleSheetResourceLoader.java
  *
  * Author: David Hay (dhay@localmatters.com)
  * Creation Date: May 18, 2010
@@ -17,8 +17,8 @@ package org.lesscss4j.parser;
 
 import java.net.URL;
 
-public abstract class ResourceUtils {
-    public static StyleSheetResource getResourceForUrl(URL url) {
+public class DefaultStyleSheetResourceLoader implements StyleSheetResourceLoader {
+    public StyleSheetResource getResource(URL url) {
         if ("file".equals(url.getProtocol())) {
             return new FileStyleSheetResource(url.getPath());
         }

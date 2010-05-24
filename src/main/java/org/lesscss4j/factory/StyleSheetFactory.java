@@ -31,7 +31,8 @@ import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
 import org.lesscss4j.model.expression.Expression;
-import org.lesscss4j.parser.ResourceUtils;
+import org.lesscss4j.parser.DefaultStyleSheetResourceLoader;
+import org.lesscss4j.parser.StyleSheetResourceLoader;
 import org.lesscss4j.parser.StyleSheetResource;
 import org.lesscss4j.parser.StyleSheetTree;
 import org.lesscss4j.parser.StyleSheetTreeParser;
@@ -44,6 +45,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<Page> _pageFactory;
     private ObjectFactory<Expression> _expressionFactory;
     private StyleSheetTreeParser _styleSheetTreeParser;
+    private StyleSheetResourceLoader _styleSheetResourceLoader = new DefaultStyleSheetResourceLoader();
 
     /**
      * Pattern to extract the path from an <code>@import</code> statement.
@@ -202,7 +204,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         }
     }
 
-    protected StyleSheet importStylesheet(String path,
+    protected void importStylesheet(String path,
                                           StyleSheetResource relativeTo,
                                           StyleSheet stylesheet,
                                           ErrorHandler errorHandler) throws IOException {
@@ -213,9 +215,11 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         }
         try {
             StyleSheetResource importResource = getImportResource(path, relativeTo);
+            int preImportErrorCount = errorHandler != null ? errorHandler.getErrorCount() : 0;
             Tree result = getStyleSheetTreeParser().parseTree(importResource, errorHandler);
-            processStyleSheet(stylesheet, result, importResource, errorHandler);
-            return stylesheet;
+            if (errorHandler == null || preImportErrorCount == errorHandler.getErrorCount()) {
+                processStyleSheet(stylesheet, result, importResource, errorHandler);
+            }
         }
         finally {
             if (errorHandler != null) {
@@ -225,12 +229,19 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     }
 
     protected StyleSheetResource getImportResource(String path, StyleSheetResource relativeTo) throws IOException {
-        String extension = FilenameUtils.getExtension(path);
-        if (extension == null || (!extension.equals("css") && !extension.equals("less"))) {
-            path = path + ".less";
+        URL importUrl;
+        if (isAbsoluteUrl(path)) {
+            importUrl = new URL(path);
         }
-        URL importUrl = new URL(relativeTo.getUrl(), path);
-        return ResourceUtils.getResourceForUrl(importUrl);
+        else {
+            String extension = FilenameUtils.getExtension(path);
+            if (extension == null || (!extension.equals("css") && !extension.equals("less"))) {
+                path = path + ".less";
+            }
+            importUrl = new URL(relativeTo.getUrl(), path);
+        }
+
+        return getStyleSheetResourceLoader().getResource(importUrl);
     }
 
     protected String cleanImportPath(String path) {
@@ -241,6 +252,62 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         else {
             throw new ImportException("Unsupported import path: ", path, null);
         }
+    }
+
+    public StyleSheetResourceLoader getStyleSheetResourceLoader() {
+        return _styleSheetResourceLoader;
+    }
+
+    public void setStyleSheetResourceLoader(StyleSheetResourceLoader styleSheetResourceLoader) {
+        _styleSheetResourceLoader = styleSheetResourceLoader;
+    }
+
+    /**
+     * Valid characters in a scheme.
+     * <p/>
+     * RFC 1738 says the following:
+     * <p/>
+     * <blockquote> Scheme names consist of a sequence of characters. The lower case letters "a"--"z",
+     * digits, and the characters plus ("+"), period ("."), and hyphen ("-") are allowed. For resiliency,
+     * programs interpreting URLs should treat upper case letters as equivalent to lower case in scheme
+     * names (e.g., allow "HTTP" as well as "http"). </blockquote>
+     * <p/>
+     * We treat as absolute any URL that begins with such a scheme name, followed by a colon.
+     */
+    public static final String VALID_SCHEME_CHARS =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+.-";
+
+    /**
+     * Determines if the given URL is absolute or not.  An absolute url starts with a scheme and colon.
+     * (i.e. http:, ftp:, etc.)
+     * <p/>
+     * This is copied from apache taglibs ImportSupport class
+     *
+     * @param url The url to check
+     * @return True if the url is an absolute url.
+     */
+    public static boolean isAbsoluteUrl(String url) {
+        // a null URL is not absolute, by our definition
+        if (url == null) {
+            return false;
+        }
+
+        // do a fast, simple check first
+        int colonPos;
+        if ((colonPos = url.indexOf(":")) == -1) {
+            return false;
+        }
+
+        // if we DO have a colon, make sure that every character
+        // leading up to it is a valid scheme character
+        for (int i = 0; i < colonPos; i++) {
+            if (VALID_SCHEME_CHARS.indexOf(url.charAt(i)) == -1) {
+                return false;
+            }
+        }
+
+        // if so, we've got an absolute url
+        return true;
     }
 
     public static ObjectFactory<StyleSheet> createDefaultObjectFactory() {

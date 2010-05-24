@@ -31,7 +31,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.compile.LessCssCompilerImpl;
 import org.lesscss4j.output.StyleSheetWriterImpl;
-import org.lesscss4j.parser.ResourceUtils;
+import org.lesscss4j.parser.StyleSheetResourceLoader;
+import org.lesscss4j.parser.DefaultStyleSheetResourceLoader;
 
 public class LessCssServlet extends HttpServlet {
     public static final long CACHE_FOREVER = -1;
@@ -67,6 +68,8 @@ public class LessCssServlet extends HttpServlet {
 
     /** The compiler to use */
     private LessCssCompiler _lessCompiler = new LessCssCompilerImpl();
+
+    private StyleSheetResourceLoader _styleSheetResourceLoader = new DefaultStyleSheetResourceLoader();
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -272,7 +275,7 @@ public class LessCssServlet extends HttpServlet {
             URL url = getServletContext().getResource(resource);
             if (url != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                getLessCompiler().compile(ResourceUtils.getResourceForUrl(url), output, null);
+                getLessCompiler().compile(getStyleSheetResourceLoader().getResource(url), output, null);
                 return output.toByteArray();
             }
             else {
@@ -283,6 +286,14 @@ public class LessCssServlet extends HttpServlet {
             getServletContext().log("Unable to compile resource: " + resource, ex);
         }
         return null;
+    }
+
+    public StyleSheetResourceLoader getStyleSheetResourceLoader() {
+        return _styleSheetResourceLoader;
+    }
+
+    public void setStyleSheetResourceLoader(StyleSheetResourceLoader styleSheetResourceLoader) {
+        _styleSheetResourceLoader = styleSheetResourceLoader;
     }
 
     public long getCacheMillis() {

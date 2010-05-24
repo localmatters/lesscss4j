@@ -17,11 +17,13 @@ package org.lesscss4j.spring;
 
 import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.compile.LessCssCompilerImpl;
+import org.lesscss4j.factory.StyleSheetFactory;
 import org.lesscss4j.output.PrettyPrintOptions;
 import org.lesscss4j.output.StyleSheetWriter;
 import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
+import org.lesscss4j.parser.StyleSheetResourceLoader;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
@@ -34,6 +36,15 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
     private Integer _readBufferSize;
     private Boolean _prettyPrintEnabled;
     private PrettyPrintOptions _prettyPrintOptions;
+    private StyleSheetResourceLoader _styleSheetResourceLoader;
+
+    public StyleSheetResourceLoader getStyleSheetResourceLoader() {
+        return _styleSheetResourceLoader;
+    }
+
+    public void setStyleSheetResourceLoader(StyleSheetResourceLoader styleSheetResourceLoader) {
+        _styleSheetResourceLoader = styleSheetResourceLoader;
+    }
 
     public String getDefaultEncoding() {
         return _defaultEncoding;
@@ -65,6 +76,14 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setPrettyPrintEnabled(Boolean prettyPrintEnabled) {
         _prettyPrintEnabled = prettyPrintEnabled;
+    }
+
+    public void setCompressionEnabled(Boolean compressionEnabled) {
+        setPrettyPrintEnabled(compressionEnabled == null ? null : !compressionEnabled);
+    }
+
+    public Boolean isCompressionEnabled() {
+        return getPrettyPrintEnabled() == null ? null : !getPrettyPrintEnabled();
     }
 
     public PrettyPrintOptions getPrettyPrintOptions() {
@@ -111,6 +130,10 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
         }
         if (getInitialBufferSize() != null) {
             parser.setInitialBufferSize(getInitialBufferSize());
+        }
+        if (getStyleSheetResourceLoader() != null) {
+            ((StyleSheetFactory) parser.getStyleSheetFactory())
+                .setStyleSheetResourceLoader(getStyleSheetResourceLoader());
         }
     }
 }

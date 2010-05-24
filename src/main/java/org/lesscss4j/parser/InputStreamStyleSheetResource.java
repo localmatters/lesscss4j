@@ -21,9 +21,15 @@ import java.net.URL;
 
 public class InputStreamStyleSheetResource implements StyleSheetResource {
     private InputStream _inputStream;
+    private URL _url;
 
     public InputStreamStyleSheetResource(InputStream inputStream) {
+        this(inputStream, null);
+    }
+
+    public InputStreamStyleSheetResource(InputStream inputStream, URL url) {
         _inputStream = inputStream;
+        _url = url;
     }
 
     public InputStream getInputStream() throws IOException {
@@ -31,6 +37,6 @@ public class InputStreamStyleSheetResource implements StyleSheetResource {
     }
 
     public URL getUrl() {
-        return null;
+        return _url;
     }
 }
