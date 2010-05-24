@@ -378,7 +378,9 @@ property
 // Added optional EOF tokens so that this rule can be called directly.  This
 // is necessary to support IE8 Alpha expressions
 propertyValue
-    : propertyTermNoExpr (propTermSep propertyTerm)* EOF?
+    // The SOLIDUS in the first branch is necessary in order to parse declarations of the form:
+    //     cursor: url(img/cursors/grab.cur), default/9;
+    : propertyTermNoExpr ((propTermSep|WS* SOLIDUS WS*) propertyTerm)* EOF?
     | (primaryExpression propTermSep propertyTerm)=>propertyTermExpression (propTermSep propertyTerm)+ EOF?
     | additiveExpression EOF? -> ^(EXPR additiveExpression)
     ;
