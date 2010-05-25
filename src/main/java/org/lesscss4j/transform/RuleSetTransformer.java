@@ -23,18 +23,22 @@ import org.lesscss4j.model.RuleSet;
 
 public class RuleSetTransformer extends AbstractDeclarationContainerTransformer<RuleSet> {
     public List<RuleSet> transform(RuleSet ruleSet, EvaluationContext context) {
-        RuleSet transformed = ruleSet.clone();
-        
+        RuleSet transformed;
+
         // Rule sets with arguments shouldn't be processed since they serve
         // only as a template for use by other rule sets in the stylesheet.
+        List<RuleSet> ruleSetList;
         if (ruleSet.getArguments().size() > 0) {
-            return Arrays.asList(ruleSet);
+            transformed = new RuleSet(ruleSet);
+            ruleSetList = Arrays.asList(transformed);
         }
+        else {
+            transformed = new RuleSet(ruleSet, false);
 
-        transformed.clearDeclarations();
-        List<RuleSet> ruleSetList = new ArrayList<RuleSet>();
-        ruleSetList.add(transformed);
-        doTransform(ruleSet, ruleSetList, context);
+            ruleSetList = new ArrayList<RuleSet>();
+            ruleSetList.add(transformed);
+            doTransform(ruleSet, ruleSetList, context);
+        }
         return ruleSetList;
     }
 }

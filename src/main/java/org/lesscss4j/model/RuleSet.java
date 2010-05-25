@@ -31,7 +31,11 @@ public class RuleSet extends DeclarationContainer implements BodyElement, Clonea
     }
 
     public RuleSet(RuleSet copy) {
-        super(copy);
+        this(copy, true);
+    }
+
+    public RuleSet(RuleSet copy, boolean copyDeclarations) {
+        super(copy, copyDeclarations);
         if (copy._selectors != null) {
             _selectors = new ArrayList<Selector>(copy._selectors.size());
             for (Selector selector : copy._selectors) {

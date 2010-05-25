@@ -35,7 +35,6 @@ public class MediaTransformer extends AbstractTransformer<Media> {
 
     public List<Media> transform(Media media, EvaluationContext context) {
         Media transformed = new Media(media, false);
-        transformed.clearBodyElements();
         evaluateVariables(media, transformed, context);
         transformBodyElements(media, transformed, context);
         return Arrays.asList(transformed);
