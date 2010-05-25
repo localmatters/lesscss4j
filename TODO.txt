@@ -1,7 +1,1 @@
-- mixin property references
-- Better error handling
-  - warnings/errors
-  - Report as many errors as possible (don't break on first one)
-  - Try to recover from errors (e.g. ignore missing imports, etc.)
-  - Parser.displayRecognitionError (in pom.xml) sends error to error handler
-  - ErrorHandler interface...handles warnings, errors.  
+- Profile the compiler
