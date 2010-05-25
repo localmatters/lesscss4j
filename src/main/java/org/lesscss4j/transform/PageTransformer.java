@@ -15,7 +15,15 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.lesscss4j.model.Page;
 
 public class PageTransformer extends AbstractDeclarationContainerTransformer<Page> {
+    public List<Page> transform(Page page, EvaluationContext context) {
+        List<Page> pageList = Arrays.asList(new Page(page, false));
+        doTransform(page, pageList, context);
+        return pageList;
+    }
 }

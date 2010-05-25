@@ -36,6 +36,7 @@ tokens {
     MIXIN_REF;
     MIXIN_MACRO;
     MIXIN_ARG;
+    MIXIN_ACCESSOR;
     MEDIA_EXPR;
 }
 
@@ -381,8 +382,19 @@ propertyValue
     // The SOLIDUS in the first branch is necessary in order to parse declarations of the form:
     //     cursor: url(img/cursors/grab.cur), default/9;
     : propertyTermNoExpr ((propTermSep|WS* SOLIDUS WS*) propertyTerm)* EOF?
+    | (mixinMacroSelector WS* LBRACKET)=>mixinAccessor EOF?
     | (primaryExpression propTermSep propertyTerm)=>propertyTermExpression (propTermSep propertyTerm)+ EOF?
     | additiveExpression EOF? -> ^(EXPR additiveExpression)
+    ;
+    
+mixinAccessor
+    : mixinMacroSelector WS* LBRACKET WS* mixinAccessorItem WS* RBRACKET
+    -> ^(MIXIN_ACCESSOR ^(SELECTOR mixinMacroSelector) mixinAccessorItem)
+    ;
+
+mixinAccessorItem
+    : STRING
+    | variable -> ^(VAR variable)
     ;
 
 propertyTermExpression
@@ -405,7 +417,7 @@ functionPred
         
 propertyTerm
     : propertyTermNoExpr
-    | primaryExpression   -> ^(EXPR primaryExpression)
+    | propertyTermExpression
     ;
 
 // Internet Explorer specific functions

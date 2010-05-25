@@ -2,6 +2,14 @@
 .mixout { border-color: orange; }
 .borders { border-style: dashed; }
 
+.magic-box {
+  width: 60cm;
+  height: 40cm;
+  #lock {
+    color: silver;
+  }
+}
+
 #namespace {
   .borders {
     border-style: dotted;
@@ -40,4 +48,9 @@
 .secure-zone { #namespace .biohazard .man; }
 .direct {
   #namespace  .borders;
+}
+
+.nested {
+  .magic-box;
+  background-color: blue;
 }

@@ -28,6 +28,12 @@ public class ConstantNumber implements ConstantValue {
         this(0, null);
     }
 
+
+    public ConstantNumber(ConstantNumber copy) {
+        _value = copy._value;
+        _unit = copy._unit;
+    }
+
     public ConstantNumber(double value, String unit) {
         setValue(value);
         setUnit(unit);
@@ -146,5 +152,9 @@ public class ConstantNumber implements ConstantValue {
         result = (int) (temp ^ (temp >>> 32));
         result = 31 * result + (_unit != null ? _unit.hashCode() : 0);
         return result;
+    }
+
+    public ConstantNumber clone() {
+        return new ConstantNumber(this);
     }
 }

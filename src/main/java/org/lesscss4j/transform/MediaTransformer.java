@@ -15,6 +15,9 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
@@ -30,20 +33,28 @@ public class MediaTransformer extends AbstractTransformer<Media> {
         _ruleSetTransformer = ruleSetTransformer;
     }
 
-    public void transform(Media media, EvaluationContext context) {
-        evaluateVariables(media, context);
-        transformBodyElements(media, context);
+    public List<Media> transform(Media media, EvaluationContext context) {
+        Media transformed = new Media(media, false);
+        transformed.clearBodyElements();
+        evaluateVariables(media, transformed, context);
+        transformBodyElements(media, transformed, context);
+        return Arrays.asList(transformed);
     }
 
-    protected void transformBodyElements(Media media, EvaluationContext context) {
+    protected void transformBodyElements(Media media, Media transformed, EvaluationContext context) {
         EvaluationContext mediaContext = new EvaluationContext();
         mediaContext.setParentContext(context);
-        mediaContext.setVariableContainer(media);
-        mediaContext.setRuleSetContainer(media);
+        mediaContext.setVariableContainer(transformed);
+        mediaContext.setRuleSetContainer(transformed);
 
         for (BodyElement element : media.getBodyElements()) {
             if (element instanceof RuleSet) {
-                getRuleSetTransformer().transform((RuleSet) element, mediaContext);
+                List<RuleSet> transformedRuleSets = getRuleSetTransformer().transform((RuleSet) element, mediaContext);
+                if (transformedRuleSets != null) {
+                    for (RuleSet ruleSet : transformedRuleSets) {
+                        transformed.addBodyElement(ruleSet);
+                    }
+                }
             }
             else {
                 throw new IllegalStateException(

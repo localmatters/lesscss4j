@@ -15,7 +15,7 @@
  */
 package org.lesscss4j.model.expression;
 
-public interface ConstantValue {
+public interface ConstantValue extends Cloneable {
     double getValue();
 
     ConstantValue add(ConstantValue right);
@@ -25,4 +25,6 @@ public interface ConstantValue {
     ConstantValue multiply(ConstantValue right);
 
     ConstantValue divide(ConstantValue right);
+
+    ConstantValue clone();
 }

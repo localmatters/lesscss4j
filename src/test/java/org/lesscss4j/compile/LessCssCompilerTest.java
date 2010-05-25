@@ -97,8 +97,12 @@ public class LessCssCompilerTest extends AbstractLessCssCompilerTest {
         compileAndValidate("less/css-big.less", "css/css-big.css");
     }
 
-    public void testMediaAndPrint() throws IOException {
-        compileAndValidate("less/media-print.less", "css/media-print.css");
+    public void testMediaAndPage() throws IOException {
+        compileAndValidate("less/media-page.less", "css/media-page.css");
+    }
+
+    public void testAccessors() throws IOException {
+        compileAndValidate("less/accessors.less", "css/accessors.css");
     }
     
     public void testBigCssFileCompareToSelf()  throws IOException {

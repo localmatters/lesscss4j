@@ -29,7 +29,9 @@ public class MixinReference extends AbstractElement implements DeclarationElemen
 
     public MixinReference(MixinReference copy) {
         _selector = copy._selector.clone();
-        _arguments = new ArrayList<Expression>(copy._arguments); // todo: deep copy necessary?
+        for (Expression argument : copy._arguments) {
+            _arguments.add(argument.clone());
+        }
     }
 
     public Selector getSelector() {

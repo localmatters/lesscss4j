@@ -19,7 +19,7 @@ import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.transform.EvaluationContext;
 
-public class CompoundExpression extends AbstractElement implements Expression {
+public abstract class CompoundExpression extends AbstractElement implements Expression {
     private Expression _left;
     private Expression _right;
 
@@ -30,6 +30,12 @@ public class CompoundExpression extends AbstractElement implements Expression {
     public CompoundExpression(Expression left, Expression right) {
         setLeft(left);
         setRight(right);
+    }
+
+    public CompoundExpression(CompoundExpression copy) {
+        super(copy);
+        _left = copy._left.clone();
+        _right = copy._right.clone();
     }
 
     public Expression evaluate(EvaluationContext context) {
@@ -71,5 +77,9 @@ public class CompoundExpression extends AbstractElement implements Expression {
 
     public void setRight(Expression right) {
         _right = right;
+    }
+
+    public CompoundExpression clone() {
+        throw new UnsupportedOperationException("Subclasses must override clone()");
     }
 }

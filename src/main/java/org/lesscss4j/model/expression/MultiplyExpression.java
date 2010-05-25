@@ -19,6 +19,10 @@ public class MultiplyExpression extends CompoundExpression {
     public MultiplyExpression() {
     }
 
+    public MultiplyExpression(MultiplyExpression copy) {
+        super(copy);
+    }
+
     public MultiplyExpression(Expression left, Expression right) {
         super(left, right);
     }
@@ -26,5 +30,10 @@ public class MultiplyExpression extends CompoundExpression {
     @Override
     public ConstantValue evaluate(ConstantValue left, ConstantValue right) {
         return left.multiply(right);
+    }
+
+    @Override
+    public MultiplyExpression clone() {
+        return new MultiplyExpression(this);
     }
 }

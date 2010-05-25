@@ -18,6 +18,7 @@ package org.lesscss4j.model.expression;
 import org.lesscss4j.model.PositionAware;
 import org.lesscss4j.transform.EvaluationContext;
 
-public interface Expression extends PositionAware {
+public interface Expression extends PositionAware, Cloneable {
     Expression evaluate(EvaluationContext context);
+    Expression clone();
 }

@@ -56,87 +56,115 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
         _declarationTransformer = declarationTransformer;
     }
 
-    protected void transformDeclarations(DeclarationContainer container, EvaluationContext context) {
-        EvaluationContext declContext = new EvaluationContext();
-        declContext.setParentContext(context);
-        declContext.setVariableContainer(container);
-        declContext.setRuleSetContainer(container);
+    protected void transformDeclarations(T container, T transformed, EvaluationContext context) {
 
         if (!container.isMixinReferenceUsed()) {
-            // No need to create the flattened declaration map.  Just transform the declarations in place
+            EvaluationContext declContext = new EvaluationContext();
+            declContext.setParentContext(context);
+            declContext.setVariableContainer(container);
+            declContext.setRuleSetContainer(container);
+
             for (DeclarationElement declaration : container.getDeclarations()) {
                 if (declaration instanceof Declaration) {
-                    getDeclarationTransformer().transform((Declaration) declaration, declContext);
+                    transformed.addDeclarations(
+                                getDeclarationTransformer().transform((Declaration) declaration, declContext));
+                }
+                else {
+                    // todo: error
                 }
             }
         }
         else {
-
-            // Insert any mixin references into the declaration list.  Then evaluate them all at the end.
-            List<Declaration> flattenedDeclarations = new ArrayList<Declaration>(container.getDeclarations().size());
-            for (DeclarationElement declaration : container.getDeclarations()) {
-                if (declaration instanceof Declaration) {
-                    flattenedDeclarations.add((Declaration) declaration);
-                }
-                else if (declaration instanceof MixinReference) {
-                    MixinReference mixin = (MixinReference) declaration;
-                    try {
-                        Selector selector = mixin.getSelector();
-                        List<RuleSet> ruleSetList = context.getRuleSet(selector);
-                        if (ruleSetList != null) {
-                            for (RuleSet ruleSet : ruleSetList) {
-                                if (ruleSet.isMixinReferenceUsed()) {
-                                    throw new UndefinedMixinReference("Mixins must be defined before their use", mixin);
-                                }
-
-                                ruleSet = evaluateMixinArguments(ruleSet, mixin, declContext);
-
-                                for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext();) {
-                                    String varName = iter.next();
-                                    Expression expression = ruleSet.getVariable(varName);
-                                    container.setVariable(varName, expression);
-
-                                }
-                                for (DeclarationElement element : ruleSet.getDeclarations()) {
-                                    if (element instanceof Declaration) {
-                                        flattenedDeclarations.add((Declaration) element);
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            throw new UndefinedMixinReference(mixin);
-                        }
-                    }
-                    catch (LessCssException ex) {
-                        ErrorUtils.handleError(context.getErrorHandler(), mixin, ex);
-                    }
-                }
-            }
-
-            container.clearDeclarations();
-            for (Declaration declaration : flattenedDeclarations) {
-                getDeclarationTransformer().transform(declaration, declContext);
-                container.addDeclaration(declaration);
-            }
+            transformDeclarationsWithMixins(container, transformed, context);
         }
     }
 
-    protected RuleSet evaluateMixinArguments(RuleSet ruleSet, MixinReference mixin, EvaluationContext declContext) {
-        EvaluationContext context = declContext.getParentContext();
+    private void transformDeclarationsWithMixins(DeclarationContainer container,
+                                                 DeclarationContainer transformed,
+                                                 EvaluationContext context) {
+
+        EvaluationContext declContext = new EvaluationContext();
+        declContext.setParentContext(context);
+        declContext.setVariableContainer(transformed);
+        declContext.setRuleSetContainer(transformed);
+
+
+        // Mixins might define additional variables referenced by declaration values.
+        // So we need to process all of the mixins before we transform the declarations.
+        List<Declaration> declarationList = new ArrayList<Declaration>(container.getDeclarations().size());
+        for (DeclarationElement declaration : container.getDeclarations()) {
+            if (declaration instanceof Declaration) {
+                declarationList.add((Declaration) declaration);
+            }
+            else if (declaration instanceof MixinReference) {
+                MixinReference mixin = (MixinReference) declaration;
+                try {
+                    Selector selector = mixin.getSelector();
+                    List<RuleSet> ruleSetList = context.getRuleSet(selector);
+                    if (ruleSetList != null) {
+                        for (RuleSet ruleSet : ruleSetList) {
+                            ruleSet = ruleSet.clone();
+
+                            updateMixinArguments(ruleSet, mixin);
+
+                            List<RuleSet> mixinRuleSets = getRuleSetTransformer().transform(ruleSet, declContext);
+
+                            ruleSet = mixinRuleSets.get(0);
+
+
+                            for (Iterator<String> iter = ruleSet.getVariableNames(); iter.hasNext();) {
+                                String varName = iter.next();
+                                Expression expression = ruleSet.getVariable(varName);
+                                transformed.setVariable(varName, expression);
+
+                            }
+
+                            for (DeclarationElement element : ruleSet.getDeclarations()) {
+                                if (element instanceof Declaration) {
+                                    declarationList.add((Declaration) element);
+                                }
+                            }
+
+                            for (BodyElement bodyElement : ruleSet.getBodyElements()) {
+                                // todo: check for collisions with selector names
+                                transformed.addBodyElement(bodyElement);
+                            }
+                        }
+                    }
+                    else {
+                        throw new UndefinedMixinReference(mixin);
+                    }
+                }
+                catch (LessCssException ex) {
+                    ErrorUtils.handleError(context.getErrorHandler(), mixin, ex);
+                }
+            }
+        }
+
+        for (Declaration declaration : declarationList) {
+            transformed.addDeclarations(getDeclarationTransformer().transform(declaration, declContext));
+        }
+    }
+
+    /**
+     * Updates the variables in the rule set with the values from the argument list.  The values are either the default
+     * values defined in the mixin or the values specified in the mixin call argument list.
+     *
+     * @param ruleSet The rule set to update
+     * @param mixin   The mixin reference containing the call arguments
+     */
+    protected void updateMixinArguments(RuleSet ruleSet, MixinReference mixin) {
         if (mixin.getArguments().size() > ruleSet.getArguments().size()) {
             throw new MixinArgumentMismatchException(mixin, ruleSet);
         }
 
-        // If the rule set takes arguments, we need to evaluate it on the fly.  So make a copy and run it
-        // through the process as if it didn't have any arguments.
         if (ruleSet.getArguments().size() > 0) {
-            ruleSet = ruleSet.clone();
 
+            // If there are no call arguments, we're done.  The RuleSet had it's variable
+            // map updated with the default argument values when it was constructed.
             if (mixin.getArguments().size() > 0) {
                 Iterator<Expression> callIter = mixin.getArguments().iterator();
-                Iterator<Map.Entry<String, Expression>> argIter =
-                    ruleSet.getArguments().entrySet().iterator();
+                Iterator<Map.Entry<String, Expression>> argIter = ruleSet.getArguments().entrySet().iterator();
 
                 while (callIter.hasNext()) {
                     Expression mixinValue = callIter.next();
@@ -145,16 +173,13 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
                     ruleSet.setVariable(entry.getKey(), mixinValue);
                 }
             }
-            
-            ruleSet.getArguments().clear();
 
-            evaluateVariables(ruleSet, declContext);
-            transformDeclarations(ruleSet, context); // todo: not sure if this is the right context
+            ruleSet.getArguments().clear();
         }
-        return ruleSet;
     }
 
-    protected void transformRuleSets(DeclarationContainer container, EvaluationContext context) {
+    protected void transformRuleSets(List<T> transformed, EvaluationContext context) {
+        T container = transformed.get(0);
         if (container.getRuleSetCount() == 0) {
             return;
         }
@@ -166,54 +191,35 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
 
         // First transform all the child rule sets.
         List<BodyElement> elements = container.getBodyElements();
-        for (int idx = 0; idx < elements.size(); idx++) {
-            BodyElement element = elements.get(idx);
+        for (BodyElement element : elements) {
             if (element instanceof RuleSet) {
                 RuleSet childRuleSet = (RuleSet) element;
-                ruleSetContext.setRuleSetIndex(idx);
-                getRuleSetTransformer().transform(childRuleSet, ruleSetContext);
-                if (ruleSetContext.getRuleSetIndex() > idx) {
-                    idx = ruleSetContext.getRuleSetIndex();
-                }
-            }
-        }
-
-        // Now take all the child rule sets, update their selectors to include the current node
-        for (BodyElement element : container.getBodyElements()) {
-            if (element instanceof RuleSet) {
-                RuleSet childRuleSet = (RuleSet) element;
-                if (container instanceof RuleSet) {
-                    RuleSet ruleSet = (RuleSet) container;
-
-                    List<Selector> selectorList = new ArrayList<Selector>();
-                    for (Selector selector : ruleSet.getSelectors()) {
-                        for (ListIterator<Selector> iterator =
-                            childRuleSet.getSelectors().listIterator(); iterator.hasNext();) {
-                            Selector childSelector = iterator.next();
-                            Selector mergedSelector = new Selector(selector, childSelector);
-                            selectorList.add(mergedSelector);
-                        }
+                List<RuleSet> transformedList = getRuleSetTransformer().transform(childRuleSet, ruleSetContext);
+                for (RuleSet transformedChild : transformedList) {
+                    if (container instanceof RuleSet) {
+                        updateChildSelectors((RuleSet) container, transformedChild);
                     }
-
-                    childRuleSet.setSelectors(selectorList);
+                    transformed.add((T) transformedChild);
                 }
-
-
-                context.setRuleSetIndex(context.getRuleSetIndex() + 1);
-                context.getRuleSetContainer().addRuleSet(childRuleSet, context.getRuleSetIndex());
             }
         }
-
-        container.clearBodyElements();
     }
 
-    public void transform(DeclarationContainer container, EvaluationContext context) {
-        if (container instanceof RuleSet && ((RuleSet)container).getArguments().size() > 0) {
-            return;
+    protected void updateChildSelectors(RuleSet parent, RuleSet child) {
+        List<Selector> selectorList = new ArrayList<Selector>();
+        for (Selector parentSelector : parent.getSelectors()) {
+            for (ListIterator<Selector> iter = child.getSelectors().listIterator(); iter.hasNext();) {
+                Selector childSelector = iter.next();
+                selectorList.add(new Selector(parentSelector, childSelector));
+            }
         }
 
-        evaluateVariables(container, context);
-        transformDeclarations(container, context);
-        transformRuleSets(container, context);
+        child.setSelectors(selectorList);
+    }
+
+    public void doTransform(T container, List<T> transformed, EvaluationContext context) {
+        evaluateVariables(container, transformed.get(0), context);
+        transformDeclarations(container, transformed.get(0), context);
+        transformRuleSets(transformed, context);
     }
 }

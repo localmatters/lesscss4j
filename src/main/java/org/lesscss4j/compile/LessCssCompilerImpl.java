@@ -74,7 +74,7 @@ public class LessCssCompilerImpl implements LessCssCompiler {
             context.setResource(input);
             context.setErrorHandler(errorHandler);
 
-            getStyleSheetTransformer().transform(styleSheet, context);
+            styleSheet = getStyleSheetTransformer().transform(styleSheet, context).get(0);
         }
 
         if (errorHandler == null || errorHandler.getErrorCount() == 0) {

@@ -312,12 +312,14 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
 
     public static ObjectFactory<StyleSheet> createDefaultObjectFactory() {
         ExpressionFactory expressionFactory = new ExpressionFactory();
+        SelectorFactory selectorFactory = new SelectorFactory();
 
         DeclarationFactory declarationFactory = new DeclarationFactory();
         declarationFactory.setExpressionFactory(expressionFactory);
+        declarationFactory.setSelectorFactory(selectorFactory);
 
         RuleSetFactory ruleSetFactory = new RuleSetFactory();
-        ruleSetFactory.setSelectorFactory(new SelectorFactory());
+        ruleSetFactory.setSelectorFactory(selectorFactory);
         ruleSetFactory.setDeclarationFactory(declarationFactory);
         ruleSetFactory.setExpressionFactory(expressionFactory);
 

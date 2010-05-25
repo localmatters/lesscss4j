@@ -15,6 +15,7 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.lesscss4j.model.BodyElement;
@@ -52,40 +53,52 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
         _ruleSetTransformer = ruleSetTransformer;
     }
 
-    public void transform(StyleSheet styleSheet, EvaluationContext context) {
-        processImports(styleSheet, context);
-        evaluateVariables(styleSheet, context);
+    public List<StyleSheet> transform(StyleSheet styleSheet, EvaluationContext context) {
+        StyleSheet transformed = new StyleSheet();
 
-        transformBodyElements(styleSheet, context);
+        processImports(styleSheet, transformed, context);
+        evaluateVariables(styleSheet, transformed, context);
+
+        transformBodyElements(styleSheet, transformed, context);
+
+        return Arrays.asList(transformed);
     }
 
-    protected void processImports(StyleSheet styleSheet, EvaluationContext context) {
-        styleSheet.setImports(null);
+    protected void processImports(StyleSheet styleSheet, StyleSheet transformed, EvaluationContext context) {
+        // Imports are handled by the Parser.  Don't need to do anything since
+        // we don't want to output any @import statements in the writer.
     }
 
-    protected void transformBodyElements(StyleSheet styleSheet, EvaluationContext context) {
+    protected void transformBodyElements(StyleSheet styleSheet, StyleSheet transformed, EvaluationContext context) {
         EvaluationContext styleContext = new EvaluationContext();
         styleContext.setParentContext(context);
-        styleContext.setVariableContainer(styleSheet);
-        styleContext.setRuleSetContainer(styleSheet);
+        styleContext.setVariableContainer(transformed);
+        styleContext.setRuleSetContainer(transformed);
 
         List<BodyElement> elements = styleSheet.getBodyElements();
-        for (int idx = 0; idx < elements.size(); idx++) {
-            BodyElement element = elements.get(idx);
-            styleContext.setRuleSetIndex(idx);
-            if (element instanceof Page) {
-                getPageTransformer().transform((Page) element, styleContext);
+        for (BodyElement element : elements) {
+            List<? extends BodyElement> transformedElementList = transformBodyElement(element, styleContext);
+            if (transformedElementList != null) {
+                for (BodyElement transformedElement : transformedElementList) {
+                    transformed.addBodyElement(transformedElement);
+                }
             }
-            else if (element instanceof Media) {
-                getMediaTransformer().transform((Media) element, styleContext);
-            }
-            else if (element instanceof RuleSet) {
-                getRuleSetTransformer().transform((RuleSet) element, styleContext);
-            }
+        }
+    }
 
-            if (styleContext.getRuleSetIndex() > idx) {
-                idx = styleContext.getRuleSetIndex();
-            }
+    private List<? extends BodyElement> transformBodyElement(BodyElement element, EvaluationContext styleContext) {
+        if (element instanceof Page) {
+            return getPageTransformer().transform((Page) element, styleContext);
+        }
+        else if (element instanceof Media) {
+            return getMediaTransformer().transform((Media) element, styleContext);
+        }
+        else if (element instanceof RuleSet) {
+            return getRuleSetTransformer().transform((RuleSet) element, styleContext);
+        }
+        else {
+            // todo: error
+            return null;
         }
     }
 

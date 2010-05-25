@@ -1,6 +1,11 @@
 .mixin { border: 1px solid black; }
 .mixout { border-color: orange; }
 .borders { border-style: dashed; }
+.magic-box {
+  width: 60cm;
+  height: 40cm;
+}
+.magic-box #lock { color: silver; }
 #namespace .borders { border-style: dotted; }
 #namespace .biohazard { content: "death"; }
 #namespace .biohazard .man { color: transparent; }
@@ -26,3 +31,9 @@
 }
 .secure-zone { color: transparent; }
 .direct { border-style: dotted; }
+.nested {
+  width: 60cm;
+  height: 40cm;
+  background-color: blue;
+}
+.nested #lock { color: silver; }

@@ -19,6 +19,10 @@ public class SubtractExpression extends CompoundExpression {
     public SubtractExpression() {
     }
 
+    public SubtractExpression(SubtractExpression copy) {
+        super(copy);
+    }
+
     public SubtractExpression(Expression left, Expression right) {
         super(left, right);
     }
@@ -26,5 +30,10 @@ public class SubtractExpression extends CompoundExpression {
     @Override
     public ConstantValue evaluate(ConstantValue left, ConstantValue right) {
         return left.subtract(right);
+    }
+
+    @Override
+    public SubtractExpression clone() {
+        return new SubtractExpression(this);
     }
 }

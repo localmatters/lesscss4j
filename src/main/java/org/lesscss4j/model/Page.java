@@ -18,11 +18,28 @@ package org.lesscss4j.model;
 public class Page extends DeclarationContainer implements BodyElement {
     private String _pseudoPage;
 
+    public Page() {
+    }
+
+    public Page(Page copy) {
+        this(copy, true);
+    }
+
+    public Page(Page copy, boolean copyDeclarations) {
+        super(copy, copyDeclarations);
+        _pseudoPage = copy._pseudoPage;
+    }
+
     public String getPseudoPage() {
         return _pseudoPage;
     }
 
     public void setPseudoPage(String pseudoPage) {
         _pseudoPage = pseudoPage;
+    }
+
+    @Override
+    public Page clone() {
+        return new Page(this);
     }
 }

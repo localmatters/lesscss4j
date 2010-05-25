@@ -16,6 +16,7 @@
 package org.lesscss4j.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,15 @@ public class DeclarationContainer extends BodyElementContainer {
     }
 
     public DeclarationContainer(DeclarationContainer copy) {
+        this(copy, true);
+    }
+
+    public DeclarationContainer(DeclarationContainer copy, boolean copyDeclarations) {
         super(copy);
-        for (DeclarationElement declaration : copy._declarations) {
-            addDeclaration(declaration.clone());
+        if (copyDeclarations) {
+            for (DeclarationElement declaration : copy._declarations) {
+                addDeclaration(declaration.clone());
+            }
         }
     }
 
@@ -47,6 +54,14 @@ public class DeclarationContainer extends BodyElementContainer {
         _declarations.clear();
         _declarationMap.clear();
         _mixinReferenceUsed = false;
+    }
+
+    public void addDeclarations(Collection<? extends DeclarationElement> declarations) {
+        if (declarations != null) {
+            for (DeclarationElement declaration : declarations) {
+                addDeclaration(declaration);
+            }
+        }
     }
 
     public void addDeclaration(DeclarationElement declaration) {

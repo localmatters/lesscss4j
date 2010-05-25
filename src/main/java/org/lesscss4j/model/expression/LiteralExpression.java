@@ -24,6 +24,11 @@ public class LiteralExpression extends AbstractElement implements Expression {
     public LiteralExpression() {
     }
 
+    public LiteralExpression(LiteralExpression copy) {
+        super(copy);
+        _value = copy._value;
+    }
+
     public LiteralExpression(String value) {
         _value = value;
     }
@@ -43,5 +48,9 @@ public class LiteralExpression extends AbstractElement implements Expression {
     @Override
     public String toString() {
         return getValue();
+    }
+
+    public LiteralExpression clone() {
+        return new LiteralExpression(this);
     }
 }

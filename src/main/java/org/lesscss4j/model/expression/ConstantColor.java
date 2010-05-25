@@ -61,6 +61,13 @@ public class ConstantColor implements ConstantValue {
         this(0);
     }
 
+    public ConstantColor(ConstantColor copy) {
+        _red = copy._red;
+        _green = copy._green;
+        _blue = copy._blue;
+        _alpha = copy._alpha;
+    }
+
     public ConstantColor(int value) {
         setValue(value);
     }
@@ -361,4 +368,7 @@ public class ConstantColor implements ConstantValue {
                (value.charAt(2) == 'l' || value.charAt(2) == 'L');
     }
 
+    public ConstantColor clone() {
+        return new ConstantColor(this);
+    }
 }

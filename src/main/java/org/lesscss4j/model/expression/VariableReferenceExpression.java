@@ -23,7 +23,12 @@ public class VariableReferenceExpression extends AbstractElement implements Expr
     private String _variableName;
 
     public VariableReferenceExpression() {
-        this(null);
+        this((String)null);
+    }
+
+    public VariableReferenceExpression(VariableReferenceExpression copy) {
+        super(copy);
+        _variableName = copy._variableName;
     }
 
     public VariableReferenceExpression(String variableName) {
@@ -44,5 +49,9 @@ public class VariableReferenceExpression extends AbstractElement implements Expr
             throw new UndefinedVariableException(this);
         }
         return value.evaluate(context);
+    }
+
+    public VariableReferenceExpression clone() {
+        return new VariableReferenceExpression(this);
     }
 }

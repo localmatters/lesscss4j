@@ -50,6 +50,9 @@ public class PageFactory extends AbstractObjectFactory<Page> {
         for (int idx = 0, numChildren = pageNode.getChildCount(); idx < numChildren; idx++) {
             Tree child = pageNode.getChild(idx);
             switch (child.getType()) {
+                case IDENT:
+                    page.setPseudoPage(child.getText());
+
                 case DECLARATION:
                     Declaration declaration = getDeclarationFactory().create(child, errorHandler);
                     if (declaration != null) {

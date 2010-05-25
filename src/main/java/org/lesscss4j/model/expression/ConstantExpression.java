@@ -27,6 +27,11 @@ public class ConstantExpression extends AbstractElement implements Expression {
         this((ConstantValue)null);
     }
 
+    public ConstantExpression(ConstantExpression copy) {
+        super(copy);
+        _value = copy._value.clone();
+    }
+
     public ConstantExpression(ConstantValue value) {
         _value = value;
     }
@@ -51,6 +56,10 @@ public class ConstantExpression extends AbstractElement implements Expression {
     public Expression evaluate(EvaluationContext context) {
         // Evaluation of a constant is itself
         return this;
+    }
+
+    public ConstantExpression clone() {
+        return new ConstantExpression(this);
     }
 
     @Override

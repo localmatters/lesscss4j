@@ -39,7 +39,9 @@ public class RuleSet extends DeclarationContainer implements BodyElement, Clonea
             }
         }
 
-        _arguments.putAll(copy._arguments);
+        for (Map.Entry<String, Expression> entry : copy._arguments.entrySet()) {
+            _arguments.put(entry.getKey(), entry.getValue().clone());
+        }
     }
 
     public List<Selector> getSelectors() {
@@ -68,5 +70,17 @@ public class RuleSet extends DeclarationContainer implements BodyElement, Clonea
     @Override
     public RuleSet clone() {
         return new RuleSet(this);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        for (Selector selector : _selectors) {
+            if (buf.length() > 0) {
+                buf.append(", ");
+            }
+            buf.append(selector.toString());
+        }
+        return buf.toString();
     }
 }

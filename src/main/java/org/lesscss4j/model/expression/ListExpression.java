@@ -24,6 +24,19 @@ import org.lesscss4j.transform.EvaluationContext;
 public class ListExpression extends AbstractElement implements Expression {
     private List<Expression> _expressions;
 
+    public ListExpression() {
+    }
+
+    public ListExpression(ListExpression copy) {
+        super(copy);
+        if (copy._expressions != null) {
+            _expressions = new ArrayList<Expression>(copy._expressions.size());
+            for (Expression argument : copy._expressions) {
+                _expressions.add(argument.clone());
+            }
+        }
+    }
+
     public List<Expression> getExpressions() {
         return _expressions;
     }
@@ -45,5 +58,9 @@ public class ListExpression extends AbstractElement implements Expression {
             buf.append(expression.evaluate(context).toString());
         }
         return new LiteralExpression(buf.toString());
+    }
+
+    public ListExpression clone() {
+        return new ListExpression(this);
     }
 }

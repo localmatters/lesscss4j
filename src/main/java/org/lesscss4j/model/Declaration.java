@@ -18,6 +18,8 @@ package org.lesscss4j.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lesscss4j.model.expression.Expression;
+
 public class Declaration extends AbstractElement implements DeclarationElement {
     private String _property;
     private List<Object> _values;
@@ -27,10 +29,22 @@ public class Declaration extends AbstractElement implements DeclarationElement {
     }
 
     public Declaration(Declaration copy) {
+        this(copy, true);
+    }
+
+    public Declaration(Declaration copy, boolean copyValues) {
         _property = copy._property;
         _important = copy._important;
-        if (copy._values != null) {
-            _values = new ArrayList<Object>(copy._values); // todo: needs to be a deep copy?
+        if (copyValues && copy._values != null) {
+            _values = new ArrayList<Object>(copy._values.size());
+            for (Object value : copy._values) {
+                if (value instanceof Expression) {
+                    _values.add(((Expression) value).clone());
+                }
+                else {
+                    _values.add(value);
+                }
+            }
         }
     }
 
@@ -50,6 +64,13 @@ public class Declaration extends AbstractElement implements DeclarationElement {
         _values = values;
     }
 
+    public void addValue(Object value) {
+        if (_values == null) {
+            _values = new ArrayList<Object>();
+        }
+        _values.add(value);
+    }
+
     public boolean isImportant() {
         return _important;
     }
@@ -58,14 +79,23 @@ public class Declaration extends AbstractElement implements DeclarationElement {
         _important = important;
     }
 
+    public String getValuesAsString() {
+        return getValuesAsString(new StringBuilder());
+    }
+
+    public String getValuesAsString(StringBuilder buf) {
+        for (Object value : getValues()) {
+            buf.append(value.toString());
+        }
+        return buf.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(getProperty());
         buf.append(": ");
-        for (Object value : getValues()) {
-            buf.append(value.toString());
-        }
+        getValuesAsString(buf);
         if (isImportant()) {
             buf.append(" !important");
         }

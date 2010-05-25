@@ -33,13 +33,21 @@ public class BodyElementContainer extends AbstractElement implements VariableCon
     }
 
     public BodyElementContainer(BodyElementContainer copy) {
+        this(copy, true);
+    }
+
+    public BodyElementContainer(BodyElementContainer copy, boolean copyBodyElements) {
         super(copy);
-        _variables.putAll(copy._variables); // todo: deep copy of values?
-        for (BodyElement element : _bodyElements) {
-            if (element instanceof RuleSet) {
-                element = ((RuleSet) element).clone();
+        for (Map.Entry<String, Expression> entry : copy._variables.entrySet()) {
+            _variables.put(entry.getKey(), entry.getValue().clone());
+        }
+        if (copyBodyElements) {
+            for (BodyElement element : copy._bodyElements) {
+                if (element instanceof RuleSet) {
+                    element = ((RuleSet) element).clone();
+                }
+                addBodyElement(element);
             }
-            addBodyElement(element);
         }
     }
 

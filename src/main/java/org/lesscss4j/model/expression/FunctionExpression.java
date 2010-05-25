@@ -27,10 +27,22 @@ public class FunctionExpression extends AbstractElement implements Expression {
     private boolean _quoted = false; // for IE specific stuff
 
     public FunctionExpression() {
-        this(null);
+    }
+
+    public FunctionExpression(FunctionExpression copy) {
+        super(copy);
+        _name = copy._name;
+        _quoted = copy._quoted;
+        if (copy._arguments != null) {
+            _arguments = new ArrayList<Expression>(copy._arguments.size());
+            for (Expression argument : copy._arguments) {
+                _arguments.add(argument.clone());
+            }
+        }
     }
 
     public FunctionExpression(String name) {
+        this();
         _name = name;
     }
 
@@ -96,5 +108,9 @@ public class FunctionExpression extends AbstractElement implements Expression {
     @Override
     public String toString() {
         return toString(null);
+    }
+
+    public FunctionExpression clone() {
+        return new FunctionExpression(this);
     }
 }

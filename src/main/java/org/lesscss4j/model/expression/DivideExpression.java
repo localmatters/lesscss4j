@@ -19,6 +19,10 @@ public class DivideExpression extends CompoundExpression {
     public DivideExpression() {
     }
 
+    public DivideExpression(DivideExpression copy) {
+        super(copy);
+    }
+
     public DivideExpression(Expression left, Expression right) {
         super(left, right);
     }
@@ -26,5 +30,10 @@ public class DivideExpression extends CompoundExpression {
     @Override
     public ConstantValue evaluate(ConstantValue left, ConstantValue right) {
         return left.divide(right);
+    }
+
+    @Override
+    public DivideExpression clone() {
+        return new DivideExpression(this);
     }
 }

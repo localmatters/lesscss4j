@@ -19,7 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Media extends BodyElementContainer implements BodyElement {
-    private List<String> _mediums;
+    private List<String> _mediums = new ArrayList<String>();
+
+    public Media() {
+    }
+
+
+    public Media(Media copy) {
+        this(copy, true);
+    }
+
+    public Media(Media copy, boolean copyBodyElements) {
+        super(copy, copyBodyElements);
+        _mediums.addAll(copy._mediums);
+    }
 
     public List<String> getMediums() {
         return _mediums;
@@ -27,6 +40,9 @@ public class Media extends BodyElementContainer implements BodyElement {
 
     public void setMediums(List<String> mediums) {
         _mediums = mediums;
+        if (_mediums == null) {
+            _mediums = new ArrayList<String>();
+        }
     }
 
     public void addMedium(String medium) {
@@ -36,4 +52,8 @@ public class Media extends BodyElementContainer implements BodyElement {
         _mediums.add(medium);
     }
 
+    @Override
+    public Object clone()  {
+        return new Media(this);
+    }
 }

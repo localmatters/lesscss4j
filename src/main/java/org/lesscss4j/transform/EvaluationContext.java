@@ -29,7 +29,6 @@ public class EvaluationContext {
     private VariableContainer _variableContainer;
     private RuleSetContainer _ruleSetContainer;
     private ErrorHandler _errorHandler;
-    private int _ruleSetIndex = 0;
 
     public EvaluationContext() {
         this(null);
@@ -66,14 +65,6 @@ public class EvaluationContext {
 
     public void setRuleSetContainer(RuleSetContainer ruleSetContainer) {
         _ruleSetContainer = ruleSetContainer;
-    }
-
-    public int getRuleSetIndex() {
-        return _ruleSetIndex;
-    }
-
-    public void setRuleSetIndex(int ruleSetIndex) {
-        _ruleSetIndex = ruleSetIndex;
     }
 
     public Expression getVariable(String name) {

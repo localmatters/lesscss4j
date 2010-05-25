@@ -26,6 +26,8 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.Tree;
 import org.lesscss4j.error.ErrorHandler;
 import org.lesscss4j.model.Declaration;
+import org.lesscss4j.model.Selector;
+import org.lesscss4j.model.expression.AccessorExpression;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.expression.FunctionExpression;
 import org.lesscss4j.model.expression.LiteralExpression;
@@ -36,6 +38,15 @@ import static org.lesscss4j.parser.antlr.LessCssLexer.*;
 
 public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
     private ObjectFactory<Expression> _expressionFactory;
+    private ObjectFactory<Selector> _selectorFactory;
+
+    public ObjectFactory<Selector> getSelectorFactory() {
+        return _selectorFactory;
+    }
+
+    public void setSelectorFactory(ObjectFactory<Selector> selectorFactory) {
+        _selectorFactory = selectorFactory;
+    }
 
     public ObjectFactory<Expression> getExpressionFactory() {
         return _expressionFactory;
@@ -93,6 +104,7 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
                 case EXPR:
                 case EXPRESSION:
                 case FUNCTION:
+                {
                     Expression expression = getExpressionFactory().create(child, errorHandler);
                     if (expression != null) {
                         Expression ieFilter = parseIE8AlphaFilter(expression, errorHandler);
@@ -102,6 +114,16 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
                         values.add(expression);
                     }
                     break;
+                }
+
+                case MIXIN_ACCESSOR:
+                {
+                    AccessorExpression accessor = createMixinAccessor(child, errorHandler);
+                    if (accessor != null) {
+                        values.add(accessor);
+                    }
+                    break;
+                }
 
                 case COMMA:
                 case NUMBER:
@@ -123,6 +145,31 @@ public class DeclarationFactory extends AbstractObjectFactory<Declaration> {
             }
         }
         return values.size() > 0 ? values : null;
+    }
+
+    protected AccessorExpression createMixinAccessor(Tree accessorNode, ErrorHandler errorHandler) {
+        AccessorExpression expression = new AccessorExpression();
+        expression.setSelector(getSelectorFactory().create(accessorNode.getChild(0), errorHandler));
+        Tree propertyNode = accessorNode.getChild(1);
+        switch (propertyNode.getType()) {
+            case VAR:
+                expression.setProperty(propertyNode.getChild(0).getText());
+                expression.setVariable(true);
+                break;
+
+            case STRING:
+                String str = propertyNode.getText();
+                expression.setProperty(str.substring(1, str.length() - 1)); // strip off quotes
+                expression.setVariable(false);
+                break;
+
+            default:
+                expression.setProperty(propertyNode.getText());
+                expression.setVariable(false);
+                break;
+        }
+
+        return expression;
     }
 
     private Pattern _ieAlphaPattern =

@@ -15,6 +15,8 @@
  */
 package org.lesscss4j.transform;
 
+import java.util.List;
+
 public interface Transformer<T> {
-    void transform(T value, EvaluationContext context);
+    List<T> transform(T value, EvaluationContext context);
 }

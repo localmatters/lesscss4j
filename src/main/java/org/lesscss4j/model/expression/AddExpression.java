@@ -23,8 +23,17 @@ public class AddExpression extends CompoundExpression {
         super(left, right);
     }
 
+    public AddExpression(AddExpression copy) {
+        super(copy);
+    }
+
     @Override
     public ConstantValue evaluate(ConstantValue left, ConstantValue right) {
         return left.add(right);
+    }
+
+    @Override
+    public AddExpression clone() {
+        return new AddExpression(this);
     }
 }
