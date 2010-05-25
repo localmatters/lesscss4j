@@ -13,7 +13,7 @@
   size: 1cm;
 }
 .negative {
-  height: 0px;
+  height: 0;
   width: 4px;
 }
 .shorthands { padding: -1px 2px 0 -4px; }

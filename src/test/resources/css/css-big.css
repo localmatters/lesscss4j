@@ -1732,8 +1732,8 @@ div.scs a {
   padding-top: 8px;
 }
 #bizWidget .tooltip h2, #videoWidget .tooltip h2, #reviewsWidget .tooltip h2 {
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
   font-size: 12px;
   font-weight: normal;
 }

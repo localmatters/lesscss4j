@@ -45,7 +45,45 @@ public class ConstantNumberTest extends TestCase {
         assertEquals("3", new ConstantNumber(3, null).toString());
         assertEquals("3.1em", new ConstantNumber(3.1, "em").toString());
         assertEquals(".5px", new ConstantNumber(0.5, "px").toString());
+        assertEquals(".556px", new ConstantNumber(0.5556, "px").toString());
+        assertEquals("12.5px", new ConstantNumber(12.5, "px").toString());
+        assertEquals("3.01px", new ConstantNumber(3.0101, "px").toString());
+        assertEquals("0", new ConstantNumber(0.0, null).toString());
+        assertEquals("0", new ConstantNumber(0.0, "px").toString());
+        assertEquals("0", new ConstantNumber(-0.0, "px").toString());
+        assertEquals("-3.1em", new ConstantNumber(-3.1, "em").toString());
     }
+
+/*
+    public void testToStringPerformance() {
+        Random random = new Random();
+        double[] values = new double[100];
+        for (int idx = 0; idx < values.length; idx++) {
+            values[idx] = random.nextDouble() * 10;
+        }
+
+        StopWatch timer = new StopWatch();
+        timer.setKeepTaskList(true);
+        timer.start("DecimalFormat");
+        perfTest(values, true);
+        timer.stop();
+
+        timer.start("Double.toString + cleanup");
+        perfTest(values, false);
+        timer.stop();
+
+        System.out.println(timer.prettyPrint());
+    }
+    
+    protected void perfTest(double[] values, boolean decimalFormat) {
+        int ITERATIONS = 10000;
+        for (int idx = 0; idx < ITERATIONS; idx++) {
+            for (double value : values) {
+                new ConstantNumber(value, null).toString(decimalFormat);
+            }
+        }
+    }
+*/
 
     public void testAdd() {
         assertEquals(new ConstantNumber(5, "px"), new ConstantNumber(3, null).add(new ConstantNumber(2, "px")));

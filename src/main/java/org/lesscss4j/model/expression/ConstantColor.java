@@ -275,18 +275,35 @@ public class ConstantColor implements ConstantValue {
             return "rgba(" + getRed() + ',' + getGreen() + ',' + getBlue() + ',' + alphaFormat.format(getAlpha()) + ')';
         }
 
-        String str = String.format("#%06x", (int) getValue());
-
         // Shorten colors of the form #aabbcc to #abc
+        String rs = Integer.toHexString(getRed());
+        String gs = Integer.toHexString(getGreen());
+        String bs = Integer.toHexString(getBlue());
+
         int r = getRed();
         int g = getGreen();
         int b = getBlue();
+
         if (((r & 0xf0) >> 4) == (r & 0xf) &&
             ((g & 0xf0) >> 4) == (g & 0xf) &&
             ((b & 0xf0) >> 4) == (b & 0xf)) {
-            str = "#" + str.charAt(1) + str.charAt(3) + str.charAt(5);
+            return "#" + rs.charAt(0) + gs.charAt(0) + bs.charAt(0);
         }
-        return str;
+        else {
+            // String.format("#%06x", (int) getValue()) would do the same thing, but this is much, much faster
+            StringBuilder buf = new StringBuilder("#");
+            appendColorStr(buf, rs);
+            appendColorStr(buf, gs);
+            appendColorStr(buf, bs);
+            return buf.toString();
+        }
+    }
+
+    protected void appendColorStr(StringBuilder buf, String val) {
+        if (val.length() == 1) {
+            buf.append('0');
+        }
+        buf.append(val);
     }
 
     @Override

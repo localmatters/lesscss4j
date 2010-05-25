@@ -15,8 +15,6 @@
  */
 package org.lesscss4j.model.expression;
 
-import java.text.DecimalFormat;
-
 import org.lesscss4j.error.DivideByZeroException;
 import org.lesscss4j.error.UnitMismatchException;
 
@@ -123,12 +121,88 @@ public class ConstantNumber implements ConstantValue {
         return new ConstantNumber(this.getValue() / right.getValue(), selectUnit(right));
     }
 
+    public static final int DECIMAL_PLACES = 3;
+    public static final double ROUND_MULTIPLIER = Math.pow(10.0, DECIMAL_PLACES);
+
     @Override
     public String toString() {
-        DecimalFormat format = new DecimalFormat("#.###" + (getUnit() != null ? "'" + getUnit() + "'" : ""));
-        format.setMinimumIntegerDigits(0);
-        format.setMinimumFractionDigits(0);
-        return format.format(getValue());
+        // By using Double.toString and post-processing the result, this method takes only
+        // 1/3 of the time it takes to do the same thing using DecimalFormat.format();
+        double value = getValue();
+        if ((value - ((int) value) * ROUND_MULTIPLIER) > 0) {
+            value = Math.round(value * ROUND_MULTIPLIER) / ROUND_MULTIPLIER;
+        }
+        String str = Double.toString(value);
+
+        char[] chars = new char[str.length() + (getUnit() != null ? getUnit().length() : 0)];
+        boolean hasInt = false;
+        int i = 0;
+        boolean negative = false;
+        for (int c = 0; c < str.length(); c++) {
+            char ch = str.charAt(c);
+            if ('0' <= ch && ch <= '9') {
+                // Ignore leading zeros in the integer portion of the number
+                if (ch != '0' || hasInt) {
+                    if (i == 0 && negative) {
+                        chars[i++] = '-';
+                    }
+                    hasInt = true;
+                    chars[i++] = ch;
+                }
+            }
+            else if (ch == '-') {
+                negative = true;
+            }
+            else if (ch == '.') {
+                // Found decimal point...see if we have any non-zero values
+                c++;
+
+                int decimalLength = Math.min(DECIMAL_PLACES, str.length() - c);
+
+                // Find the last non-zero digit
+                int lastNonZeroIdx = -1;
+                for (int j = decimalLength - 1; j >= 0; j--) {
+                    ch = str.charAt(c + j);
+                    if (ch != '0') {
+                        lastNonZeroIdx = j;
+                        break;
+                    }
+                }
+
+                // Copy everything up to and including the last non-zero digit
+                if (lastNonZeroIdx >= 0) {
+                    if (i == 0 && negative) {
+                        chars[i++] = '-';
+                    }
+                    chars[i++] = '.';
+                    for (int j = 0; j <= lastNonZeroIdx; j++) {
+                        chars[i++] = str.charAt(c + j);
+                    }
+                }
+                break;
+            }
+        }
+        if (i == 0) {
+            return "0";
+        }
+        else {
+            String unit = getUnit();
+            if (unit != null && value != 0.0) {
+                for (int c = 0; c < unit.length(); c++) {
+                    chars[i++] = unit.charAt(c);
+                }
+            }
+            return new String(chars, 0, i);
+        }
+/*
+        }
+        else {
+            DecimalFormat format = new DecimalFormat("#.###" + (getUnit() != null ? "'" + getUnit() + "'" : ""));
+            format.setMinimumIntegerDigits(0);
+            format.setMinimumFractionDigits(0);
+            return format.format(getValue());
+        }
+*/
     }
 
     @Override
