@@ -39,6 +39,8 @@ public class ConstantNumberTest extends TestCase {
         validateNumber(3.0, "em", new ConstantNumber("3.em"));
         validateNumber(-5.0, "px", new ConstantNumber("-5px"));
         validateNumber(0.5, "pt", new ConstantNumber("0.5pt"));
+        validateNumber(0, null, new ConstantNumber("0ms"));
+        validateNumber(0, null, new ConstantNumber("0.0ms"));
     }
 
     public void testToString() {

@@ -54,8 +54,11 @@ public class ConstantNumber implements ConstantValue {
             }
 
             if (unitIdx >= 0) {
-                setValue(Double.parseDouble(value.substring(0, unitIdx)));
-                setUnit(value.substring(unitIdx));
+                double num = Double.parseDouble(value.substring(0, unitIdx));
+                setValue(num);
+                if (num != 0.0) {
+                    setUnit(value.substring(unitIdx));
+                }
             }
         }
     }
