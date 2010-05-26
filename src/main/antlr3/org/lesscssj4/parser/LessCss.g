@@ -123,14 +123,20 @@ ruleList
     ;
     
 page
-    : '@' PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (declarationBlockElement WS*)* RBRACE
-    -> ^(PAGE_SYM pseudoPage? declarationBlockElement*)
+    : '@' PAGE_SYM (WS+ COLON pseudoPage)? WS* LBRACE WS* (pageElement WS*)* RBRACE
+    -> ^(PAGE_SYM pseudoPage? pageElement*)
     ;
 
 pseudoPage
     : ident
     ;
     
+pageElement
+    : mixinSelectorList WS!* SEMI!
+    | declaration
+    | variableDef
+    ;
+
 combinator
     : WS* combinatorNonWs WS*
     | WS+
@@ -167,12 +173,7 @@ ruleSet
     ;
     
 ruleSetElement
-    : declarationBlockElement
-    ;
-    
-declarationBlockElement
-    : (combinatorNonWs)=>innerSelectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE    -> ^(RULESET innerSelectorList ruleSetElement*)
-    | (selectorList WS* LBRACE)=>selectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET selectorList      ruleSetElement*)
+    : (innerSelectorList WS* LBRACE)=>innerSelectorList WS* LBRACE (WS* ruleSetElement)* WS* RBRACE    -> ^(RULESET innerSelectorList ruleSetElement*)
     | (mixinSelectorList WS* SEMI)=>mixinSelectorList WS!* SEMI!
     | declaration
     | variableDef
@@ -217,7 +218,7 @@ innerSelectorList
      ;
 
 innerSelector
-    : combinatorNonWs WS* selector;
+    : (combinatorNonWs WS*)? selector;
     
 ruleSetSelector
     : fontFaceSelector -> ^(SELECTOR fontFaceSelector)
@@ -326,8 +327,12 @@ number
     :  MINUS? NUMBER
     ;
     
+// the 'font' property needs some special handling because it has syntax that looks like
+// division, but really isn't.  For example, the declaration:
+//     font: 12px/16px Arial;
+// means that the font size should be set to 12px and the line height set to 16px
 declaration
-    : (propPrefix? FONT)=>fontDeclaration
+    : (fontProperty)=>fontDeclaration
     | (property WS* COLON (WS* propertyValue (WS* important)?)? WS* SEMI
     -> ^(DECLARATION property ^(PROP_VALUE propertyValue)? important?))
     ;
@@ -338,8 +343,13 @@ propPrefix
     ;
     
 fontDeclaration
-    : propPrefix? FONT WS* COLON WS* fontPropertyValue (WS* important)? WS* SEMI
-    -> ^(DECLARATION ^(FONT propPrefix?) ^(PROP_VALUE fontPropertyValue) important?)
+    : fontProperty WS* COLON WS* fontPropertyValue (WS* important)? WS* SEMI
+    -> ^(DECLARATION fontProperty ^(PROP_VALUE fontPropertyValue) important?)
+    ;
+    
+fontProperty
+    : propPrefix? FONT
+    -> ^(FONT propPrefix?)
     ;
 
 fontPropertyValue
@@ -347,7 +357,6 @@ fontPropertyValue
         ( (fontStyle WS*)* fontSize (WS!* SOLIDUS WS!* lineHeight)? WS* fontFamily (WS!* COMMA WS* fontFamily)* )
         | ident
       )
-//      (WS* propertyValue)*
     ;
     
 fontFamily
