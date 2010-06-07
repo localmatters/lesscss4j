@@ -8,12 +8,12 @@
     <groupId>org.lesscss4j</groupId>
     <artifactId>lesscss4j</artifactId>
     <name>Less CSS for Java</name>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <description>Port of LessCSS for Java that does not rely on JRuby</description>
 
     <scm>
-        <connection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/tags/lesscss4j-1.0</connection>
-        <developerConnection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/tags/lesscss4j-1.0</developerConnection>
+        <connection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/trunk</connection>
+        <developerConnection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/trunk</developerConnection>
     </scm>
 
     <properties>
