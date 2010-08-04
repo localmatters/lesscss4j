@@ -41,14 +41,14 @@ public class DeclarationTransformer extends AbstractTransformer<Declaration> {
         Declaration transformed = new Declaration(declaration, false);
         for (ListIterator<Object> iter = declaration.getValues().listIterator(); iter.hasNext();) {
             Object value = iter.next();
-            value = transformDeclarationValue(value, context);
+            value = transformDeclarationValue(value, declaration, context);
             transformed.addValue(value);
         }
 
         return Arrays.asList(transformed);
     }
 
-    protected Object transformDeclarationValue(Object value, EvaluationContext context) {
+    protected Object transformDeclarationValue(Object value, Declaration declaration, EvaluationContext context) {
         if (value instanceof Expression) {
             try {
                 value = ((Expression) value).evaluate(context);
