@@ -24,6 +24,7 @@ import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
 import org.lesscss4j.parser.StyleSheetResourceLoader;
+import org.lesscss4j.transform.manager.TransformerManager;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
@@ -37,6 +38,15 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
     private Boolean _prettyPrintEnabled;
     private PrettyPrintOptions _prettyPrintOptions;
     private StyleSheetResourceLoader _styleSheetResourceLoader;
+    private TransformerManager _transformerManager;
+
+    public TransformerManager getTransformerManager() {
+        return _transformerManager;
+    }
+
+    public void setTransformerManager(TransformerManager transformerManager) {
+        _transformerManager = transformerManager;
+    }
 
     public StyleSheetResourceLoader getStyleSheetResourceLoader() {
         return _styleSheetResourceLoader;
@@ -104,7 +114,15 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
         LessCssCompilerImpl compiler = new LessCssCompilerImpl();
         initializeParser(compiler.getStyleSheetParser());
         initializeWriter(compiler.getStyleSheetWriter());
+        initializeTransformerManager(compiler);
         return compiler;
+    }
+
+    protected void initializeTransformerManager(LessCssCompilerImpl compiler) {
+        TransformerManager transformerManager = getTransformerManager();
+        if (transformerManager != null) {
+            compiler.setTransformerManager(transformerManager);
+        }
     }
 
     protected void initializeWriter(StyleSheetWriter styleSheetWriter) {
