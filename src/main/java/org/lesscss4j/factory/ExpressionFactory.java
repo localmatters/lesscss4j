@@ -61,6 +61,7 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
 
     protected LiteralExpression createLiteral(String text, Tree expression, ErrorHandler errorHandler) {
         LiteralExpression literal = new LiteralExpression(text);
+        literal.setType(expression.getType());
         literal.setLine(expression.getLine());
         literal.setChar(expression.getCharPositionInLine());
         return literal;

@@ -19,7 +19,11 @@ import org.lesscss4j.model.AbstractElement;
 import org.lesscss4j.transform.EvaluationContext;
 
 public class LiteralExpression extends AbstractElement implements Expression {
+    /** Textual value of the literal expression */
     private String _value;
+
+    /** The token type of this literal as defined in {@link org.lesscss4j.parser.antlr.LessCssLexer} */
+    private int _type;
 
     public LiteralExpression() {
     }
@@ -39,6 +43,14 @@ public class LiteralExpression extends AbstractElement implements Expression {
 
     public void setValue(String value) {
         _value = value;
+    }
+
+    public int getType() {
+        return _type;
+    }
+
+    public void setType(int type) {
+        _type = type;
     }
 
     public Expression evaluate(EvaluationContext context) {
