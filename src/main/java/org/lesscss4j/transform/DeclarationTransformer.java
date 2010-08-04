@@ -28,21 +28,26 @@ import org.lesscss4j.model.expression.Expression;
 public class DeclarationTransformer implements Transformer<Declaration> {
     public List<Declaration> transform(Declaration declaration, EvaluationContext context) {
         if (declaration.getValues() == null) return null;
-        
+
         Declaration transformed = new Declaration(declaration, false);
         for (ListIterator<Object> iter = declaration.getValues().listIterator(); iter.hasNext();) {
             Object value = iter.next();
-            if (value instanceof Expression) {
-                try {
-                    value = ((Expression) value).evaluate(context);
-                }
-                catch (LessCssException ex) {
-                    ErrorUtils.handleError(context.getErrorHandler(), (PositionAware) value, ex);
-                }
-            }
+            value = transformDeclarationValue(value, context);
             transformed.addValue(value);
         }
 
         return Arrays.asList(transformed);
+    }
+
+    protected Object transformDeclarationValue(Object value, EvaluationContext context) {
+        if (value instanceof Expression) {
+            try {
+                value = ((Expression) value).evaluate(context);
+            }
+            catch (LessCssException ex) {
+                ErrorUtils.handleError(context.getErrorHandler(), (PositionAware) value, ex);
+            }
+        }
+        return value;
     }
 }
