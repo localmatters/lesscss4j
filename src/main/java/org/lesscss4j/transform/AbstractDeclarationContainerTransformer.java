@@ -33,27 +33,16 @@ import org.lesscss4j.model.MixinReference;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.Selector;
 import org.lesscss4j.model.expression.Expression;
+import org.lesscss4j.transform.manager.TransformerManager;
 
 public abstract class AbstractDeclarationContainerTransformer<T extends DeclarationContainer>
     extends AbstractTransformer<T> {
 
-    private Transformer<RuleSet> _ruleSetTransformer;
-    private Transformer<Declaration> _declarationTransformer;
-
-    public Transformer<RuleSet> getRuleSetTransformer() {
-        return _ruleSetTransformer;
+    protected AbstractDeclarationContainerTransformer() {
     }
 
-    public void setRuleSetTransformer(Transformer<RuleSet> ruleSetTransformer) {
-        _ruleSetTransformer = ruleSetTransformer;
-    }
-
-    public Transformer<Declaration> getDeclarationTransformer() {
-        return _declarationTransformer;
-    }
-
-    public void setDeclarationTransformer(Transformer<Declaration> declarationTransformer) {
-        _declarationTransformer = declarationTransformer;
+    protected AbstractDeclarationContainerTransformer(TransformerManager transformerManager) {
+        super(transformerManager);
     }
 
     protected void transformDeclarations(T container, T transformed, EvaluationContext context) {
@@ -66,8 +55,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
 
             for (DeclarationElement declaration : container.getDeclarations()) {
                 if (declaration instanceof Declaration) {
-                    transformed.addDeclarations(
-                                getDeclarationTransformer().transform((Declaration) declaration, declContext));
+                    transformed.addDeclarations(getTransformer(declaration).transform(declaration, declContext));
                 }
                 else {
                     // todo: error
@@ -107,7 +95,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
 
                             updateMixinArguments(ruleSet, mixin);
 
-                            List<RuleSet> mixinRuleSets = getRuleSetTransformer().transform(ruleSet, declContext);
+                            List<RuleSet> mixinRuleSets = getTransformer(ruleSet).transform(ruleSet, declContext);
 
                             ruleSet = mixinRuleSets.get(0);
 
@@ -142,7 +130,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
         }
 
         for (Declaration declaration : declarationList) {
-            transformed.addDeclarations(getDeclarationTransformer().transform(declaration, declContext));
+            transformed.addDeclarations(getTransformer(declaration).transform(declaration, declContext));
         }
     }
 
@@ -194,7 +182,7 @@ public abstract class AbstractDeclarationContainerTransformer<T extends Declarat
         for (BodyElement element : elements) {
             if (element instanceof RuleSet) {
                 RuleSet childRuleSet = (RuleSet) element;
-                List<RuleSet> transformedList = getRuleSetTransformer().transform(childRuleSet, ruleSetContext);
+                List<RuleSet> transformedList = getTransformer(childRuleSet).transform(childRuleSet, ruleSetContext);
                 for (RuleSet transformedChild : transformedList) {
                     if (container instanceof RuleSet) {
                         updateChildSelectors((RuleSet) container, transformedChild);

@@ -23,34 +23,14 @@ import org.lesscss4j.model.Media;
 import org.lesscss4j.model.Page;
 import org.lesscss4j.model.RuleSet;
 import org.lesscss4j.model.StyleSheet;
+import org.lesscss4j.transform.manager.TransformerManager;
 
 public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
-    private Transformer<Page> _pageTransformer;
-    private Transformer<Media> _mediaTransformer;
-    private Transformer<RuleSet> _ruleSetTransformer;
-
-    public Transformer<Page> getPageTransformer() {
-        return _pageTransformer;
+    public StyleSheetTransformer() {
     }
 
-    public void setPageTransformer(Transformer<Page> pageTransformer) {
-        _pageTransformer = pageTransformer;
-    }
-
-    public Transformer<Media> getMediaTransformer() {
-        return _mediaTransformer;
-    }
-
-    public void setMediaTransformer(Transformer<Media> mediaTransformer) {
-        _mediaTransformer = mediaTransformer;
-    }
-
-    public Transformer<RuleSet> getRuleSetTransformer() {
-        return _ruleSetTransformer;
-    }
-
-    public void setRuleSetTransformer(Transformer<RuleSet> ruleSetTransformer) {
-        _ruleSetTransformer = ruleSetTransformer;
+    public StyleSheetTransformer(TransformerManager transformerManager) {
+        super(transformerManager);
     }
 
     public List<StyleSheet> transform(StyleSheet styleSheet, EvaluationContext context) {
@@ -88,39 +68,20 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
 
     private List<? extends BodyElement> transformBodyElement(BodyElement element, EvaluationContext styleContext) {
         if (element instanceof Page) {
-            return getPageTransformer().transform((Page) element, styleContext);
+            Page page = (Page) element;
+            return getTransformer(page).transform(page, styleContext);
         }
         else if (element instanceof Media) {
-            return getMediaTransformer().transform((Media) element, styleContext);
+            Media media = (Media) element;
+            return getTransformer(media).transform(media, styleContext);
         }
         else if (element instanceof RuleSet) {
-            return getRuleSetTransformer().transform((RuleSet) element, styleContext);
+            RuleSet ruleSet = (RuleSet) element;
+            return getTransformer(ruleSet).transform(ruleSet, styleContext);
         }
         else {
             // todo: error
             return null;
         }
-    }
-
-    public static Transformer<StyleSheet> createDefaultTransformer() {
-        DeclarationTransformer declarationTransformer = new DeclarationTransformer();
-
-        RuleSetTransformer ruleSetTransformer = new RuleSetTransformer();
-        ruleSetTransformer.setDeclarationTransformer(declarationTransformer);
-        ruleSetTransformer.setRuleSetTransformer(ruleSetTransformer);
-
-        PageTransformer pageTransformer = new PageTransformer();
-        pageTransformer.setDeclarationTransformer(declarationTransformer);
-        pageTransformer.setRuleSetTransformer(ruleSetTransformer);
-
-        MediaTransformer mediaTransformer = new MediaTransformer();
-        mediaTransformer.setRuleSetTransformer(ruleSetTransformer);
-
-        StyleSheetTransformer styleSheetTransformer = new StyleSheetTransformer();
-        styleSheetTransformer.setMediaTransformer(mediaTransformer);
-        styleSheetTransformer.setPageTransformer(pageTransformer);
-        styleSheetTransformer.setRuleSetTransformer(ruleSetTransformer);
-
-        return styleSheetTransformer;
     }
 }

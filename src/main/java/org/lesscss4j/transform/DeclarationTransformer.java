@@ -24,8 +24,17 @@ import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.model.Declaration;
 import org.lesscss4j.model.PositionAware;
 import org.lesscss4j.model.expression.Expression;
+import org.lesscss4j.transform.manager.TransformerManager;
 
-public class DeclarationTransformer implements Transformer<Declaration> {
+public class DeclarationTransformer extends AbstractTransformer<Declaration> {
+
+    public DeclarationTransformer() {
+    }
+
+    public DeclarationTransformer(TransformerManager transformerManager) {
+        super(transformerManager);
+    }
+
     public List<Declaration> transform(Declaration declaration, EvaluationContext context) {
         if (declaration.getValues() == null) return null;
 

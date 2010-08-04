@@ -26,24 +26,21 @@ import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
 import org.lesscss4j.parser.StyleSheetResource;
+import org.lesscss4j.transform.manager.ClassTransformerManager;
 import org.lesscss4j.transform.StyleSheetEvaluationContext;
-import org.lesscss4j.transform.StyleSheetTransformer;
-import org.lesscss4j.transform.Transformer;
+import org.lesscss4j.transform.manager.TransformerManager;
 
 public class LessCssCompilerImpl implements LessCssCompiler {
     private StyleSheetParser _styleSheetParser = new LessCssStyleSheetParser();
     private StyleSheetWriter _styleSheetWriter = new StyleSheetWriterImpl();
-    private Transformer<StyleSheet> _styleSheetTransformer;
+    private TransformerManager _transformerManager = new ClassTransformerManager();
 
-    public Transformer<StyleSheet> getStyleSheetTransformer() {
-        if (_styleSheetTransformer == null) {
-            _styleSheetTransformer = StyleSheetTransformer.createDefaultTransformer();
-        }
-        return _styleSheetTransformer;
+    public TransformerManager getTransformerManager() {
+        return _transformerManager;
     }
 
-    public void setStyleSheetTransformer(Transformer<StyleSheet> styleSheetTransformer) {
-        _styleSheetTransformer = styleSheetTransformer;
+    public void setTransformerManager(TransformerManager transformerManager) {
+        _transformerManager = transformerManager;
     }
 
     public StyleSheetParser getStyleSheetParser() {
@@ -74,7 +71,7 @@ public class LessCssCompilerImpl implements LessCssCompiler {
             context.setResource(input);
             context.setErrorHandler(errorHandler);
 
-            styleSheet = getStyleSheetTransformer().transform(styleSheet, context).get(0);
+            styleSheet = getTransformerManager().getTransformer(styleSheet).transform(styleSheet, context).get(0);
         }
 
         if (errorHandler == null || errorHandler.getErrorCount() == 0) {

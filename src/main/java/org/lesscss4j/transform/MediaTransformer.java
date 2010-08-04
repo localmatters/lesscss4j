@@ -21,16 +21,14 @@ import java.util.List;
 import org.lesscss4j.model.BodyElement;
 import org.lesscss4j.model.Media;
 import org.lesscss4j.model.RuleSet;
+import org.lesscss4j.transform.manager.TransformerManager;
 
 public class MediaTransformer extends AbstractTransformer<Media> {
-    private Transformer<RuleSet> _ruleSetTransformer;
-
-    public Transformer<RuleSet> getRuleSetTransformer() {
-        return _ruleSetTransformer;
+    public MediaTransformer(TransformerManager transformerManager) {
+        super(transformerManager);
     }
 
-    public void setRuleSetTransformer(Transformer<RuleSet> ruleSetTransformer) {
-        _ruleSetTransformer = ruleSetTransformer;
+    public MediaTransformer() {
     }
 
     public List<Media> transform(Media media, EvaluationContext context) {
@@ -48,10 +46,11 @@ public class MediaTransformer extends AbstractTransformer<Media> {
 
         for (BodyElement element : media.getBodyElements()) {
             if (element instanceof RuleSet) {
-                List<RuleSet> transformedRuleSets = getRuleSetTransformer().transform((RuleSet) element, mediaContext);
+                RuleSet ruleSet = (RuleSet) element;
+                List<RuleSet> transformedRuleSets = getTransformer(ruleSet).transform(ruleSet, mediaContext);
                 if (transformedRuleSets != null) {
-                    for (RuleSet ruleSet : transformedRuleSets) {
-                        transformed.addBodyElement(ruleSet);
+                    for (RuleSet transformedRuleSet : transformedRuleSets) {
+                        transformed.addBodyElement(transformedRuleSet);
                     }
                 }
             }

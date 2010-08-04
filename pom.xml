@@ -8,7 +8,7 @@
     <groupId>org.lesscss4j</groupId>
     <artifactId>lesscss4j</artifactId>
     <name>Less CSS for Java</name>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <description>Port of LessCSS for Java that does not rely on JRuby</description>
 
     <scm>

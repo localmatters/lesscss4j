@@ -20,8 +20,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.lesscss4j.model.RuleSet;
+import org.lesscss4j.transform.manager.TransformerManager;
 
 public class RuleSetTransformer extends AbstractDeclarationContainerTransformer<RuleSet> {
+
+    public RuleSetTransformer() {
+    }
+
+    public RuleSetTransformer(TransformerManager transformerManager) {
+        super(transformerManager);
+    }
+
     public List<RuleSet> transform(RuleSet ruleSet, EvaluationContext context) {
         RuleSet transformed;
 

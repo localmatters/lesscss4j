@@ -21,8 +21,37 @@ import org.lesscss4j.error.ErrorUtils;
 import org.lesscss4j.error.LessCssException;
 import org.lesscss4j.model.VariableContainer;
 import org.lesscss4j.model.expression.Expression;
+import org.lesscss4j.transform.manager.TransformerManager;
+import org.lesscss4j.transform.manager.TransformerManagerAware;
 
-public abstract class AbstractTransformer<T> implements Transformer<T> {
+public abstract class AbstractTransformer<T> implements Transformer<T>, TransformerManagerAware {
+    private TransformerManager _transformerManager;
+
+    protected AbstractTransformer() {
+        this(null);
+    }
+
+    protected AbstractTransformer(TransformerManager transformerManager) {
+        _transformerManager = transformerManager;
+    }
+
+    public TransformerManager getTransformerManager() {
+        return _transformerManager;
+    }
+
+    public void setTransformerManager(TransformerManager transformerManager) {
+        _transformerManager = transformerManager;
+    }
+
+    protected <T> Transformer<T> getTransformer(T obj) {
+        if (getTransformerManager() != null) {
+            return getTransformerManager().getTransformer(obj);
+        }
+        else {
+            return null;
+        }
+    }
+
     protected void evaluateVariables(VariableContainer variableContainer,
                                      VariableContainer transformed,
                                      EvaluationContext context) {
