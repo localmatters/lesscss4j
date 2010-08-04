@@ -140,42 +140,40 @@ public class ExpressionFactory extends AbstractObjectFactory<Expression> {
 
     protected Expression createFunction(Tree function, ErrorHandler errorHandler) {
         Tree nameNode = function.getChild(0);
-        FunctionExpression func = new FunctionExpression(nameNode.getText());
-        switch (nameNode.getType()) {
-            case ALPHA:
-                for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
-                    Tree child = function.getChild(idx);
-                    Tree propNode = child.getChild(0);
-                    String prop = propNode.getText();
-                    Expression expr = create(child.getChild(1), null);
-                    func.addArgument(createLiteral(prop, propNode, errorHandler));
-                    func.addArgument(createLiteral(child.getText(), child, errorHandler));
-                    func.addArgument(expr);
-                }
-                break;
-
-            case EXPRESSION:
-            case IDENT:
-                for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
-                    Tree child = function.getChild(idx);
-                    switch (child.getType()) {
-                        case FUNCTION:
-                            func.addArgument(createFunction(child, errorHandler));
-                            break;
-
-                        case VAR:
-                        case LITERAL:
-                        case EXPR:
-                            func.addArgument(createExpression(child, errorHandler));
-                            break;
-
-                        default:
-                            func.addArgument(createLiteral(child.getText(), child, errorHandler));
-                            break;
-
+        FunctionExpression func = new FunctionExpression(concatChildNodeText(nameNode));
+        for (int idx = 1, numChildren = function.getChildCount(); idx < numChildren; idx++) {
+            Tree child = function.getChild(idx);
+            switch (child.getType()) {
+                case OPEQ:
+                case COLON:
+                    if (child.getChildCount() == 0) {
+                        func.addArgument(createLiteral(child.getText(), child, errorHandler));
                     }
-                }
-                break;
+                    else {
+                        Tree propNode = child.getChild(0);
+                        String prop = propNode.getText();
+                        Expression expr = create(child.getChild(1), null);
+                        func.addArgument(createLiteral(prop, propNode, errorHandler));
+                        func.addArgument(createLiteral(child.getText(), child, errorHandler));
+                        func.addArgument(expr);
+                    }
+                    break;
+
+                case FUNCTION:
+                    func.addArgument(createFunction(child, errorHandler));
+                    break;
+
+                case VAR:
+                case LITERAL:
+                case EXPR:
+                    func.addArgument(createExpression(child, errorHandler));
+                    break;
+
+                default:
+                    func.addArgument(createLiteral(child.getText(), child, errorHandler));
+                    break;
+
+            }
         }
 
         func.setLine(function.getLine());

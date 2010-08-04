@@ -33,6 +33,7 @@ tokens {
     VAR;
     CONSTANT;
     FUNCTION;
+    FUNCTION_NAME;
     MIXIN_REF;
     MIXIN_MACRO;
     MIXIN_ARG;
@@ -421,7 +422,11 @@ propertyTermNoExpr
     ;
     
 functionPred
-    : ident WS* LPAREN
+    : functionName WS* LPAREN
+    ;
+    
+functionName
+    : ident ((DOT | COLON) ident)*
     ;
         
 propertyTerm
@@ -431,13 +436,13 @@ propertyTerm
 
 // Internet Explorer specific functions
 function
-    : (ALPHA)=>ieAlpha
-    | (EXPRESSION)=>ieExpression
-    | (ident WS* LPAREN functionArgList? RPAREN -> ^(FUNCTION ident functionArgList))
+    : (EXPRESSION)=>ieExpression
+    | (functionName WS* LPAREN functionArgList? RPAREN -> ^(FUNCTION ^(FUNCTION_NAME functionName) functionArgList))
     ;
     
 functionArgList
-    : functionArg ((WS!* COMMA WS!*|WS+) functionArg)*
+    : ieFunctionTerm (WS!* COMMA WS!* ieFunctionTerm)*
+    | functionArg ((WS!* COMMA WS!*|WS+) functionArg)*
     ;
     
 functionArg
@@ -450,24 +455,19 @@ functionArgItem
     | additiveExpression
     ;
 
-ieAlpha
-    : ALPHA WS* LPAREN WS* ieAlphaTerm (WS* COMMA WS* ieAlphaTerm)* WS* RPAREN
-    -> ^(FUNCTION ALPHA ieAlphaTerm*)
+ieFunctionTerm
+    : ident WS* ieFunctionTermOp WS* (literal | additiveExpression)
+    -> ^(ieFunctionTermOp ident ^(LITERAL literal)? ^(EXPR additiveExpression)?)
     ;
     
-ieAlphaTerm
-    : ident WS* ieAlphaTermOp WS* (literal | additiveExpression)
-    -> ^(ieAlphaTermOp ident ^(LITERAL literal)? ^(EXPR additiveExpression)?)
-    ;
-    
-ieAlphaTermOp
+ieFunctionTermOp
     : OPEQ
     | COLON
     ;
 
 ieExpression
     : EXPRESSION WS* LPAREN ieExprTerm RPAREN 
-    -> ^(FUNCTION EXPRESSION ieExprTerm)
+    -> ^(FUNCTION ^(FUNCTION_NAME EXPRESSION) ieExprTerm)
     ;
     
 ieExprTerm

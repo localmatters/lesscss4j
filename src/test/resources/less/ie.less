@@ -21,3 +21,7 @@ body {
     filter: expression(this._filter ? this._filter:((this._filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + this.currentStyle.backgroundImage.replace('url("',"").replace('")','') + "',sizingMethod='crop')")&&(this.style.backgroundImage="none") && this._filter));
 }
 
+.ie6 .mapScaleBackground {
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/mapping/scale_background_left.png', sizingMethod='crop');
+    background: none;
+}
