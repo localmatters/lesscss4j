@@ -31,6 +31,7 @@ public class LiteralExpression extends AbstractElement implements Expression {
     public LiteralExpression(LiteralExpression copy) {
         super(copy);
         _value = copy._value;
+        _type = copy._type;
     }
 
     public LiteralExpression(String value) {
