@@ -1,3 +1,7 @@
 - Option to preserve comments
 - only add .less during import if no file extension and file does not exist?
 - test import of absolute url
+- Variable expansion in URLs 
+    @base: /some/base;
+    .something { background-image: url('@base/myimage.png'); }
+- Macro/Function/Syntax to Base64 encode image data
