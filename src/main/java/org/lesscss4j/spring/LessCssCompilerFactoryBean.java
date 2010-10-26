@@ -25,13 +25,14 @@ import org.lesscss4j.parser.LessCssStyleSheetParser;
 import org.lesscss4j.parser.StyleSheetParser;
 import org.lesscss4j.parser.StyleSheetResourceLoader;
 import org.lesscss4j.transform.manager.TransformerManager;
-import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * FactoryBean that makes it easier to configure the LessCssCompiler without having to redefine the parser and writer
  * instances created by default by the compiler class.
  */
-public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
+public class LessCssCompilerFactoryBean implements FactoryBean, InitializingBean {
     private String _defaultEncoding;
     private Integer _initialBufferSize;
     private Integer _readBufferSize;
@@ -39,6 +40,7 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
     private PrettyPrintOptions _prettyPrintOptions;
     private StyleSheetResourceLoader _styleSheetResourceLoader;
     private TransformerManager _transformerManager;
+    private LessCssCompilerImpl _compilerInstance;
 
     public TransformerManager getTransformerManager() {
         return _transformerManager;
@@ -62,6 +64,7 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setDefaultEncoding(String defaultEncoding) {
         _defaultEncoding = defaultEncoding;
+        maybeReinitialize();
     }
 
     public Integer getInitialBufferSize() {
@@ -70,6 +73,7 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setInitialBufferSize(Integer initialBufferSize) {
         _initialBufferSize = initialBufferSize;
+        maybeReinitialize();
     }
 
     public Integer getReadBufferSize() {
@@ -78,6 +82,7 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setReadBufferSize(Integer readBufferSize) {
         _readBufferSize = readBufferSize;
+        maybeReinitialize();
     }
 
     public Boolean getPrettyPrintEnabled() {
@@ -86,10 +91,12 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setPrettyPrintEnabled(Boolean prettyPrintEnabled) {
         _prettyPrintEnabled = prettyPrintEnabled;
+        maybeReinitialize();
     }
 
     public void setCompressionEnabled(Boolean compressionEnabled) {
         setPrettyPrintEnabled(compressionEnabled == null ? null : !compressionEnabled);
+        maybeReinitialize();
     }
 
     public Boolean isCompressionEnabled() {
@@ -102,6 +109,12 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
 
     public void setPrettyPrintOptions(PrettyPrintOptions prettyPrintOptions) {
         _prettyPrintOptions = prettyPrintOptions;
+        maybeReinitialize();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        getObject();
     }
 
     @Override
@@ -109,13 +122,36 @@ public class LessCssCompilerFactoryBean extends AbstractFactoryBean {
         return LessCssCompiler.class;
     }
 
+
     @Override
+    public Object getObject() throws Exception {
+        if (_compilerInstance == null) {
+            _compilerInstance = (LessCssCompilerImpl) createInstance();
+        }
+        return _compilerInstance;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
     protected Object createInstance() throws Exception {
         LessCssCompilerImpl compiler = new LessCssCompilerImpl();
+        initializeCompiler(compiler);
+        return compiler;
+    }
+
+    private void maybeReinitialize() {
+        if (isSingleton() && _compilerInstance != null) {
+            initializeCompiler(_compilerInstance);
+        }
+    }
+
+    private void initializeCompiler(LessCssCompilerImpl compiler) {
         initializeParser(compiler.getStyleSheetParser());
         initializeWriter(compiler.getStyleSheetWriter());
         initializeTransformerManager(compiler);
-        return compiler;
     }
 
     protected void initializeTransformerManager(LessCssCompilerImpl compiler) {
