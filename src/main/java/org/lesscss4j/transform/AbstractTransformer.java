@@ -44,11 +44,21 @@ public abstract class AbstractTransformer<T> implements Transformer<T>, Transfor
     }
 
     protected <T> Transformer<T> getTransformer(T obj) {
+        return getTransformer(obj, true);
+    }
+
+    protected <T> Transformer<T> getTransformer(T obj, boolean required) {
+        Transformer<T> transformer = null;
         if (getTransformerManager() != null) {
-            return getTransformerManager().getTransformer(obj);
+            transformer = getTransformerManager().getTransformer(obj);
+        }
+
+        if (required && transformer == null) {
+            throw new IllegalStateException(
+                "Unable to find transformer for object of type " + obj.getClass().getName());
         }
         else {
-            return null;
+            return transformer;
         }
     }
 
@@ -56,7 +66,7 @@ public abstract class AbstractTransformer<T> implements Transformer<T>, Transfor
                                      VariableContainer transformed,
                                      EvaluationContext context) {
         EvaluationContext varContext = new EvaluationContext(variableContainer, context);
-        for (Iterator<String> iter = variableContainer.getVariableNames(); iter.hasNext(); ) {
+        for (Iterator<String> iter = variableContainer.getVariableNames(); iter.hasNext();) {
             String varName = iter.next();
             Expression varExpression = variableContainer.getVariable(varName);
             try {

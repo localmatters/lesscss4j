@@ -50,7 +50,7 @@ public class FunctionTransformer extends AbstractTransformer<Expression> {
             for (int idx = 0; idx < function.getArguments().size(); idx++) {
                 Expression argExpression = function.getArguments().get(idx);
                 if (!(argExpression instanceof LiteralExpression) || !argExpression.toString().equals(",")) {
-                    Transformer<Expression> transformer = getTransformer(argExpression);
+                    Transformer<Expression> transformer = getTransformer(argExpression, false);
                     if (transformer != null) {
                         argExpression = transformer.transform(argExpression, context).get(0);
                     }

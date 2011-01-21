@@ -52,7 +52,7 @@ public class DeclarationTransformer extends AbstractTransformer<Declaration> {
         if (value instanceof Expression) {
             try {
                 Expression expression = (Expression) value;
-                Transformer<Expression> expressionTransformer = getTransformer(expression);
+                Transformer<Expression> expressionTransformer = getTransformer(expression, false);
                 if (expressionTransformer != null) {
                     // Can't think of a reason why we'd ever want to return more than one expression.
                     expression = expressionTransformer.transform(expression, context).get(0);
