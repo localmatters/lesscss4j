@@ -33,7 +33,7 @@ import org.lesscss4j.parser.antlr.LessCssLexer;
 import org.lesscss4j.parser.antlr.LessCssParser;
 
 public class LessCssStyleSheetParser implements StyleSheetParser, StyleSheetTreeParser {
-    private String _defaultEncoding;
+    private String _defaultEncoding = "UTF-8";
     private int _initialBufferSize = ANTLRInputStream.INITIAL_BUFFER_SIZE;
     private int _readBufferSize = ANTLRInputStream.READ_BUFFER_SIZE;
     private ObjectFactory<StyleSheet> _styleSheetFactory;
