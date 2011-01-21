@@ -28,11 +28,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.lesscss4j.compile.DefaultLessCssCompilerFactory;
 import org.lesscss4j.compile.LessCssCompiler;
-import org.lesscss4j.compile.LessCssCompilerImpl;
-import org.lesscss4j.output.StyleSheetWriterImpl;
-import org.lesscss4j.parser.StyleSheetResourceLoader;
 import org.lesscss4j.parser.DefaultStyleSheetResourceLoader;
+import org.lesscss4j.parser.StyleSheetResourceLoader;
 
 public class LessCssServlet extends HttpServlet {
     public static final long CACHE_FOREVER = -1;
@@ -67,7 +66,7 @@ public class LessCssServlet extends HttpServlet {
     private boolean _cacheEnabled = true;
 
     /** The compiler to use */
-    private LessCssCompiler _lessCompiler = new LessCssCompilerImpl();
+    private LessCssCompiler _lessCompiler;
 
     private StyleSheetResourceLoader _styleSheetResourceLoader = new DefaultStyleSheetResourceLoader();
 
@@ -87,12 +86,14 @@ public class LessCssServlet extends HttpServlet {
             setHttpCacheMillis(httpCacheMillis);
         }
 
+        DefaultLessCssCompilerFactory factory = new DefaultLessCssCompilerFactory();
+
         Boolean prettyPrint = getInitParameterBoolean(config, PRETTY_PRINT_PARAM_NAME);
         if (prettyPrint != null) {
-            StyleSheetWriterImpl styleSheetWriter =
-                (StyleSheetWriterImpl) ((LessCssCompilerImpl) _lessCompiler).getStyleSheetWriter();
-            styleSheetWriter.setPrettyPrintEnabled(prettyPrint);
+            factory.setPrettyPrintEnabled(prettyPrint);
         }
+
+        _lessCompiler = factory.create();
     }
 
     protected Boolean getInitParameterBoolean(ServletConfig config, String name) {

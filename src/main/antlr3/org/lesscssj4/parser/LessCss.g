@@ -426,7 +426,7 @@ functionPred
     ;
     
 functionName
-    : ident ((DOT | COLON) ident)*
+    : (ident | PERCENT) ((DOT | COLON) ident)*
     ;
         
 propertyTerm

@@ -51,7 +51,13 @@ public class DeclarationTransformer extends AbstractTransformer<Declaration> {
     protected Object transformDeclarationValue(Object value, Declaration declaration, EvaluationContext context) {
         if (value instanceof Expression) {
             try {
-                value = ((Expression) value).evaluate(context);
+                Expression expression = (Expression) value;
+                Transformer<Expression> expressionTransformer = getTransformer(expression);
+                if (expressionTransformer != null) {
+                    // Can't think of a reason why we'd ever want to return more than one expression.
+                    expression = expressionTransformer.transform(expression, context).get(0);
+                }
+                value = expression.evaluate(context);
             }
             catch (LessCssException ex) {
                 ErrorUtils.handleError(context.getErrorHandler(), (PositionAware) value, ex);

@@ -124,7 +124,7 @@ body.ie7 {
 }
 
 body.ie6 {
-    width: expression(Math.max(document.documentElement.clientWidth,1040) + 'px');
+    width: e(%("expression(Math.max(document.documentElement.clientWidth,%s) + 'px')", 1040));
     margin: 0;
 }
 

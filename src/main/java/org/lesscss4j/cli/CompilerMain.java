@@ -23,9 +23,9 @@ import java.net.URL;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.lesscss4j.compile.LessCssCompilerImpl;
+import org.lesscss4j.compile.DefaultLessCssCompilerFactory;
+import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.output.PrettyPrintOptions;
-import org.lesscss4j.output.StyleSheetWriterImpl;
 import org.lesscss4j.parser.FileStyleSheetResource;
 import org.lesscss4j.parser.InputStreamStyleSheetResource;
 import org.lesscss4j.parser.StyleSheetResource;
@@ -203,13 +203,14 @@ public class CompilerMain {
             output = createOutputStream(outputFilename);
 
 
-            LessCssCompilerImpl compiler = new LessCssCompilerImpl();
+            DefaultLessCssCompilerFactory factory = new DefaultLessCssCompilerFactory();
+            factory.setPrettyPrintEnabled(isPrettyPrint());
 
-            ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintEnabled(isPrettyPrint());
             if (isPrettyPrint() && getPrettyPrintOptions() != null) {
-                ((StyleSheetWriterImpl) compiler.getStyleSheetWriter()).setPrettyPrintOptions(getPrettyPrintOptions());
+                factory.setPrettyPrintOptions(getPrettyPrintOptions());
             }
 
+            LessCssCompiler compiler = factory.create();
             compiler.compile(input, output, null);
         }
         catch (IOException ex) {

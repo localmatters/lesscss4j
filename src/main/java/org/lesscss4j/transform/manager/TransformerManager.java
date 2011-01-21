@@ -17,6 +17,9 @@ package org.lesscss4j.transform.manager;
 
 import org.lesscss4j.transform.Transformer;
 
+/**
+ * This interface defines a way to locate a {@link Transformer} instance for a particular object.
+ */
 public interface TransformerManager {
     /**
      * Return a transformer for a particular object.
