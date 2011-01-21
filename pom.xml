@@ -178,6 +178,16 @@ package org.lesscss4j.parser.antlr;
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            org.antlr*;version="3.2",
+                            org.springframework*; resolution:=optional;version="[2.5,4.0)",
+                            javax.servlet*; resolution:=optional,
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
