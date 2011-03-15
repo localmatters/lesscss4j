@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lesscss4j</groupId>
     <artifactId>lesscss4j</artifactId>
+    <packaging>jar</packaging>
     <name>Less CSS for Java</name>
     <version>2.0.0-SNAPSHOT</version>
-    <description>Port of LessCSS for Java that does not rely on JRuby</description>
+    <description>Port of LessCSS language for Java</description>
 
     <scm>
         <connection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/trunk</connection>
