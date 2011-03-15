@@ -1,14 +1,25 @@
 What is LessCSS4j?
 ------------------
 
-LessCSS4j is an implementation of the LESS language defined by the Ruby
-Gem (http://lesscss.org).  It is designed to be a library for use in your
-own applications or as a stand alone command line application.  In both
-cases, the goal is to "compile" a LESS file into valid CSS.
+LessCSS4j is a java implementation of the LESS language (http://lesscss.org).
+This version has all of the features of the original plus a few additional
+features:
 
+* Support for Internet Explorer CSS oddities without the need for escaping
+* Pluggable architecture to allow additional functions and transformations
+  to be provided.
+* Optional Spring integration
+* Servlet API integration
 
-LessCSS4j's "jlessc.sh" command is nearly 80% faster than the Ruby "lessc"
-command.
+History
+-------
+The original implementation of Less was written in Ruby.  This turned out to
+to perform badly when run inside of JRuby. To solve this problem, LessCSS4j
+was written.
+
+While Less has since been reimplemented (less.js) in JavaScript and performs
+much better, there still is a need for a Java version to ease the integration
+with existing web frameworks.
 
 
 Licensing
@@ -26,11 +37,47 @@ From the command line:
 
 $ jlessc.sh myfile.less
 
-This will produce the file "myfile.css" in the same directory as
-"myfile.less".
+This will produce the file "myfile.css" in the same directory as "myfile.less".
 
 In Java:
 
 StyleSheetResource resource = new FileStyleSheetResource(filename);
 LessCssCompiler compiler = new DefaultLessCssCompilerFactory().create();
 compiler.compile(resource, System.out, null);
+
+LessCSS4j also provides a servlet to perform runtime compilation of LESS
+files.  To use it, add the following servlet to your web.xml file (shown
+with the default init parameter values):
+
+<servlet>
+    <servlet-name>LessCssServlet</servlet-name>
+    <servlet-class>org.lesscss4j.servlet.LessCssServlet</servlet-class>
+    <init-param>
+        <!-- The amount of time to cache the compiled Less file
+             -1 = cache forever -->
+        <param-name>cacheMilliseconds</param-name>
+        <param-value>-1</param-value>
+    </init-param>
+    <init-param>
+        <!-- The amount of time the browser should cache the resulting
+             CSS file -->
+        <param-name>httpCacheMilliseconds</param-name>
+        <param-value>900000</param-value>
+    </init-param>
+    <init-param>
+        <!-- If set to 'true', the resulting CSS will be formatted. Otherwise
+             the resulting CSS is minified -->
+        <param-name>prettyPrint</param-name>
+        <param-value>false</param-value>
+    </init-param>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>LessCssServlet</servlet-name>
+    <url-pattern>/less/*</url-pattern>
+</servlet-mapping>
+
+With this configuration, a request for the url /less/path/to/file.less will
+look for the file /path/to/file.less in the servlet context, compile it using
+the LessCSS4j compiler and return the resulting CSS.  In addition, the result
+is optionally cached to avoid recompilation.
