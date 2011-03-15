@@ -54,6 +54,7 @@ public class FunctionTransformer extends AbstractTransformer<Expression> {
                     if (transformer != null) {
                         argExpression = transformer.transform(argExpression, context).get(0);
                     }
+                    argExpression = argExpression.evaluate(context);
                     args.add(argExpression);
                 }
             }

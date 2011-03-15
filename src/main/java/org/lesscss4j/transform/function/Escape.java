@@ -8,7 +8,7 @@ import org.lesscss4j.error.FunctionException;
 import org.lesscss4j.model.expression.Expression;
 import org.lesscss4j.model.expression.LiteralExpression;
 
-public class EscapeFunction implements Function {
+public class Escape implements Function {
     public Expression evaluate(String name, Expression... args) {
         int numArgs = args.length;
         if (numArgs != 1) {

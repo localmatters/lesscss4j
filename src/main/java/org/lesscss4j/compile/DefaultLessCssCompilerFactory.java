@@ -27,9 +27,15 @@ import org.lesscss4j.transform.PageTransformer;
 import org.lesscss4j.transform.RuleSetTransformer;
 import org.lesscss4j.transform.StyleSheetTransformer;
 import org.lesscss4j.transform.Transformer;
-import org.lesscss4j.transform.function.EscapeFunction;
-import org.lesscss4j.transform.function.FormatFunction;
+import org.lesscss4j.transform.function.Darken;
+import org.lesscss4j.transform.function.Desaturate;
+import org.lesscss4j.transform.function.Escape;
+import org.lesscss4j.transform.function.Format;
 import org.lesscss4j.transform.function.Function;
+import org.lesscss4j.transform.function.Grayscale;
+import org.lesscss4j.transform.function.Lighten;
+import org.lesscss4j.transform.function.Saturate;
+import org.lesscss4j.transform.function.Spin;
 import org.lesscss4j.transform.manager.ClassTransformerManager;
 import org.lesscss4j.transform.manager.TransformerManager;
 
@@ -55,8 +61,18 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     private Map<String, Function> _functions;
 
     public DefaultLessCssCompilerFactory() {
-        addFunction("%", new FormatFunction());
-        addFunction("e", new EscapeFunction());
+        addFunction("%", new Format());
+        addFunction("e", new Escape());
+        addFunction("lighten", new Lighten());
+        addFunction("darken", new Darken());
+        addFunction("saturate", new Saturate());
+        addFunction("desaturate", new Desaturate());
+
+        Grayscale grayscale = new Grayscale();
+        addFunction("grayscale", grayscale);
+        addFunction("greyscale", grayscale);
+
+        addFunction("spin", new Spin());
     }
 
     /**

@@ -121,22 +121,10 @@ public class ConstantColor implements ConstantValue {
                 }
 
                 float hue = Integer.parseInt(matcher.group(1));
-
-                // Normalize hue to the range [0, 360)
-                if (hue < 0 || hue >= 360) {
-                    hue = ((hue % 360) + 360) % 360;
-                }
-
-                // Convert hue into the range [0, 1]
-                hue /= 360.0;
-
                 float saturation = parsePercentage(matcher.group(2));
                 float lightness = parsePercentage(matcher.group(3));
 
-                int[] rgb = hslToRgb(hue, saturation, lightness);
-                setRed(rgb[0]);
-                setGreen(rgb[1]);
-                setBlue(rgb[2]);
+                setHSL(hue, saturation, lightness);
             }
             else {
                 throw new IllegalArgumentException("Invalid HSL color specification: " + value);
@@ -148,6 +136,24 @@ public class ConstantColor implements ConstantValue {
                 setValue(keywordValue);
             }
         }
+    }
+
+    public void setHSL(float hue, float saturation, float lightness) {
+        // Normalize hue to the range [0, 360)
+        if (hue < 0 || hue >= 360) {
+            hue = ((hue % 360) + 360) % 360;
+        }
+
+        // Convert hue into the range [0, 1]
+        hue /= 360.0;
+
+        saturation = Math.min(1, Math.max(saturation, 0.0f));
+        lightness = Math.min(1, Math.max(lightness, 0.0f));
+
+        int[] rgb = hslToRgb(hue, saturation, lightness);
+        setRed(rgb[0]);
+        setGreen(rgb[1]);
+        setBlue(rgb[2]);
     }
 
     /**
@@ -212,6 +218,40 @@ public class ConstantColor implements ConstantValue {
 
     public double getValue() {
         return (getRed() << 16) | (getGreen() << 8) | getBlue();
+    }
+
+    public float[] toHSL() {
+        float r = _red / 255.0f;
+        float g = _green / 255.0f;
+        float b = _blue / 255.0f;
+
+        float max = Math.max(Math.max(r, g), b);
+        float min = Math.min(Math.min(r, g), b);
+
+        float h, s, l;
+
+        l = (max + min) / 2;
+        float d = max - min;
+
+        if (max == min) {
+            h = s = 0;
+        }
+        else {
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            if (max == r) {
+                h = (g - b) / d + (g < b ? 6 : 0);
+            }
+            else if (max == g) {
+                h = (b - r) / d + 2;
+            }
+            else { // if (max == b) {
+                h = (r - g) / d + 4;
+            }
+
+            h /= 6;
+        }
+
+        return new float[]{h * 360, s, l, _alpha == null ? 1.0f : _alpha};
     }
 
     protected void checkUnits(ConstantValue that) {

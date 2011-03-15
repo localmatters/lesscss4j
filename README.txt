@@ -1,7 +1,3 @@
-LessCSS4j README  file
-
-$Id$
-
 What is LessCSS4j?
 ------------------
 
@@ -36,5 +32,5 @@ This will produce the file "myfile.css" in the same directory as
 In Java:
 
 StyleSheetResource resource = new FileStyleSheetResource(filename);
-LessCssCompiler compiler = new LessCssCompilerImpl();
+LessCssCompiler compiler = new DefaultLessCssCompilerFactory().create();
 compiler.compile(resource, System.out, null);

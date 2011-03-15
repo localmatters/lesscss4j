@@ -1,6 +1,12 @@
 #functions {
-  color: #999999;
-  width: 16;
-  height: undefined("self");
-  border-width: 5;
+  lighten: #fcc;
+  darken: #300;
+  saturate: #203c31;
+  desaturate: #29332f;
+  greyscale: #2e2e2e;
+  spin-p: #bf6b40;
+  spin-n: #bf4055;
+  format: "rgb(32, 128, 64)";
+  format-string: "hello world";
+  eformat: rgb(32, 128, 64);
 }

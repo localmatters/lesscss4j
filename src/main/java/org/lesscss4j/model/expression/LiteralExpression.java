@@ -66,4 +66,14 @@ public class LiteralExpression extends AbstractElement implements Expression {
     public LiteralExpression clone() {
         return new LiteralExpression(this);
     }
+
+    public boolean isString() {
+        if (_value.length() >= 2) {
+            char first = _value.charAt(0);
+            if (first == '"' || first == '\'' && first == _value.charAt(_value.length() - 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
