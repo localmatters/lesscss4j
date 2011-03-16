@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.easymock.EasyMock;
+import org.lesscss4j.util.Hex;
 
 public class LessCssServletTest extends TestCase {
     LessCssServlet _servlet;
@@ -94,6 +95,7 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getPathInfo()).andReturn(_path);
         EasyMock.expect(_request.getMethod()).andReturn("GET");
         EasyMock.expect(_request.getDateHeader(LessCssServlet.IF_MOD_SINCE)).andReturn(-1L);
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn(null);
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
 
         EasyMock.expect(_servletContext.getResource(_path)).andReturn(_url);
@@ -127,6 +129,7 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getPathInfo()).andReturn(_path);
         EasyMock.expect(_request.getMethod()).andReturn("GET");
         EasyMock.expect(_request.getDateHeader(LessCssServlet.IF_MOD_SINCE)).andReturn(-1L);
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn(null);
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
 
 
@@ -149,6 +152,66 @@ public class LessCssServletTest extends TestCase {
         doVerify();
     }
 
+    public void testCachedResourceETag() throws IOException, ServletException {
+        testEmptyCacheValidResource();
+
+        EasyMock.reset(_request);
+        EasyMock.reset(_response);
+        EasyMock.reset(_servletContext);
+
+        EasyMock.expect(_request.getPathInfo()).andReturn(_path);
+        EasyMock.expect(_request.getMethod()).andReturn("GET");
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn(Hex.md5(_cssBytes));
+        EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
+
+        _response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        
+        doReplay();
+
+        _servlet.init(_servletConfig);
+        _servlet.service(_request, _response);
+
+        doVerify();
+    }
+
+    public void testCachedResourceETagNeedsRefresh() throws IOException, ServletException {
+        _servlet.setCacheMillis(10);
+
+        testEmptyCacheValidResource();
+
+        _systemMillis = _systemMillis - 20;
+
+        EasyMock.reset(_request);
+        EasyMock.reset(_response);
+        EasyMock.reset(_servletContext);
+
+        EasyMock.expect(_request.getPathInfo()).andReturn(_path);
+        EasyMock.expect(_request.getMethod()).andReturn("GET");
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn("bogus");
+        EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
+
+        EasyMock.expect(_servletContext.getRealPath(_path)).andReturn(_path);
+        EasyMock.expect(_servletContext.getResource(_path)).andReturn(_url);
+
+        _response.addDateHeader(LessCssServlet.LAST_MODIFIED, _systemMillis);
+        _response.addDateHeader(LessCssServlet.EXPIRES, _systemMillis + 900000);
+        _response.addHeader(LessCssServlet.CACHE_CONTROL, "max-age=900");
+        _response.setContentType("text/css; charset=UTF-8");
+        _response.setContentLength(_cssBytes.length);
+
+        MockServletOutputStream responseStream = new MockServletOutputStream();
+        EasyMock.expect(_response.getOutputStream()).andReturn(responseStream);
+
+        doReplay();
+
+        _servlet.init(_servletConfig);
+        _servlet.service(_request, _response);
+
+        assertEquals(new String(responseStream.getBytes(), "UTF-8"), _cssStr);
+
+        doVerify();
+    }
+
     public void testCachedResourceNeedsRefresh() throws IOException, ServletException {
         _servlet.setCacheMillis(10);
 
@@ -163,6 +226,7 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getPathInfo()).andReturn(_path);
         EasyMock.expect(_request.getMethod()).andReturn("GET");
         EasyMock.expect(_request.getDateHeader(LessCssServlet.IF_MOD_SINCE)).andReturn(-1L);
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn(null);
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
 
         EasyMock.expect(_servletContext.getRealPath(_path)).andReturn(_path);
@@ -197,8 +261,8 @@ public class LessCssServletTest extends TestCase {
         EasyMock.expect(_request.getPathInfo()).andReturn(_path);
         EasyMock.expect(_request.getMethod()).andReturn("GET");
         EasyMock.expect(_request.getDateHeader(LessCssServlet.IF_MOD_SINCE)).andReturn(_systemMillis + 1000);
+        EasyMock.expect(_request.getHeader(LessCssServlet.IF_NONE_MATCH)).andReturn(null);
         EasyMock.expect(_request.getParameter(LessCssServlet.CLEAR_CACHE)).andReturn(null);
-
 
         _response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 

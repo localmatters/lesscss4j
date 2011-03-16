@@ -32,6 +32,7 @@ import org.lesscss4j.compile.DefaultLessCssCompilerFactory;
 import org.lesscss4j.compile.LessCssCompiler;
 import org.lesscss4j.parser.DefaultStyleSheetResourceLoader;
 import org.lesscss4j.parser.StyleSheetResourceLoader;
+import org.lesscss4j.util.Hex;
 
 public class LessCssServlet extends HttpServlet {
     public static final long CACHE_FOREVER = -1;
@@ -41,6 +42,7 @@ public class LessCssServlet extends HttpServlet {
     public static final String EXPIRES = "Expires";
     public static final String CACHE_CONTROL = "Cache-Control";
     public static final String MAX_AGE = "max-age";
+    public static final String IF_NONE_MATCH = "If-None-Match";
 
     /** Init parameter name for the length of time to cache entries before refreshing */
     public static final String CACHE_MILLISECONDS_PARAM_NAME = "cacheMilliseconds";
@@ -54,6 +56,8 @@ public class LessCssServlet extends HttpServlet {
     /** Request parameter name specifying that the cache should be cleared */
     public static final String CLEAR_CACHE = "clearCache";
 
+    public static final String USE_ETAG = "etagEnabled";
+
     private ConcurrentMap<String, CacheEntry> _cache = new ConcurrentHashMap<String, CacheEntry>();
 
     /** Amount of time to wait before checking if a LESS file needs to be recompiled */
@@ -64,6 +68,9 @@ public class LessCssServlet extends HttpServlet {
 
     /** Should the compiled CSS be cached? */
     private boolean _cacheEnabled = true;
+
+    /** Use ETags in addition to cache times */
+    private boolean _useETag = true;
 
     /** The compiler to use */
     private LessCssCompiler _lessCompiler;
@@ -84,6 +91,11 @@ public class LessCssServlet extends HttpServlet {
         Integer httpCacheMillis = getInitParameterInteger(config, HTTP_CACHE_MILLISECONDS_PARAM_NAME);
         if (httpCacheMillis != null) {
             setHttpCacheMillis(httpCacheMillis);
+        }
+
+        Boolean etagEnabled = getInitParameterBoolean(config, USE_ETAG);
+        if (etagEnabled != null && !etagEnabled) {
+            _useETag = false;
         }
 
         DefaultLessCssCompilerFactory factory = new DefaultLessCssCompilerFactory();
@@ -138,10 +150,7 @@ public class LessCssServlet extends HttpServlet {
 
         if (cacheEntry.getValue() != null) {
             boolean isHeadRequest = METHOD_HEAD.equalsIgnoreCase(request.getMethod());
-            if (isHeadRequest || request.getDateHeader(IF_MOD_SINCE) < (cacheEntry.getLastUpdate() / 1000 * 1000)) {
-                // If the servlet mod time is later, generate the data
-                // Round down to the nearest second for a proper compare
-                // A ifModifiedSince of -1 will always be less
+            if (isHeadRequest || isModified(request, cacheEntry)) {
                 response.addDateHeader(LAST_MODIFIED, cacheEntry.getLastUpdate());
                 response.addDateHeader(EXPIRES, now + getHttpCacheMillis());
                 response.addHeader(CACHE_CONTROL, String.format("%s=%s", MAX_AGE, getHttpCacheMillis() / 1000));
@@ -158,6 +167,20 @@ public class LessCssServlet extends HttpServlet {
         }
         else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    protected boolean isModified(HttpServletRequest request, CacheEntry cacheEntry) {
+        String etag = request.getHeader(IF_NONE_MATCH);
+        if (_useETag && etag != null) {
+            String md5Sum = cacheEntry.getMd5Sum();
+            return !md5Sum.equals(etag);
+        }
+        else {
+            // If the If-Mod-Since header is missing, we get -1 back from
+            // getDateHeader and this will always evaluate to true. Round
+            // down to the nearest second for a proper compare.
+            return request.getDateHeader(IF_MOD_SINCE) < (cacheEntry.getLastUpdate() / 1000 * 1000);
         }
     }
 
@@ -248,6 +271,7 @@ public class LessCssServlet extends HttpServlet {
             cacheEntry.getLastUpdate() + getCacheMillis() > time) {
 
             // Try to see if we can get the timestamp off the resource to see if it's *really* changed
+            // todo: this doesn't handle the case of @import-ed files that have changed.
             if (checkFileTimestamp) {
                 String fsPath = getServletContext().getRealPath(cacheEntry.getPath());
                 if (fsPath != null) {
@@ -334,9 +358,18 @@ public class LessCssServlet extends HttpServlet {
 
     /** Cache entry stores the compiled LESS code and the last time the entry was updated. */
     public static class CacheEntry {
-        byte[] _value;
-        long _lastUpdate;
-        String _path;
+        private byte[] _value;
+        private long _lastUpdate;
+        private String _path;
+        private String _md5Sum;
+
+        public String getMd5Sum() {
+            return _md5Sum;
+        }
+
+        public void setMd5Sum(String md5Sum) {
+            _md5Sum = md5Sum;
+        }
 
         public String getPath() {
             return _path;
@@ -352,6 +385,7 @@ public class LessCssServlet extends HttpServlet {
 
         public void setValue(byte[] value) {
             _value = value;
+            _md5Sum = Hex.md5(_value);
         }
 
         public long getLastUpdate() {
