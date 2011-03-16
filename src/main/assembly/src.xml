@@ -2,33 +2,27 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-    <id>bin</id>
+    <id>src</id>
     <formats>
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
-    <dependencySets>
-        <dependencySet>
-            <unpack>false</unpack>
-            <outputDirectory>lib</outputDirectory>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>org.springframework:*</exclude>
-            </excludes>
-        </dependencySet>
-    </dependencySets>
     <fileSets>
         <fileSet>
+            <directory>${project.basedir}</directory>
             <includes>
                 <include>README*</include>
                 <include>LICENSE*</include>
+                <include>NOTICE*</include>
                 <include>TODO*</include>
+                <include>COPYRIGHT*</include>
+                <include>pom.xml</include>
             </includes>
+            <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
         <fileSet>
-            <directory>src/main/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <fileMode>0755</fileMode>
+            <directory>${project.basedir}/src</directory>
+            <useDefaultExcludes>true</useDefaultExcludes>
         </fileSet>
     </fileSets>
 </assembly>
