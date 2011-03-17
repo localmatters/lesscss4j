@@ -130,20 +130,20 @@
                          This allows the grammer to remain language agnostic and makes it easier to test and debug
                          in ANTLRWorks -->
                     <tasks>
-                        <copy file="src/main/antlr3/org/lesscssj4/parser/LessCss.g"
-                              tofile="target/antlr3/org/lesscss4j/parser/LessCss.g"/>
+                        <copy file="src/main/antlr3/org/localmatters/lesscssj4/parser/LessCss.g"
+                              tofile="target/antlr3/org/localmatters/lesscss4j/parser/LessCss.g"/>
 
-                        <replace file="target/antlr3/org/lesscss4j/parser/LessCss.g" encoding="UTF-8"
+                        <replace file="target/antlr3/org/localmatters/lesscss4j/parser/LessCss.g" encoding="UTF-8"
                                  token="//@@JAVA@@">
                             <replacevalue><![CDATA[
 @header {
-package org.lesscss4j.parser.antlr;
+package org.localmatters.lesscss4j.parser.antlr;
 
-import org.lesscss4j.error.ErrorHandler;
-import org.lesscss4j.error.ErrorUtils;
+import org.localmatters.lesscss4j.error.ErrorHandler;
+import org.localmatters.lesscss4j.error.ErrorUtils;
 }
 @lexer::header {
-package org.lesscss4j.parser.antlr;
+package org.localmatters.lesscss4j.parser.antlr;
 }
 @members {
     private ErrorHandler _errorHandler;
@@ -193,6 +193,7 @@ package org.lesscss4j.parser.antlr;
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                         <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
+                    <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
                 <executions>
                     <execution>

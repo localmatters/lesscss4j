@@ -1,0 +1,71 @@
+/**
+ * File: Selector.java
+ *
+ * Author: David Hay (dhay@localmatters.com)
+ * Creation Date: Apr 21, 2010
+ * Creation Time: 11:47:17 AM
+ *
+ * Copyright 2010 Local Matters, Inc.
+ * All Rights Reserved
+ *
+ * Last checkin:
+ *  $Author$
+ *  $Revision$
+ *  $Date$
+ */
+package org.localmatters.lesscss4j.model;
+
+public class Selector extends AbstractElement implements Cloneable {
+    String _text;
+
+    public Selector() {
+        this((String)null);
+    }
+
+    public Selector(String text) {
+        _text = text;
+    }
+
+    public Selector(Selector... selectors) {
+        StringBuilder buf = new StringBuilder();
+        for (Selector selector : selectors) {
+            if (buf.length() > 0 && selector.getText().charAt(0) != ':') {
+                buf.append(' ');
+            }
+            buf.append(selector.getText());
+        }
+        setText(buf.toString());
+    }
+
+    public String getText() {
+        return _text;
+    }
+
+    public void setText(String text) {
+        _text = text;
+    }
+
+    @Override
+    public String toString() {
+        return getText();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Selector that = (Selector) obj;
+        return getText().equals(that.getText());
+    }
+
+    @Override
+    public int hashCode() {
+        return _text.hashCode();
+    }
+
+    @Override
+    public Selector clone() {
+        return new Selector(this);
+    }
+}
