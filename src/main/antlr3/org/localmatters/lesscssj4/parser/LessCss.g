@@ -1,20 +1,17 @@
-// A complete lexer and grammar for CSS 2.1 as defined by the
-// W3 specification.
+// Copyright 2010-present Local Matters, Inc.
 //
-// This grammar is free to use providing you retain everyhting in this header comment
-// section.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// Author      : Jim Idle, Temporal Wave LLC.
-// Contact     : jimi@temporal-wave.com
-// Website     : http://www.temporal-wave.com
-// License     : ANTLR Free BSD License
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Please visit our Web site at http://www.temporal-wave.com and try our commercial
-// parsers for SQL, C#, VB.Net and more.
-//
-// This grammar is free to use providing you retain everything in this header comment
-// section.
-//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 grammar LessCss;
 
 options {
