@@ -138,7 +138,7 @@ for jar in "${CF_HOME}"/lib/*.jar; do
     fi
 done
 
-MAIN_CLASS=org.lesscss4j.cli.CompilerMain
+MAIN_CLASS=org.localmatters.lesscss4j.cli.CompilerMain
 
 exec "$JAVACMD" \
   $JAVA_OPTS \
