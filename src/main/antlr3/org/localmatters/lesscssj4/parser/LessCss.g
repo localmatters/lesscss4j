@@ -38,6 +38,10 @@ tokens {
     MEDIA_EXPR;
 }
 
+// This tag is replaced with some integration code found in the pom.xml file
+// during the build process.  The code doesn't live here so that it's easier
+// to test the grammar in ANTLRWorks without having to set up custom code.
+
 //@@JAVA@@
 
 // -------------
