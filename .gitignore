@@ -1,0 +1,11 @@
+src/main/antlr3/org/localmatters/lesscssj4/parser/output/
+target
+*.classpath
+*.project
+*.settings
+*.eclipsebuild
+*.ipr
+*.iml
+*.iws
+overlays
+*.swp
