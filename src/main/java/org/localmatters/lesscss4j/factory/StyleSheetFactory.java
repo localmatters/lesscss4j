@@ -18,6 +18,8 @@ package org.localmatters.lesscss4j.factory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,14 +29,15 @@ import org.localmatters.lesscss4j.error.ErrorHandler;
 import org.localmatters.lesscss4j.error.ErrorUtils;
 import org.localmatters.lesscss4j.error.ImportException;
 import org.localmatters.lesscss4j.model.AbstractElement;
+import org.localmatters.lesscss4j.model.Keyframes;
 import org.localmatters.lesscss4j.model.Media;
 import org.localmatters.lesscss4j.model.Page;
 import org.localmatters.lesscss4j.model.RuleSet;
 import org.localmatters.lesscss4j.model.StyleSheet;
 import org.localmatters.lesscss4j.model.expression.Expression;
 import org.localmatters.lesscss4j.parser.DefaultStyleSheetResourceLoader;
-import org.localmatters.lesscss4j.parser.StyleSheetResourceLoader;
 import org.localmatters.lesscss4j.parser.StyleSheetResource;
+import org.localmatters.lesscss4j.parser.StyleSheetResourceLoader;
 import org.localmatters.lesscss4j.parser.StyleSheetTree;
 import org.localmatters.lesscss4j.parser.StyleSheetTreeParser;
 
@@ -43,6 +46,7 @@ import static org.localmatters.lesscss4j.parser.antlr.LessCssLexer.*;
 public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
     private ObjectFactory<RuleSet> _ruleSetFactory;
     private ObjectFactory<Media> _mediaFactory;
+    private ObjectFactory<Keyframes> _keyframesFactory;
     private ObjectFactory<Page> _pageFactory;
     private ObjectFactory<Expression> _expressionFactory;
     private StyleSheetTreeParser _styleSheetTreeParser;
@@ -94,6 +98,14 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         _mediaFactory = mediaFactory;
     }
 
+    public ObjectFactory<Keyframes> getKeyframesFactory() {
+        return _keyframesFactory;
+    }
+
+    public void setKeyframesFactory(ObjectFactory<Keyframes> keyframesFactory) {
+        _keyframesFactory = keyframesFactory;
+    }
+
     public ObjectFactory<Page> getPageFactory() {
         return _pageFactory;
     }
@@ -130,6 +142,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
             processStyleSheetNode(stylesheet, child, resource, errorHandler);
         }
     }
+
 
     protected void processStyleSheetNode(StyleSheet stylesheet,
                                          Tree child,
@@ -168,6 +181,13 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
                 Media media = getMediaFactory().create(child, errorHandler);
                 if (media != null) {
                     stylesheet.addBodyElement(media);
+                }
+                break;
+
+            case KEYFRAMES:
+                Keyframes keyframes = getKeyframesFactory().create(child, errorHandler);
+                if (keyframes != null) {
+                    stylesheet.addBodyElement(keyframes);
                 }
                 break;
 
@@ -328,6 +348,10 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         mediaFactory.setRuleSetFactory(ruleSetFactory);
         mediaFactory.setExpressionFactory(expressionFactory);
 
+        KeyframesFactory keyframesFactory = new KeyframesFactory();
+        keyframesFactory.setRuleSetFactory(ruleSetFactory);
+        keyframesFactory.setExpressionFactory(expressionFactory);
+        
         PageFactory pageFactory = new PageFactory();
         pageFactory.setDeclarationFactory(declarationFactory);
         pageFactory.setExpressionFactory(expressionFactory);
@@ -337,6 +361,7 @@ public class StyleSheetFactory extends AbstractObjectFactory<StyleSheet> {
         styleSheetFactory.setMediaFactory(mediaFactory);
         styleSheetFactory.setPageFactory(pageFactory);
         styleSheetFactory.setExpressionFactory(expressionFactory);
+        styleSheetFactory.setKeyframesFactory(keyframesFactory);
 
         return styleSheetFactory;
     }

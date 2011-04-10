@@ -110,6 +110,10 @@ public class LessCssCompilerTest extends AbstractLessCssCompilerTest {
         compileAndValidate("less/functions.less", "css/functions.css");
     }
 
+    public void testKeyframes() throws IOException {
+        compileAndValidate("less/keyframes.less", "css/keyframes.css");
+    }
+
     public void testBigCssFileCompareToSelf()  throws IOException {
         compileAndValidate("css/big.css", "css/big.css", new Comparator<String>() {
             public int compare(String expected, String actual) {

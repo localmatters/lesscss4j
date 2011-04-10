@@ -36,6 +36,7 @@ tokens {
     MIXIN_ARG;
     MIXIN_ACCESSOR;
     MEDIA_EXPR;
+    KEYFRAMES;
 }
 
 // This tag is replaced with some integration code found in the pom.xml file
@@ -121,6 +122,7 @@ bodyset
 ruleList
     : variableDef
     | mixinMacro
+    | keyframesRule
     | ruleSet
     ;
     
@@ -168,7 +170,26 @@ mixinMacroSelector
     : cssClass
     | HASH
     ;
+
+keyframesRule
+    : keyframesSelector WS* LBRACE WS* keyframesBody (WS* keyframesBody)* WS* RBRACE
+    -> ^(KEYFRAMES ^(SELECTOR keyframesSelector) keyframesBody+)
+    ;
+    
+keyframesSelector
+    : '@' KEYFRAMES WS+ ident
+    ;
             
+keyframesBody
+    : variableDef
+    | keyframe WS* LBRACE (WS* ruleSetElement)* WS* RBRACE -> ^(RULESET ^(SELECTOR keyframe) ruleSetElement*)
+    ;
+
+keyframe
+    : NUMBER
+    | ident
+    ;
+                
 ruleSet
     : ruleSetSelector WS* LBRACE (WS* ruleSetElement)* WS* RBRACE
     -> ^(RULESET ruleSetSelector ruleSetElement*)
@@ -495,6 +516,7 @@ identNoFont
     | AND
     | ONLY
     | NOT
+    | KEYFRAMES
     ;
     
 ident
@@ -693,6 +715,10 @@ FONT       : F O N T                    ;
 ONLY       : O N L Y                    ;
 NOT        : N O T                      ;
 AND        : A N D                      ;
+
+KEYFRAMES  
+    : (MINUS W E B K I T MINUS)? K E Y F R A M E S
+    ;
 
 RGB_COLOR
     : R G B   WS* LPAREN WS* NUMBER WS* COMMA WS* NUMBER WS* COMMA WS* NUMBER WS* RPAREN

@@ -1,0 +1,40 @@
+@-webkit-keyframes wobble {
+  0% { left: 100px; }
+  40% { left: 150px; }
+  60% { left: 75px; }
+  100% { left: 100px; }
+}
+@-webkit-keyframes bounce {
+  from {
+    -webkit-transform: translateY(100px);
+    -webkit-animation-timing-function: ease-out;
+  }
+  25% {
+    -webkit-transform: translateY(50px);
+    -webkit-animation-timing-function: ease-in;
+  }
+  50% {
+    -webkit-transform: translateY(100px);
+    -webkit-animation-timing-function: ease-out;
+  }
+  75% {
+    -webkit-transform: translateY(75px);
+    -webkit-animation-timing-function: ease-in;
+  }
+  to { -webkit-transform: translateY(100px); }
+}
+.diagonalslide {
+  -webkit-animation-name: diagonal-slide;
+  -webkit-animation-duration: 5s;
+  -webkit-animation-iteration-count: 10;
+}
+@-webkit-keyframes diagonal-slide {
+  from {
+    left: 0;
+    top: 0;
+  }
+  to {
+    left: 100px;
+    top: 100px;
+  }
+}

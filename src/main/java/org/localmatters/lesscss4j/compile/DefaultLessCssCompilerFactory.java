@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.localmatters.lesscss4j.factory.StyleSheetFactory;
 import org.localmatters.lesscss4j.model.Declaration;
+import org.localmatters.lesscss4j.model.Keyframes;
 import org.localmatters.lesscss4j.model.Media;
 import org.localmatters.lesscss4j.model.Page;
 import org.localmatters.lesscss4j.model.RuleSet;
@@ -34,6 +35,7 @@ import org.localmatters.lesscss4j.parser.StyleSheetParser;
 import org.localmatters.lesscss4j.parser.StyleSheetResourceLoader;
 import org.localmatters.lesscss4j.transform.DeclarationTransformer;
 import org.localmatters.lesscss4j.transform.FunctionTransformer;
+import org.localmatters.lesscss4j.transform.KeyframesTransformer;
 import org.localmatters.lesscss4j.transform.MediaTransformer;
 import org.localmatters.lesscss4j.transform.PageTransformer;
 import org.localmatters.lesscss4j.transform.RuleSetTransformer;
@@ -242,6 +244,7 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
         transformerMap.put(RuleSet.class, new RuleSetTransformer());
         transformerMap.put(Page.class, new PageTransformer());
         transformerMap.put(Media.class, new MediaTransformer());
+        transformerMap.put(Keyframes.class, new KeyframesTransformer());
         transformerMap.put(StyleSheet.class, new StyleSheetTransformer());
         transformerMap.put(FunctionExpression.class, createFunctionTransformer());
         return transformerMap;

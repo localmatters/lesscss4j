@@ -24,6 +24,9 @@ import java.util.Map;
 
 import org.localmatters.lesscss4j.model.expression.Expression;
 
+/**
+ * Parent container for CSS elements that contain variables and additional rule sets. (e.g. @media, @keyframes, etc) 
+ */
 public class BodyElementContainer extends AbstractElement implements VariableContainer, RuleSetContainer {
     private List<BodyElement> _bodyElements = new ArrayList<BodyElement>();
     private Map<String, Expression> _variables = new LinkedHashMap<String, Expression>();

@@ -28,6 +28,7 @@ import org.localmatters.lesscss4j.error.ErrorHandler;
 import org.localmatters.lesscss4j.model.BodyElement;
 import org.localmatters.lesscss4j.model.Declaration;
 import org.localmatters.lesscss4j.model.DeclarationElement;
+import org.localmatters.lesscss4j.model.Keyframes;
 import org.localmatters.lesscss4j.model.Media;
 import org.localmatters.lesscss4j.model.Page;
 import org.localmatters.lesscss4j.model.RuleSet;
@@ -184,6 +185,9 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
             else if (element instanceof Page) {
                 writePage(writer, (Page)element, indent);
             }
+            else if (element instanceof Keyframes) {
+                writeKeyframes(writer, (Keyframes)element, indent);
+            }
             else if (element instanceof RuleSet) {
                 writeRuleSet(writer, (RuleSet) element, indent);
             }
@@ -238,6 +242,18 @@ public class StyleSheetWriterImpl implements StyleSheetWriter {
         writeClosingBrace(writer, indent);
     }
 
+    protected void writeKeyframes(Writer writer, Keyframes media, int indent) throws IOException {
+
+        writer.write(media.getName());
+
+
+        writeOpeningBrace(writer, indent, null);
+        writeBreak(writer, indent);
+
+        writeBodyElements(writer, media.getBodyElements(), indent + 1);
+
+        writeClosingBrace(writer, indent);
+    }
 
     protected void writeRuleSet(Writer writer, RuleSet ruleSet, int indent) throws IOException {
         // Don't write rule sets with empty bodies

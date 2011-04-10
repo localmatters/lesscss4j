@@ -20,9 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.localmatters.lesscss4j.model.BodyElement;
-import org.localmatters.lesscss4j.model.Media;
-import org.localmatters.lesscss4j.model.Page;
-import org.localmatters.lesscss4j.model.RuleSet;
 import org.localmatters.lesscss4j.model.StyleSheet;
 import org.localmatters.lesscss4j.transform.manager.TransformerManager;
 
@@ -68,21 +65,6 @@ public class StyleSheetTransformer extends AbstractTransformer<StyleSheet> {
     }
 
     private List<? extends BodyElement> transformBodyElement(BodyElement element, EvaluationContext styleContext) {
-        if (element instanceof Page) {
-            Page page = (Page) element;
-            return getTransformer(page).transform(page, styleContext);
-        }
-        else if (element instanceof Media) {
-            Media media = (Media) element;
-            return getTransformer(media).transform(media, styleContext);
-        }
-        else if (element instanceof RuleSet) {
-            RuleSet ruleSet = (RuleSet) element;
-            return getTransformer(ruleSet).transform(ruleSet, styleContext);
-        }
-        else {
-            // todo: error
-            return null;
-        }
+        return getTransformer(element).transform(element, styleContext);
     }
 }
