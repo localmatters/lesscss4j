@@ -25,8 +25,8 @@
     <description>Port of LessCSS language for Java</description>
 
     <scm>
-        <connection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/trunk</connection>
-        <developerConnection>scm:svn:https://build/subversion/DestinationSearch/lesscss4j/trunk</developerConnection>
+        <connection>scm:git:git@github.com:/lmi-open/lesscss4j.git</connection>
+        <developerConnection>scm:git:git@github.com:/lmi-open/lesscss4j.git</developerConnection>
     </scm>
 
     <properties>
