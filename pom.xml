@@ -22,9 +22,14 @@
     <packaging>jar</packaging>
     <name>Less CSS for Java</name>
     <version>2.0.0-SNAPSHOT</version>
-    <description>Port of LessCSS language for Java</description>
+    <description>
+        Java-based "compiler" for the  Less CSS language.  Compiles LESS files
+        into standard CSS and provides utility classes for integration with
+        existing web application.
+    </description>
 
     <scm>
+        <url>http://github.com/lmi-open/lesscss4j</url>
         <connection>scm:git:git@github.com:/lmi-open/lesscss4j.git</connection>
         <developerConnection>scm:git:git@github.com:/lmi-open/lesscss4j.git</developerConnection>
     </scm>
@@ -33,6 +38,22 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>2.5.6</spring.version>
     </properties>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>dhay</id>
+            <name>David Hay</name>
+            <email>hay_dave@yahoo.com</email>
+        </developer>
+    </developers>
 
     <distributionManagement>
         <repository>
