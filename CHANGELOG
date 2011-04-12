@@ -1,0 +1,5 @@
+2.0.0
+-----
+* Repackaged classes in preparation for open sourcing and migration to GitHub
+* Added support for @keyframes and @-webkit-keyframes CSS elements
+* Added OSGi bundle headers to the MANIFEST
