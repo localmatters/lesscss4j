@@ -30,8 +30,8 @@
 
     <scm>
         <url>http://github.com/lmi-open/lesscss4j</url>
-        <connection>scm:git:git@github.com:lmi-open/lesscss4j.git</connection>
-        <developerConnection>scm:git:git@github.com:lmi-open/lesscss4j.git</developerConnection>
+        <connection>scm:git:https://github.com/lmi-open/lesscss4j.git</connection>
+        <developerConnection>scm:git:https://github.com/lmi-open/lesscss4j.git</developerConnection>
     </scm>
 
     <properties>
