@@ -22,6 +22,11 @@ import org.localmatters.lesscss4j.model.expression.ConstantExpression;
 import org.localmatters.lesscss4j.model.expression.ConstantNumber;
 import org.localmatters.lesscss4j.model.expression.Expression;
 
+/**
+ * Function to lighten a color
+ *
+ * Usage: lighten(@color, 50%)
+ */
 public class Lighten extends AbstractColorFunction {
     @Override
     protected Expression evaluate(ConstantColor color, ConstantNumber value) {

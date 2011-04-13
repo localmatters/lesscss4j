@@ -61,8 +61,13 @@ import org.localmatters.lesscss4j.transform.manager.TransformerManager;
  * <p/>
  * <ul>
  * <li>% - printf style function</li>
- * <li>e - escape the given string (i.e. take the contents of the string in quotes and put them
- *         literally in the CSS)</li>
+ * <li>e - Escape the given string (i.e. take the contents of the string in quotes and put them literally in the CSS)</li>
+ * <li>lighten - Make a color lighter by a percentage.</li>
+ * <li>darken - Make a color darker by a percentage</li>
+ * <li>saturate - Increase the saturation of a color by a percentage</li>
+ * <li>desaturate - Decrease the saturation of a color by a percentage</li>
+ * <li>grayscale, greyscale - Convert a color to grayscale (i.e. desaturate 100%)</li>
+ * <li>spin - Change the hue of a color by a number of degrees on the color wheel.</li>
  * </ul>
  */
 public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
@@ -75,9 +80,6 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     private TransformerManager _transformerManager;
     private Map<String, Function> _functions;
     private Map<Class, Transformer> _transformers;
-
-    public DefaultLessCssCompilerFactory() {
-    }
 
     /**
      * Specify a map of functions to use during compilation.
@@ -200,7 +202,7 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     }
 
     /**
-     * Creates the initialized compiler
+     * Creates and initializes the compiler
      */
     public LessCssCompiler create() {
         LessCssCompilerImpl compiler = new LessCssCompilerImpl();
@@ -209,7 +211,7 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     }
 
     /**
-     * Initialize the given compiler to it's initial state.
+     * Initialize the given compiler based on the properties set on this factory.
      *
      * @param compiler The compiler to initialize.
      */
@@ -238,7 +240,8 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     /**
      * Create the default mapping between {@link org.localmatters.lesscss4j.model.AbstractElement AbstractElement}
      * subclass and {@link Transformer}.  Custom {@link Transformer} instances may be provided using
-     * {@link #setTransformers}.
+     * {@link #setTransformers} which will override any defaults registered in this method.  This method is only
+     * called when using the default {@link TransformerManager}.
      */
     protected Map<Class, Transformer> createDefaultClassTransformerMap() {
         Map<Class, Transformer> transformerMap = new LinkedHashMap<Class, Transformer>();
@@ -250,6 +253,7 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
         transformerMap.put(StyleSheet.class, new StyleSheetTransformer());
         transformerMap.put(FunctionExpression.class, createFunctionTransformer());
 
+        // Apply any additional transformers or overrides for default transformers.
         if (_transformers != null) {
             transformerMap.putAll(_transformers);
         }
@@ -258,7 +262,9 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     }
 
     /**
-     * Creates the default {@link FunctionTransformer} used to evaluate {@link FunctionExpression} instances.
+     * Creates the default {@link FunctionTransformer} used to evaluate {@link FunctionExpression} instances. Registers
+     * a default set of functions and then applies any additional functions that have been set on this factory,
+     * potentially overriding default functions.
      */
     protected Transformer createFunctionTransformer() {
         Map<String, Function> functions = new HashMap<String, Function>();
@@ -275,10 +281,11 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
 
         functions.put("spin", new Spin());
 
+        // Apply any additional functions or overrides for default functions.
         if (_functions != null) {
             functions.putAll(_functions);
         }
-        
+
         FunctionTransformer transformer = new FunctionTransformer();
         transformer.setFunctionMap(functions);
         return transformer;

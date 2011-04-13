@@ -20,6 +20,11 @@ import org.localmatters.lesscss4j.error.FunctionException;
 import org.localmatters.lesscss4j.model.expression.Expression;
 import org.localmatters.lesscss4j.model.expression.LiteralExpression;
 
+/**
+ * Function that outputs the given string literally, without any further evaluation.
+ *
+ * Usage: e("some weird IE expression")
+ */
 public class Escape implements Function {
     public Expression evaluate(String name, Expression... args) {
         int numArgs = args.length;

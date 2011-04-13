@@ -31,6 +31,9 @@ import org.localmatters.lesscss4j.parser.FileStyleSheetResource;
 import org.localmatters.lesscss4j.parser.InputStreamStyleSheetResource;
 import org.localmatters.lesscss4j.parser.StyleSheetResource;
 
+/**
+ * Entry point for the command line execution of the LessCSS compiler.
+ */
 public class CompilerMain {
     public boolean _prettyPrint = false;
     public PrettyPrintOptions _prettyPrintOptions;

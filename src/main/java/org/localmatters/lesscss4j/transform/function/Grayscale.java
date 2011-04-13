@@ -20,6 +20,11 @@ import org.localmatters.lesscss4j.model.expression.ConstantColor;
 import org.localmatters.lesscss4j.model.expression.ConstantNumber;
 import org.localmatters.lesscss4j.model.expression.Expression;
 
+/**
+ * Function to convert a color to grayscale (i.e. desaturate 100%)
+ *
+ * Usage: grayscale(@color)
+ */
 public class Grayscale extends Desaturate {
     public Grayscale() {
         setValueRequired(false);

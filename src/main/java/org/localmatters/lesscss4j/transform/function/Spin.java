@@ -21,6 +21,11 @@ import org.localmatters.lesscss4j.model.expression.ConstantExpression;
 import org.localmatters.lesscss4j.model.expression.ConstantNumber;
 import org.localmatters.lesscss4j.model.expression.Expression;
 
+/**
+ * Function to change the hue of a color by a given number of degrees on the color wheel.
+ *
+ * Usage: spin(@color, 10)
+ */
 public class Spin extends AbstractColorFunction {
     @Override
     protected Expression evaluate(ConstantColor color, ConstantNumber value) {

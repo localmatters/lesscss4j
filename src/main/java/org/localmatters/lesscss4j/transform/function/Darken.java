@@ -22,6 +22,11 @@ import org.localmatters.lesscss4j.model.expression.ConstantExpression;
 import org.localmatters.lesscss4j.model.expression.ConstantNumber;
 import org.localmatters.lesscss4j.model.expression.Expression;
 
+/**
+ * Function to make a color darker by a percentage (i.e. reduce the value)
+ *
+ * Usage: darken(@color, 10%)
+ */
 public class Darken extends AbstractColorFunction {
     @Override
     protected Expression evaluate(ConstantColor color, ConstantNumber value) {
