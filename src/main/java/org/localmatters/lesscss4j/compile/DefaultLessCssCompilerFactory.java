@@ -16,6 +16,7 @@
 
 package org.localmatters.lesscss4j.compile;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -73,20 +74,9 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     private StyleSheetResourceLoader _styleSheetResourceLoader;
     private TransformerManager _transformerManager;
     private Map<String, Function> _functions;
+    private Map<Class, Transformer> _transformers;
 
     public DefaultLessCssCompilerFactory() {
-        addFunction("%", new Format());
-        addFunction("e", new Escape());
-        addFunction("lighten", new Lighten());
-        addFunction("darken", new Darken());
-        addFunction("saturate", new Saturate());
-        addFunction("desaturate", new Desaturate());
-
-        Grayscale grayscale = new Grayscale();
-        addFunction("grayscale", grayscale);
-        addFunction("greyscale", grayscale);
-
-        addFunction("spin", new Spin());
     }
 
     /**
@@ -199,6 +189,17 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     }
 
     /**
+     * Provide custom {@link Transformer} instances.  The elements in this map will override the values used when
+     * creating the default {@link TransformerManager}.  If a custom {@link TransformerManager} is specified using
+     * {@link #setTransformerManager}, this map is ignored.
+     * 
+     * @param transformers
+     */
+    public void setTransformers(Map<Class, Transformer> transformers) {
+        _transformers = transformers;
+    }
+
+    /**
      * Creates the initialized compiler
      */
     public LessCssCompiler create() {
@@ -235,8 +236,9 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
     }
 
     /**
-     * Create the default mapping between {@link org.localmatters.lesscss4j.model.AbstractElement AbstractElement} subclass and
-     * {@link Transformer}.
+     * Create the default mapping between {@link org.localmatters.lesscss4j.model.AbstractElement AbstractElement}
+     * subclass and {@link Transformer}.  Custom {@link Transformer} instances may be provided using
+     * {@link #setTransformers}.
      */
     protected Map<Class, Transformer> createDefaultClassTransformerMap() {
         Map<Class, Transformer> transformerMap = new LinkedHashMap<Class, Transformer>();
@@ -247,6 +249,11 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
         transformerMap.put(Keyframes.class, new KeyframesTransformer());
         transformerMap.put(StyleSheet.class, new StyleSheetTransformer());
         transformerMap.put(FunctionExpression.class, createFunctionTransformer());
+
+        if (_transformers != null) {
+            transformerMap.putAll(_transformers);
+        }
+        
         return transformerMap;
     }
 
@@ -254,8 +261,26 @@ public class DefaultLessCssCompilerFactory implements LessCssCompilerFactory {
      * Creates the default {@link FunctionTransformer} used to evaluate {@link FunctionExpression} instances.
      */
     protected Transformer createFunctionTransformer() {
+        Map<String, Function> functions = new HashMap<String, Function>();
+        functions.put("%", new Format());
+        functions.put("e", new Escape());
+        functions.put("lighten", new Lighten());
+        functions.put("darken", new Darken());
+        functions.put("saturate", new Saturate());
+        functions.put("desaturate", new Desaturate());
+
+        Grayscale grayscale = new Grayscale();
+        functions.put("grayscale", grayscale);
+        functions.put("greyscale", grayscale);
+
+        functions.put("spin", new Spin());
+
+        if (_functions != null) {
+            functions.putAll(_functions);
+        }
+        
         FunctionTransformer transformer = new FunctionTransformer();
-        transformer.setFunctionMap(_functions);
+        transformer.setFunctionMap(functions);
         return transformer;
     }
 
