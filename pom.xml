@@ -21,7 +21,7 @@
     <artifactId>lesscss4j</artifactId>
     <packaging>jar</packaging>
     <name>Less CSS for Java</name>
-    <version>2.0.1</version>
+    <version>2.0.2-SNAPSHOT</version>
     <description>
         Java-based "compiler" for the  Less CSS language.  Compiles LESS files
         into standard CSS and provides utility classes for integration with
